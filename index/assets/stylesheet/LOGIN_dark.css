@@ -1,0 +1,258 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('backgrounds/Login.jpg') no-repeat center center fixed;
+    background-size: cover;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #ffffff;
+    margin: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: -1;
+}
+
+html {
+    overflow: auto;
+}
+
+.topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #121111;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.container, .content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items at the top */
+    min-height: 100vh;
+    margin-top: 80px; /* Add margin to push the content below the topbar */
+    padding: 20px; /* Optional padding */
+}
+
+.main-content {
+    margin-top: 80px; /* To account for fixed top bar */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh; /* Ensures the container always takes at least the full height of the screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+   align-items: center; /* Vertically and horizontally center the content */
+    padding: 20px;
+}
+
+.topbar .logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-right: 20px;
+}
+
+.topbar .nav-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.topbar .nav-buttons button {
+ background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+
+}
+
+.topbar .nav-buttons button:hover {
+    background-color: #0056b3;
+}
+
+.topbar .nav-buttons.hidden {
+    display: none;
+}
+
+.topbar .menu-button {
+    display: none;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.topbar .menu-button:hover {
+    background-color: #0056b3;
+}
+
+
+.signup-container {
+    background-color: #121111;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    width: 90%;
+    max-width: 450px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    position: relative;
+    z-index: 2;
+}
+
+h2 {
+    text-align: center;
+    color: #ffffff;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #ffffff;
+}
+
+select, input {
+    width: 97%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #121111;
+    color: #ffffff;
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.submit-btn {
+    background-color: #007bff;
+    color: #ffffff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.standard-btn {
+ background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+
+}
+
+.main-btn {
+ background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+
+}
+
+.standard-btn-submit-styl {
+ background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+width: 100%;
+            transition: background-color 0.3s, color 0.3s;
+
+}
+
+.standard-btn-submit-styl:hover {
+    background-color: #0056b3;
+}
+
+.standard-btn:hover {
+    background-color: #0056b3;
+}
+
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.main-btn:hover {
+    background-color: #0056b3;
+}
+
+.username-info, .display-name-info {
+    font-size: 12px;
+    color: #aaaaaa;
+    margin-top: 5px;
+}
+
+@media (max-width: 100px) {
+    .topbar {
+        justify-content: flex-start;
+    }
+
+    .topbar .nav-buttons {
+        display: none;
+    }
+
+    .topbar .menu-button {
+        display: block;
+    }
+
+    .signup-container {
+        padding: 15px; /* Reduce padding for small screens */
+        overflow-y: auto;
+    }
+}
+
+    </style>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Snortstagram</title>
+    <link rel="stylesheet" href="assets/stylesheet/LOGIN_dark.css">
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">Snortstagram</div>
+        <button class="menu-button" onclick="toggleMenu()">☰ Menu</button>
+        <div class="nav-buttons">
+            <button>📁 Posts</button>
+            <button>📡 Feed</button>
+            <button>💬 Messenger</button>
+            <button>🏆 Valve Specials</button>
+            <button>📱 Scrolls</button>
+            <button>🤖The TFBot</button>
+            <button>🎉Login/Register</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="signup-container">
+            <h2>Login to Snortstagram</h2>
+            <form id="signup-form" action="#" method="POST" onsubmit="return validateForm()">
+                              <div class="form-group">
+                    <label for="username">Username/Email Address</label>
+                    <input type="text" id="username" name="username"
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="8">
+<p style="font-size: 12px; color: #007bff; margin-top: 10px;">
+    <a href="your-link-here" style="color: #007bff;">Forgot Password or Username?</a>
+</p>
+                    <input type="checkbox" id="show-password" onclick="togglePasswordVisibility()"> Show Password
+                    <div id="password-error" class="error"></div>
+                </div>
+                <button type="submit" class="submit-btn">Log In</button>
+
+ <label for="password"></label>
+<button class="standard-btn-submit-styl">Use Steam Link</button>
+<h2>New to Snortstagram?</h2>
+<button class="standard-btn-submit-styl"><b>Create an Account!<b></button>
+        </div>
+    </div>
+    <script src="assets/scripts/LogonScreen/script.js"></script>
+</body>
+</html>
