@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Dark Mode Example</title>
+    <style>
+        /* Background of the entire page */
+        body {
+            background-color: #2e2e2e; /* Dark background */
+            color: white; /* Light text on dark background */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header styling */
+        header {
+            background-color: #333; /* Dark but not black */
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+
+        /* Fake dark mode button */
+        .login-button {
+            background-color: #4e4e4e; /* Dark gray button */
+            color: #fff; /* Light text */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background-color: #666;
+        }
+
+        /* A light-colored logo for the fake dark mode */
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 200px;
+        }
+
+        /* Footer section */
+        footer {
+            background-color: #444; /* Even darker footer */
+            padding: 10px;
+            color: #bbb;
+            text-align: center;
+        }
+
+        /* Highlighted text that doesn't work in dark mode */
+        .highlighted-text {
+            color: #ffcc00; /* Bright yellow that doesn't fit */
+        }
+
+        /* Fake dark mode text - light text not adjusted */
+        .content {
+            padding: 20px;
+            color: #e0e0e0; /* Lighter text */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Logo" class="logo"> <!-- Logo may not blend well -->
+        <h1>Welcome to Fake Dark Mode</h1>
+    </header>
+
+    <div class="content">
+        <p>This is an example of a "fake" dark mode that doesn't have proper contrast.</p>
+        <button class="login-button">Login with Google</button>
+        <p class="highlighted-text">This highlighted text doesn't fit with the dark mode theme.</p>
+    </div>
+
+    <footer>
+        <p>© 2024 Fake Dark Mode Example</p>
+    </footer>
+</body>
+</html>

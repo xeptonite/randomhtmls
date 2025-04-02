@@ -1,0 +1,106 @@
+/* Apply provided stylesheet */
+@import url('root-frru83bc.css');
+
+/* Ensure consistent styles with the provided root settings */
+
+/* General body styling */
+body {
+    font-family: 'Circle', sans-serif;
+    background-color: var(--main-surface-background);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Styling */
+.header {
+    background-color: var(--main-surface-primary);
+    color: var(--text-primary);
+    text-align: center;
+    padding: 20px;
+}
+
+.header h1 {
+    font-size: 2em;
+}
+
+/* Button for opening popup */
+.btn-open-popup {
+    background-color: var(--link);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.btn-open-popup:hover {
+    background-color: var(--link-hover);
+}
+
+/* Main content styling */
+.content {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Popup modal styles */
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Dark background */
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popup-content {
+    background-color: var(--main-surface-primary);
+    color: var(--text-primary);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+}
+
+.popup-title {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.popup p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.btn-close-popup {
+    background-color: var(--red-500);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.btn-close-popup:hover {
+    background-color: var(--red-700);
+}
+
+/* Footer */
+.footer {
+    background-color: var(--gray-800);
+    color: var(--white);
+    text-align: center;
+    padding: 15px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}

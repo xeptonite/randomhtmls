@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Character Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        textarea, input, button { margin: 10px; padding: 10px; }
+        #output { font-weight: bold; font-size: 18px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Random Character Generator</h1>
+    <label for="charSet">Enter characters to use:</label>
+    <textarea id="charSet" rows="3" cols="30"></textarea><br>
+    <label for="charLimit">Enter character limit:</label>
+    <input type="number" id="charLimit" min="1"><br>
+    <button onclick="generateRandomString()">Generate</button>
+    <p id="output"></p>
+
+    <script>
+        function generateRandomString() {
+            let charSet = document.getElementById("charSet").value;
+            let charLimit = parseInt(document.getElementById("charLimit").value);
+            
+            if (!charSet || isNaN(charLimit) || charLimit < 1) {
+                document.getElementById("output").textContent = "Please enter valid characters and limit.";
+                return;
+            }
+            
+            let result = "";
+            for (let i = 0; i < charLimit; i++) {
+                let randomIndex = Math.floor(Math.random() * charSet.length);
+                result += charSet[randomIndex];
+            }
+            
+            document.getElementById("output").textContent = "Generated String: " + result;
+        }
+    </script>
+</body>
+</html>

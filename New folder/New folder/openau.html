@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Popup with Different UI</title>
+    <link rel="stylesheet" href="root-frru83bc.css"> <!-- Link to provided stylesheet -->
+</head>
+<body class="ds-bg-white">
+
+    <header class="ds-p-4 ds-text-center">
+        <h1 class="ds-text-lg">Welcome to Kuressaare Hariduse Kool</h1>
+        <button class="ds-bg-bg-brand-primary-default ds-text-white ds-rounded-md ds-px-4 ds-py-2" id="open-popup-btn">
+            Open Event Details
+        </button>
+    </header>
+
+    <section class="ds-p-4 ds-text-center">
+        <p class="ds-text-sm">This page uses HTML elements consistent with modern web design practices.</p>
+    </section>
+
+    <!-- Popup Modal with different design -->
+    <div class="ds-hidden ds-fixed ds-inset-0 ds-bg-black/70 ds-flex ds-items-center ds-justify-center ds-z-50" id="event-popup">
+        <div class="ds-bg-bg-neutral-light-default ds-rounded-lg ds-p-8 ds-w-[420px] ds-shadow-xl">
+            <h2 class="ds-text-xl ds-text-center ds-text-brand-contrast">Kooli arendusseminar</h2>
+            <p class="ds-text-sm ds-mb-4"><strong>Date:</strong> reede, jaanuar 5, 09:30 - 15:00</p>
+            <p class="ds-text-sm ds-mb-4"><strong>Status:</strong> Tasuta</p>
+            <p class="ds-text-sm ds-mb-6"><strong>Seats available:</strong> Aegunud kolm, jaan 3</p>
+            <button class="ds-bg-bg-danger-primary-default ds-text-white ds-rounded-md ds-px-4 ds-py-2 ds-w-full" id="close-popup-btn">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <footer class="ds-bg-bg-neutral-primary-default ds-text-white ds-p-4 ds-text-center">
+        <p>&copy; 2024 Kuressaare Hariduse Kool</p>
+    </footer>
+
+    <script>
+        // JavaScript to toggle the popup visibility
+        const openPopupButton = document.getElementById('open-popup-btn');
+        const closePopupButton = document.getElementById('close-popup-btn');
+        const popup = document.getElementById('event-popup');
+
+        openPopupButton.addEventListener('click', () => {
+            popup.classList.remove('ds-hidden'); // Show popup
+        });
+
+        closePopupButton.addEventListener('click', () => {
+            popup.classList.add('ds-hidden'); // Hide popup
+        });
+    </script>
+</body>
+</html>

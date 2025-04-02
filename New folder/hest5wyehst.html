@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consistent UI Design with Popup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Welcome to Kuressaare Hariduse Kool</h1>
+        <button class="btn-open-popup" id="open-popup-btn">Open Event Details</button>
+    </header>
+
+    <section class="content">
+        <p>This is the main content of the page. The design of this page is consistent with the popup modal that will appear when you click the button.</p>
+    </section>
+
+    <!-- Popup Modal -->
+    <div class="popup" id="event-popup">
+        <div class="popup-content">
+            <h2 class="popup-title">Kooli arendusseminar</h2>
+            <p><strong>Date:</strong> reede, jaanuar 5, 09:30 - 15:00</p>
+            <p><strong>Status:</strong> Tasuta</p>
+            <p><strong>Seats available:</strong> Aegunud kolm, jaan 3</p>
+            <button class="btn-close-popup" id="close-popup-btn">Close</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Kuressaare Hariduse Kool</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake TikTok Like/Followers Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .max-amount {
+            font-size: 14px;
+            color: gray;
+            text-align: center;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+        }
+        .icon {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+        }
+        .status-message {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .recent-activity {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Fake TikTok Generator</h1>
+
+        <div class="status-message">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/TikTok_logo_2021.svg" alt="TikTok logo" class="icon"> 
+            <strong>Status: </strong> Generating Likes and Fans...
+        </div>
+
+        <label for="likes">Likes (Hearts)</label>
+        <input type="text" id="likes" class="input-field" placeholder="99999999999999999999">
+        <p class="max-amount">You can generate maximum 1000000 Likes per day</p>
+
+        <label for="fans">Fans (Followers)</label>
+        <input type="number" id="fans" class="input-field" placeholder="1">
+        <p class="max-amount">You can generate maximum 1000000 Fans per day</p>
+
+        <button class="submit-btn" onclick="startGeneration()">Start Generation</button>
+
+        <!-- Progress bar -->
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <!-- Recent activity section -->
+        <div class="recent-activity">
+            <strong>Recent Activity:</strong>
+            <ul id="recent-activity-list">
+                <li>Generating 99999999999999999999 Likes...</li>
+                <li>Generating 1 Fan...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function startGeneration() {
+            // Start fake progress bar
+            var progress = 0;
+            var progressBar = document.getElementById('progress-bar');
+            var interval = setInterval(function() {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // Fake completion message
+                    alert('Generation complete! But this is fake, nothing happened.');
+                    updateActivityLog();
+                }
+            }, 500);
+
+            // Update the recent activity list with fake data
+            updateActivityLog();
+        }
+
+        function updateActivityLog() {
+            var activityList = document.getElementById('recent-activity-list');
+            var newActivity = document.createElement('li');
+            newActivity.textContent = "Successfully generated 1 Fan and 99999999999999999999 Likes (this is fake).";
+            activityList.appendChild(newActivity);
+        }
+    </script>
+
+</body>
+</html>
