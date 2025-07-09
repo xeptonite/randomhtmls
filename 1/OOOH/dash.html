@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BowlingExpress</title>
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+		 .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 150%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .settings-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .settings-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .settings-modal.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+		 .notification {
+            visibility: hidden;
+            opacity: 0;
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        .notification.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            padding: 20px;
+            color: white;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+       .sidebar button {
+            width: 100%;
+            background: #34495e;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #34495e;
+            padding: 15px;
+            color: white;
+        }
+        .logo img {
+            height: 40px;
+        }
+        .tabs {
+            display: flex;
+            gap: 15px;
+        }
+        .tabs a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .logout-button {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+         .create-button {
+            background: #3c67e7;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-100%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(0);
+        }
+        .close-btn, .create-btn {
+            background: #3c67e7;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .close-btn {
+            background: #e74c3c;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+		 .phone-input-section {
+            display: none;
+            margin-top: 10px;
+        }
+        .code-section {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Sidebar</h2>
+ <button onclick="alert('Score Logs and Leaderboard')">📊 Scorelogs & Leaderboard</button>
+        <button id="openSettingsBtn">⚙️ Settings</button>
+        <button onclick="alert('Viewing Archive')">📂 Archive</button>
+        <button onclick="alert('Viewing Achievements')">🏆 Achievements</button>
+        <button onclick="alert('AI Assist Activated')">🤖 AI Assist (NEW)</button>
+        <button onclick="alert('Viewing Statistics')">📈 Statistics</button>
+        <button onclick="alert('Recent Activities')">📜 Recent Activities</button>
+        <button onclick="alert('Social Rankings')">🌍 Social Rankings</button>
+    </div>
+    <div class="main-content">
+        <div class="topbar">
+            <div class="logo">
+                <img src="logo.png" alt="BowlingExpress Logo">
+            </div>
+            <div class="tabs">
+               <a href="#">🎳 Main Score Logs</a>
+                <a href="#">🌍 Global Leaderboard</a>
+                <a href="#">❔ Comparison</a>
+                <a href="#">🏆 Salutations</a>
+            </div>
+            <button class="create-button" id="createPostBtn">🗒️ Create Score Log</button>
+            <button class="logout-button">👋 Log Out</button>
+        </div>
+        <h1>Score Logs</h1>
+        <p>Log your bowling scores and experiences here. Keep track of your progress and relive great moments! 🎳</p  
+    </div>
+    
+  <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="postModal">
+        <h2>📝 New Score Log</h2>
+
+        <!-- Form Fields -->
+        <input type="date" class="input-field" id="gameDate" placeholder="Game Date" required>
+        <input type="text" class="input-field" id="location" placeholder="Location" required>
+        <input type="number" class="input-field" id="score" placeholder="Score" min="0" required>
+        
+        <!-- Bowling Ball Weight Selection -->
+        <fieldset>
+            <legend>Select a bowling ball weight:</legend>
+            <div>
+                <input type="radio" id="light" name="ballWeight" value="light" checked>
+                <label for="light">🔹 Light</label>
+            </div>
+            <div>
+                <input type="radio" id="medium" name="ballWeight" value="medium">
+                <label for="medium">⚽ Medium</label>
+            </div>
+            <div>
+                <input type="radio" id="heavy" name="ballWeight" value="heavy">
+                <label for="heavy">🏋 Heavy</label>
+            </div>
+        </fieldset>
+        
+        <!-- Notes Field -->
+        <textarea class="input-field" id="notes" placeholder="Notes about the game..." rows="4"></textarea>
+        
+        <!-- Screenshot Upload -->
+        <input type="file" class="screenshots" name="Screenshots" accept="image/png, image/jpeg">
+        <label for="screenshots">Screenshots</label>
+
+        <!-- Global Leaderboard Post Option -->
+        <input type="checkbox" id="horns" name="horns" />
+        <label for="horns">Post to Global Leaderboard</label>
+
+        <!-- Buttons -->
+        <button class="create-btn" id="createPost">Create</button>
+        <button class="close-btn" id="closePostModal">Close</button>
+
+        <!-- Notification -->
+        <div class="notification" id="notification">Saved!</div>
+    </div>
+	
+	
+<div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-modal" id="settingsModal">
+        <h2>Settings</h2>
+
+        <label for="username">Username:</label>
+        <input type="text" class="input-field" id="username" placeholder="Enter username">
+
+        <label for="theme">Theme:</label>
+        <select id="theme" class="input-field">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+
+        <fieldset>
+            <legend>Bowling Log Settings:</legend>
+            <label for="showScore">Show Scores on Global Leaderboard</label>
+            <input type="checkbox" id="showScore" checked>
+
+            <label for="privacy">Enable Privacy Mode</label>
+            <input type="checkbox" id="privacyMode">
+        </fieldset>
+
+        <fieldset>
+            <legend>Notification Settings:</legend>
+            <label for="emailNotifications">Enable Email Notifications</label>
+            <input type="checkbox" id="emailNotifications" checked>
+
+            <label for="soundEffects">Enable Sound Effects</label>
+            <input type="checkbox" id="soundEffects">
+        </fieldset>
+		
+		        <!-- 2FA Settings -->
+        <fieldset>
+            <legend>Two-Factor Authentication:</legend>
+            <label for="enable2fa">Enable 2FA</label>
+            <input type="checkbox" id="enable2fa">
+        </fieldset>
+		
+		<!-- Phone Number Linkage -->
+        <div class="phone-input-section" id="phoneInputSection">
+            <label for="phoneNumber">Enter your Phone Number:</label>
+            <input type="text" class="input-field" id="phoneNumber" placeholder="Enter phone number">
+            <button class="button" id="generateCodeBtn">Generate Auth Code</button>
+        </div>
+
+        <!-- Auth Code Input Section -->
+        <div class="code-section" id="codeSection">
+            <label for="authCode">Enter Authentication Code:</label>
+            <input type="text" class="input-field" id="authCode" placeholder="Authentication Code">
+            <button class="button" id="verifyCodeBtn">Verify Code</button>
+        </div>
+
+        <button class="button" id="applySettingsBtn">Apply</button>
+        <button class="close-btn" id="closeSettingsBtn">Close</button>
+
+        <div class="notification" id="notification">Saved!</div>
+    </div>
+
+ <script>
+        // Open the Modal
+        document.getElementById("createPostBtn").addEventListener("click", function() {
+            document.getElementById("postModal").classList.add("active");
+            document.getElementById("modalOverlay").classList.add("active");
+        });
+
+        // Close the Modal
+        document.getElementById("closePostModal").addEventListener("click", function() {
+            document.getElementById("postModal").classList.remove("active");
+            document.getElementById("modalOverlay").classList.remove("active");
+        });
+		// Show phone number input section if 2FA is enabled
+        function toggle2FA() {
+            const enable2fa = document.getElementById('enable2fa').checked;
+            if (enable2fa) {
+                document.getElementById('phoneInputSection').style.display = 'block';
+            } else {
+                document.getElementById('phoneInputSection').style.display = 'none';
+                document.getElementById('codeSection').style.display = 'none'; // Hide code input section
+            }
+        }
+
+        // Generate random auth code when phone number is entered
+        function generateAuthCode() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            if (phoneNumber) {
+                const authCode = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
+                alert(`Authentication code sent to ${phoneNumber}: ${authCode}`);
+                document.getElementById('codeSection').style.display = 'block'; // Show auth code input
+                document.getElementById('authCode').setAttribute('data-auth-code', authCode); // Store the generated code
+            } else {
+                alert('Please enter a valid phone number.');
+            }
+        }
+
+        // Verify the authentication code
+        function verifyAuthCode() {
+            const enteredCode = document.getElementById('authCode').value;
+            const generatedCode = document.getElementById('authCode').getAttribute('data-auth-code');
+
+            if (enteredCode === generatedCode) {
+                alert('2FA verified successfully!');
+            } else {
+                alert('Invalid authentication code.');
+            }
+        }
+
+        // Close the Modal if Overlay is Clicked
+        document.getElementById("modalOverlay").addEventListener("click", function() {
+            document.getElementById("postModal").classList.remove("active");
+            document.getElementById("modalOverlay").classList.remove("active");
+        });
+
+        // Handle the Post Creation
+        document.getElementById("createPost").addEventListener("click", function() {
+            const gameDate = document.getElementById("gameDate").value;
+            const location = document.getElementById("location").value;
+            const score = document.getElementById("score").value;
+            const ballWeight = document.querySelector('input[name="ballWeight"]:checked').value;
+            const notes = document.getElementById("notes").value;
+            const isPostedToLeaderboard = document.getElementById("horns").checked;
+
+            // Check if required fields are filled
+            if (!gameDate || !location || !score) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            // Show Success Notification
+            document.getElementById("notification").classList.add("show");
+            setTimeout(() => {
+                document.getElementById("notification").classList.remove("show");
+            }, 2000);
+
+            // Log data (you can replace this with your backend logic)
+            console.log("New Entry:", { gameDate, location, score, ballWeight, notes, isPostedToLeaderboard });
+        });
+
+         // Open the Settings Modal
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('settingsOverlay').classList.add('active');
+        }
+
+        // Close the Settings Modal
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+            document.getElementById('settingsOverlay').classList.remove('active');
+        }
+
+        // Apply the settings and show notification
+        function applySettings() {
+            const username = document.getElementById('username').value;
+            const theme = document.getElementById('theme').value;
+            const showScore = document.getElementById('showScore').checked;
+            const privacyMode = document.getElementById('privacyMode').checked;
+            const emailNotifications = document.getElementById('emailNotifications').checked;
+            const soundEffects = document.getElementById('soundEffects').checked;
+			 const enable2fa = document.getElementById('enable2fa').checked;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            // Display notification
+            document.getElementById('notification').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('notification').classList.remove('show');
+            }, 2000);
+
+            console.log(`Settings Saved:
+            Username: ${username}
+            Theme: ${theme}
+            Show Scores: ${showScore}
+            Privacy Mode: ${privacyMode}
+            Email Notifications: ${emailNotifications}
+            Sound Effects: ${soundEffects}
+			Enable 2FA: ${enable2fa}
+            Phone Number: ${phoneNumber}`);
+
+            closeSettings();  // Close settings after saving
+        }
+
+        // Add event listeners
+        document.getElementById('openSettingsBtn').addEventListener('click', openSettings);
+        document.getElementById('closeSettingsBtn').addEventListener('click', closeSettings);
+        document.getElementById('applySettingsBtn').addEventListener('click', applySettings);
+		document.getElementById('enable2fa').addEventListener('change', toggle2FA);
+        document.getElementById('generateCodeBtn').addEventListener('click', generateAuthCode);
+        document.getElementById('verifyCodeBtn').addEventListener('click', verifyAuthCode);
+    </script>
+</body>
+</html>

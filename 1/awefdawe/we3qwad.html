@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pinch to Zoom & Rotate Map</title>
+  <style>
+    body {
+      background: #101014;
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #container {
+      width: 80vw;
+      height: 80vh;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #0008;
+      background: #222;
+      touch-action: none;
+      position: relative;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: center center;
+      user-select: none;
+      will-change: transform;
+      pointer-events: none; /* So gestures bubble up */
+      position: absolute;
+      left: 0; top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <img id="map" src="YOUR_SCREENSHOT_HERE.png" alt="Map">
+  </div>
+  <script>
+    // Replace with your own screenshot path
+    const map = document.getElementById('map');
+    let scale = 1, lastScale = 1;
+    let rotation = 0, lastRotation = 0;
+    let panX = 0, panY = 0, lastPanX = 0, lastPanY = 0;
+    let startX = 0, startY = 0;
+    let isDragging = false;
+    let lastTouchDist = null, lastTouchAngle = null;
+
+    function setTransform() {
+      map.style.transform = 
+        `translate(${panX}px, ${panY}px) scale(${scale}) rotate(${rotation}deg)`;
+    }
+
+    // Mouse drag to pan
+    map.parentElement.addEventListener('mousedown', e => {
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      setTransform();
+    });
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    // Mouse wheel to zoom
+    map.parentElement.addEventListener('wheel', e => {
+      e.preventDefault();
+      const scaleDelta = e.deltaY < 0 ? 1.1 : 0.9;
+      scale *= scaleDelta;
+      setTransform();
+    });
+
+    // Touch: pinch to zoom & rotate
+    map.parentElement.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        lastTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        lastTouchAngle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        ) * 180 / Math.PI;
+        lastScale = scale;
+        lastRotation = rotation;
+      }
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - panX;
+        startY = e.touches[0].clientY - panY;
+      }
+    }, { passive: false });
+
+    map.parentElement.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const angle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        ) * 180 / Math.PI;
+        scale = lastScale * (dist / lastTouchDist);
+        rotation = lastRotation + (angle - lastTouchAngle);
+        setTransform();
+        e.preventDefault();
+      } else if (e.touches.length === 1 && isDragging) {
+        panX = e.touches[0].clientX - startX;
+        panY = e.touches[0].clientY - startY;
+        setTransform();
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    map.parentElement.addEventListener('touchend', e => {
+      if (e.touches.length < 2) {
+        lastTouchDist = null;
+        lastTouchAngle = null;
+      }
+      if (e.touches.length === 0) {
+        isDragging = false;
+      }
+    });
+  </script>
+</body>
+</html>

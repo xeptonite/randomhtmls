@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BowlingExpress · Dashboard</title>
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    /* ======= THEME VARIABLES (dark default) ======= */
+    :root{
+      --bg-1:#13151a;
+      --bg-2:#1a1d24;
+      --bg-3:#222733;
+      --txt-1:#f5f8ff;
+      --txt-2:#aeb9d6;
+      --accent:#3172ff;
+      --accent-2:#2455e0;
+      --radius:14px;
+      --speed:.25s;
+      font-family:"Segoe UI",system-ui,sans-serif;
+    }
+    /* light‑theme overrides */
+    body.light{
+      --bg-1:#f3f4f8;
+      --bg-2:#ffffff;
+      --bg-3:#eceff7;
+      --txt-1:#1a1d24;
+      --txt-2:#55607b;
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;display:flex;min-height:100vh;background:var(--bg-1);color:var(--txt-1);overflow:hidden;transition:background var(--speed),color var(--speed);} 
+
+    /* ====== SIDEBAR ====== */
+    .sidebar{width:260px;background:var(--bg-2);display:flex;flex-direction:column;padding:22px 20px;gap:22px;transition:width var(--speed);} 
+    .sidebar.collapsed{width:76px;} 
+    .sidebar header{display:flex;align-items:center;gap:12px;}
+    .logo{width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 0 8px #0af4;}
+    .logo img{width:100%;height:100%;object-fit:cover;}
+    .brand{font-size:1.25rem;font-weight:700;white-space:nowrap;transition:opacity var(--speed);} 
+    nav{display:flex;flex-direction:column;gap:6px;flex:1;}
+    nav a{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:var(--radius);color:var(--txt-1);text-decoration:none;font-weight:500;transition:background var(--speed);} 
+    nav a:hover,nav a.active{background:var(--accent-2);} 
+    nav a span.icon{font-size:1.2rem;width:24px;text-align:center;}
+    .collapse-btn{background:none;border:none;color:var(--txt-2);font-size:1.35rem;cursor:pointer;transition:transform var(--speed);} 
+    .sidebar.collapsed .collapse-btn{transform:rotate(180deg);} 
+    .sidebar.collapsed nav a span.text,.sidebar.collapsed .brand{opacity:0;pointer-events:none;}
+
+    /* ====== MAIN ====== */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg-2);box-shadow:0 1px 0 #0006;} 
+    .breadcrumbs{font-weight:600;} 
+    .actions{display:flex;align-items:center;gap:14px;}
+    .btn{background:var(--accent);padding:10px 18px;border-radius:var(--radius);border:none;color:#fff;font-weight:600;cursor:pointer;transition:filter var(--speed);} 
+    .btn:hover{filter:brightness(1.12);} 
+
+    .content{flex:1;padding:32px 28px;display:flex;flex-direction:column;gap:28px;overflow-y:auto;}
+
+    /* KPI */
+    .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px;} 
+    .card{background:var(--bg-3);padding:20px 22px;border-radius:var(--radius);box-shadow:0 2px 10px #0006;display:flex;flex-direction:column;gap:8px;} 
+    .card .label{color:var(--txt-2);font-size:.9rem;} 
+    .card .value{font-size:1.9rem;font-weight:800;}
+
+    /* TABLE */
+    .table-wrapper{background:var(--bg-3);border-radius:var(--radius);overflow:auto;} 
+    table{width:100%;border-collapse:collapse;min-width:640px;}
+    thead{background:var(--bg-2);} 
+    th,td{padding:14px 18px;text-align:left;} 
+    th{font-weight:600;} 
+    tbody tr:nth-child(odd){background:#1b1f2a;} 
+    tbody tr:hover{background:#282d39;}
+    body.light tbody tr:nth-child(odd){background:#e2e6f1;} 
+    body.light tbody tr:hover{background:#d5d9e7;}
+
+    /* ====== MODALS & OVERLAY ====== */
+    .overlay{position:fixed;inset:0;background:#0008;backdrop-filter:blur(2px);visibility:hidden;opacity:0;transition:opacity var(--speed);} 
+    .overlay.active{visibility:visible;opacity:1;} 
+
+    .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);background:var(--bg-2);border-radius:var(--radius);padding:24px 22px;box-shadow:0 0 20px #000c;min-width:min(480px,94vw);visibility:hidden;opacity:0;transition:opacity var(--speed),transform var(--speed);} 
+    .modal.active{visibility:visible;opacity:1;transform:translate(-50%,-50%) scale(1);} 
+    .modal h2{margin-bottom:10px;} 
+    .modal .input-field,.modal select,.modal textarea{width:100%;margin-top:10px;padding:10px 12px;background:var(--bg-3);border:1px solid #2a2f3e;color:var(--txt-1);border-radius:8px;} 
+    .modal fieldset{border:1px solid #2a2f3e;border-radius:8px;margin-top:14px;padding:10px;} 
+    .modal legend{padding:0 6px;color:var(--txt-2);} 
+    .modal label{display:inline-flex;align-items:center;gap:6px;margin-right:12px;color:var(--txt-2);} 
+
+    /* SETTINGS specific */
+    .settings-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:12px;} 
+    .switch{position:relative;display:inline-block;width:42px;height:22px;} 
+    .switch input{opacity:0;width:0;height:0;} 
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#555;border-radius:34px;transition:.2s;} 
+    .slider:before{position:absolute;content:"";height:18px;width:18px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.2s;} 
+    input:checked + .slider{background:var(--accent);} 
+    input:checked + .slider:before{transform:translateX(20px);} 
+  </style>
+</head>
+<body>
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <header>
+      <div class="logo"><img src="logo.png" alt="Logo" /></div>
+      <span class="brand">BowlingExpress</span>
+      <button class="collapse-btn" id="collapseBtn">❮</button>
+    </header>
+    <nav>
+      <a href="#" class="active"><span class="icon">🎳</span><span class="text">Score Logs</span></a>
+      <a href="#"><span class="icon">🌍</span><span class="text">Leaderboard</span></a>
+      <a href="#"><span class="icon">📂</span><span class="text">Archive</span></a>
+      <a href="#"><span class="icon">🏆</span><span class="text">Achievements</span></a>
+      <a href="#"><span class="icon">📈</span><span class="text">Statistics</span></a>
+      <a href="#"><span class="icon">🤖</span><span class="text">AI Assist</span></a>
+      <a href="#" id="openSettings"><span class="icon">⚙️</span><span class="text">Settings</span></a>
+    </nav>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <section class="main">
+    <header class="topbar">
+      <span class="breadcrumbs">Dashboard / Overview</span>
+      <div class="actions">
+        <button class="btn" id="createPostBtn">🗒️ New Log</button>
+        <button class="btn" style="background:#e03b3b">Log Out</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- KPI CARDS -->
+      <section class="kpis">
+        <div class="card"><span class="label">Total Games</span><span class="value" id="kpi-total">0</span></div>
+        <div class="card"><span class="label">Average Score</span><span class="value" id="kpi-avg">0</span></div>
+        <div class="card"><span class="label">Highest Score</span><span class="value" id="kpi-high">0</span></div>
+        <div class="card"><span class="label">Strikes</span><span class="value" id="kpi-strikes">0</span></div>
+      </section>
+
+      <!-- LOG TABLE -->
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Date</th><th>Location</th><th>Score</th><th>Ball</th><th>Notes</th></tr></thead>
+          <tbody id="logsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== SCORE‑LOG MODAL ===== -->
+  <div class="modal" id="logModal">
+    <h2>📝 New Score Log</h2>
+    <input type="date" class="input-field" id="logDate" required>
+    <input type="text" class="input-field" id="logLocation" placeholder="Location" required>
+    <input type="number" class="input-field" id="logScore" placeholder="Score" min="0" required>
+    <fieldset>
+      <legend>Ball Weight</legend>
+      <label><input type="radio" name="ball" value="Light" checked> 🔹 Light</label>
+      <label><input type="radio" name="ball" value="Medium"> ⚽ Medium</label>
+      <label><input type="radio" name="ball" value="Heavy"> 🏋 Heavy</label>
+    </fieldset>
+    <textarea class="input-field" id="logNotes" placeholder="Notes..." rows="3"></textarea>
+    <button class="btn" id="saveLog">Save Log</button>
+    <button class="btn" style="background:#444" id="cancelLog">Cancel</button>
+  </div>
+
+  <!-- ===== SETTINGS MODAL ===== -->
+  <div class="modal" id="settingsModal">
+    <h2>⚙️ Settings</h2>
+    <div class="settings-columns">
+      <div>
+        <label>Username<input type="text" class="input-field" id="setUsername" placeholder="Username"></label>
+        <label style="display:block;margin-top:10px;">Theme<select id="setTheme" class="input-field"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+        <label style="display:block;margin-top:10px;">Default Location<input type="text" class="input-field" id="setDefaultLoc" placeholder="e.g. City Bowl"></label>
+        <label style="display:block;margin-top:10px;">Default Ball<select id="setDefaultBall" class="input-field"><option>Light</option><option>Medium</option><option>Heavy</option></select></label>
+      </div>
+      <div>
+        <label>Show Scores Publicly <span class="switch"><input type="checkbox" id="setShowScore" checked><span class="slider"></span></span></label><br/>
+        <label>Privacy Mode <span class="switch"><input type="checkbox" id="setPrivacy"><span class="slider"></span></span></label><br/>
+        <label>Email Notifications <span class="switch"><input type="checkbox" id="setEmail" checked><span class="slider"></span></span></label><br/>
+        <label>Sound Effects <span class="switch"><input type="checkbox" id="setSound"><span class="slider"></span></span></label>
+      </div>
+    </div>
+    <fieldset>
+      <legend>Two‑Factor Authentication</legend>
+      <label>Enable 2FA <span class="switch"><input type="checkbox" id="set2FA"><span class="slider"></span></span></label>
+      <input type="text" class="input-field" id="setPhone" placeholder="Phone Number" style="margin-top:10px;display:none;">
+	  <label>To enable Legacy 2FA, go to the Legacy Dashboard.</label>
+    </fieldset>
+    <button class="btn" id="saveSettings">Save Settings</button>
+    <button class="btn" style="background:#444" id="cancelSettings">Close</button>
+  </div>
+
+<script>
+/*************** STORAGE KEYS & STATE ***************/
+const logsKey="be-logs",settingsKey="be-settings";
+let logs=JSON.parse(localStorage.getItem(logsKey)||"[]");
+let settings=JSON.parse(localStorage.getItem(settingsKey)||"{}");
+/******************** HELPERS *********************/
+const $=sel=>document.querySelector(sel);
+const $$=sel=>document.querySelectorAll(sel);
+function saveLogs(){localStorage.setItem(logsKey,JSON.stringify(logs));renderLogs();}
+function saveSettings(){localStorage.setItem(settingsKey,JSON.stringify(settings));applyTheme();}
+/**************** KPI CALCULATIONS ****************/ 
+function calcKPIs(){
+  const total=logs.length;
+  const scores=logs.map(l=>Number(l.score));
+  const avg=total?Math.round(scores.reduce((a,b)=>a+b,0)/total):0;
+  const high=Math.max(0,...scores);
+  $("#kpi-total").textContent=total;
+  $("#kpi-avg").textContent=avg;
+  $("#kpi-high").textContent=high;
+}
+/****************** LOG RENDER *******************/
+function renderLogs(){
+  const body=$("#logsBody");
+  body.innerHTML="";
+  logs.slice().reverse().forEach(l=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${l.date}</td><td>${l.location}</td><td>${l.score}</td><td>${l.ball}</td><td>${l.notes||""}</td>`;
+    body.appendChild(tr);
+  });
+  calcKPIs();
+}
+/****************** MODAL CONTROL *****************/
+const overlay=$("#overlay");
+function openModal(m){overlay.classList.add("active");m.classList.add("active");}
+function closeModal(m){m.classList.remove("active");overlay.classList.remove("active");}
+
+/****************** SCORE LOG FLOW ***************/
+$("#createPostBtn").onclick=()=>{
+  $("#logDate").value=new Date().toISOString().substring(0,10);
+  $("#logLocation").value=settings.defaultLocation||"";
+  $(`input[name='ball'][value='${settings.defaultBall||"Light"}']`).checked=true;
+  openModal($("#logModal"));
+};
+$("#cancelLog").onclick=()=>closeModal($("#logModal"));
+$("#saveLog").onclick=()=>{
+  const date=$("#logDate").value;
+  const location=$("#logLocation").value.trim();
+  const score=$("#logScore").value;
+  const ball=document.querySelector("input[name='ball']:checked").value;
+  const notes=$("#logNotes").value.trim();
+  if(!date||!location||!score){alert("Fill all required fields");return;}
+  logs.push({date,location,score,ball,notes});
+  saveLogs();
+  closeModal($("#logModal"));
+  $("#logScore").value="";
+  $("#logNotes").value="";
+};
+
+/****************** SETTINGS FLOW *****************/
+$("#openSettings").onclick=()=>{
+  $("#setUsername").value=settings.username||"";
+  $("#setTheme").value=settings.theme||"dark";
+  $("#setDefaultLoc").value=settings.defaultLocation||"";
+  $("#setDefaultBall").value=settings.defaultBall||"Light";
+  $("#setShowScore").checked=settings.showScore!==false;
+  $("#setPrivacy").checked=!!settings.privacy;
+  $("#setEmail").checked=settings.email!==false;
+  $("#setSound").checked=!!settings.sound;
+  $("#set2FA").checked=!!settings.tfa;
+  $("#setPhone").style.display=$("#set2FA").checked?"block":"none";
+  $("#setPhone").value=settings.phone||"";
+  openModal($("#settingsModal"));
+};
+$("#set2FA").onchange=e=>$("#setPhone").style.display=e.target.checked?"block":"none";
+$("#cancelSettings").onclick=()=>closeModal($("#settingsModal"));
+$("#saveSettings").onclick=()=>{
+  settings={
+    username:$("#setUsername").value.trim(),
+    theme:$("#setTheme").value,
+    defaultLocation:$("#setDefaultLoc").value.trim(),
+    defaultBall:$("#setDefaultBall").value,
+    showScore:$("#setShowScore").checked,
+    privacy:$("#setPrivacy").checked,
+    email:$("#setEmail").checked,
+    sound:$("#setSound").checked,
+    tfa:$("#set2FA").checked,
+    phone:$("#setPhone").value.trim()
+  };
+  saveSettings();
+  closeModal($("#settingsModal"));
+};
+function applyTheme(){document.body.classList.toggle("light",settings.theme==="light");}
+
+/**************** COLLAPSE SIDEBAR ***************/
+$("#collapseBtn").onclick=()=>$("#sidebar").classList.toggle("collapsed");
+
+/**************** OVERLAY CLOSE *****************/
+overlay.onclick=()=>{
+  document.querySelectorAll(".modal.active").forEach(m=>m.classList.remove("active"));
+  overlay.classList.remove("active");
+};
+
+/**************** INIT *****************/
+renderLogs();
+applyTheme();
+</script>
+</body>
+</html>
