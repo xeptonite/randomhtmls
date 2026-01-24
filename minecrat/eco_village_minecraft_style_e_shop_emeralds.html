@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoVillage — Abandoned Village E‑Shop (Emeralds)</title>
+  <meta name="description" content="EcoVillage: Minecraft‑style e‑shop selling items, tools, essentials, and materials salvaged from abandoned villages — since 1997. Pay with emeralds." />
+
+  <!-- Minecraft font placed by you in ./_files/Minecraft.ttf -->
+  <style>
+    @font-face {
+      font-family: "Minecraft";
+      src: url("./_files/Minecraft.ttf") format("truetype");
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #0f1a10;
+      --surface: #182a1a;
+      --surface-2: #1f3a22;
+      --border: #214a2a;
+      --text: #e7fbe9;
+      --muted: #bfe3c6;
+      --emerald: #19b84a;
+      --emerald-dark: #13853a;
+      --danger: #b82a19;
+      --shadow: #0a0f0b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Minecraft", ui-monospace, Menlo, Consolas, monospace;
+      line-height: 1.35;
+      image-rendering: pixelated; /* in case any images are added later */
+    }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+
+    /* Pixel-ish card + button vibe (no animations) */
+    .card, .bar, .panel, .pill, .btn, input, select {
+      border: 4px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 0 0 4px var(--shadow);
+    }
+
+    header.bar {
+      display: flex; gap: 16px; align-items: center; justify-content: space-between;
+      padding: 12px 16px; margin-bottom: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand .logo {
+      width: 28px; height: 28px; display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+      background: var(--surface-2); padding: 2px;
+    }
+    .brand .logo div { background: var(--emerald); }
+    .brand h1 { font-size: 20px; margin: 0; letter-spacing: 1px; }
+    .tagline { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .controls { display: flex; gap: 8px; align-items: center; }
+    input[type="search"], select { color: var(--text); padding: 8px; font: inherit; width: 220px; }
+    select { width: 180px; }
+    input::placeholder { color: var(--muted); }
+
+    .btn { color: var(--text); padding: 10px 12px; font: inherit; cursor: pointer; background: var(--emerald); border-color: var(--emerald-dark); box-shadow: 0 0 0 4px var(--shadow); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    main { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+
+    /* Sidebar */
+    .panel { padding: 12px; position: sticky; top: 16px; align-self: start; }
+    .panel h2 { font-size: 16px; margin: 0 0 10px; }
+    .filter-group { display: grid; gap: 8px; margin-bottom: 12px; }
+    .pill { padding: 8px; }
+
+    /* Products grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .card { padding: 10px; display: grid; gap: 8px; background: var(--surface); }
+    .title { font-size: 14px; margin: 0; }
+    .meta { font-size: 12px; color: var(--muted); }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .price { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+
+    .emerald-icon { width: 14px; height: 14px; display: inline-block; background: var(--emerald); outline: 3px solid var(--emerald-dark); box-shadow: inset 0 0 0 3px #52e27d; transform: skew(0deg); }
+
+    .qty { display: inline-flex; gap: 6px; align-items: center; }
+    .qty input { width: 48px; text-align: center; padding: 6px; background: var(--surface-2); }
+
+    /* Cart */
+    .cart {
+      position: fixed; right: 16px; bottom: 16px; width: 340px; max-height: 70vh; overflow: auto; padding: 12px; background: var(--surface);
+      display: none;
+    }
+    .cart[aria-hidden="false"] { display: block; }
+    .cart h3 { margin: 0 0 10px; font-size: 16px; }
+    .cart-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px; border: 4px solid var(--border); background: var(--surface-2); }
+    .cart-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 4px solid var(--border); }
+
+    footer { margin-top: 20px; padding: 12px; background: var(--surface); border: 4px solid var(--border); box-shadow: 0 0 0 4px var(--shadow); }
+    footer p { margin: 4px 0; font-size: 12px; color: var(--muted); }
+
+    /* Sound gate (shown only if autoplay fails) */
+    #sound-gate { display: none; margin-bottom: 12px; padding: 10px; background: #2b1a1a; border: 4px solid #5a2a2a; box-shadow: 0 0 0 4px var(--shadow); }
+    #sound-gate[hidden] { display: none; }
+    #sound-gate:not([hidden]) { display: block; }
+
+    /* Accessibility helpers */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body>
+  <audio id="click-audio" src="./_files/click_stereo.ogg" preload="auto"></audio>
+
+  <div class="wrap">
+    <header class="bar" role="banner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <div></div><div></div><div></div>
+          <div></div><div></div><div></div>
+          <div></div><div></div><div></div>
+        </div>
+        <div>
+          <h1>EcoVillage</h1>
+          <div class="tagline">Abandoned Village Supply Co. — since 1997 • Currency: Emeralds</div>
+        </div>
+      </div>
+      <div class="controls" role="search">
+        <input id="q" type="search" placeholder="Search salvaged goods…" aria-label="Search products" />
+        <select id="cat" aria-label="Filter by category">
+          <option value="all">All categories</option>
+          <option>Items</option>
+          <option>Tools</option>
+          <option>Essentials</option>
+          <option>Materials</option>
+        </select>
+        <button id="cartBtn" class="btn" type="button" aria-expanded="false" aria-controls="cart">Cart (<span id="cartCount">0</span>)</button>
+      </div>
+    </header>
+
+    <div id="sound-gate" role="group" aria-label="Audio permission">
+      Sound is blocked by your browser. <button class="btn" id="enableSound" type="button">Enable sound</button>
+    </div>
+
+    <main>
+      <!-- Sidebar filters -->
+      <aside class="panel" aria-label="Filters">
+        <h2>Quick Filters</h2>
+        <div class="filter-group">
+          <label class="pill"><input id="inStockOnly" type="checkbox" /> In stock only</label>
+          <label class="pill"><input id="underTen" type="checkbox" /> ≤ 10 emeralds</label>
+        </div>
+        <div class="pill">
+          <strong>About</strong>
+          <p class="meta">All items are ethically salvaged from abandoned villages. No new raids; just cleanup and reuse.</p>
+        </div>
+      </aside>
+
+      <!-- Product grid -->
+      <section class="grid" id="grid" aria-live="polite" aria-busy="false"></section>
+    </main>
+
+    <!-- Cart -->
+    <section class="cart" id="cart" aria-hidden="true" aria-label="Shopping cart">
+      <h3>Your Cart</h3>
+      <div id="cartItems" class="stack" aria-live="polite"></div>
+      <div class="cart-total">
+        <strong>Total</strong>
+        <span class="price"><span class="emerald-icon" aria-hidden="true"></span> <span id="cartTotal">0</span> emeralds</span>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button id="checkout" class="btn" type="button">Checkout</button>
+        <button id="clear" class="btn" type="button" style="background: var(--danger); border-color:#7a1d12;">Clear</button>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 1997–2025 EcoVillage. Not affiliated with Mojang or Microsoft. This is a fan‑style shop UI.</p>
+      <p>Browser note: some browsers block autoplay. If you didn’t hear the welcome click, use the button above to enable it.</p>
+    </footer>
+  </div>
+
+  <script>
+    // --- Attempt to play sound on visit ---
+    (function initSound() {
+      const audio = document.getElementById('click-audio');
+      const gate = document.getElementById('sound-gate');
+      function tryPlay() {
+        audio.currentTime = 0; // ensure the click is at the start
+        return audio.play();
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        tryPlay().catch(() => {
+          gate.hidden = false;
+        });
+      });
+      document.getElementById('enableSound').addEventListener('click', () => {
+        tryPlay().then(() => gate.hidden = true).catch(() => {});
+      });
+    })();
+
+    // --- Data ---
+    const PRODUCTS = [
+      { id: 'lantern', name: 'Lantern', cat: 'Items', price: 5, stock: 18, note: 'Salvaged lighting' },
+      { id: 'bell', name: 'Village Bell', cat: 'Items', price: 12, stock: 4, note: 'Rally the block (decor only)' },
+      { id: 'hay', name: 'Hay Bale', cat: 'Essentials', price: 3, stock: 22, note: 'Compact wheat storage' },
+      { id: 'bread', name: 'Bread (Loaf)', cat: 'Essentials', price: 2, stock: 40, note: 'Still fresh… enough' },
+      { id: 'potato', name: 'Potato Sack', cat: 'Essentials', price: 4, stock: 15, note: 'Assorted varieties' },
+      { id: 'door_oak', name: 'Oak Door', cat: 'Materials', price: 6, stock: 12, note: 'Gently used hinges' },
+      { id: 'planks', name: 'Spruce Planks (Stack)', cat: 'Materials', price: 7, stock: 30, note: 'Assorted lengths' },
+      { id: 'cobble', name: 'Cobblestone Bundle', cat: 'Materials', price: 5, stock: 50, note: 'Rubble, sorted' },
+      { id: 'composter', name: 'Composter', cat: 'Items', price: 5, stock: 9, note: 'Village‑tested' },
+      { id: 'hoe_stone', name: 'Stone Hoe', cat: 'Tools', price: 4, stock: 14, note: 'Refurbished' },
+      { id: 'axe_iron', name: 'Iron Axe', cat: 'Tools', price: 9, stock: 6, note: 'Sharpened, recycled iron' },
+      { id: 'fletching', name: 'Fletching Table', cat: 'Items', price: 8, stock: 5, note: 'Craftsman grade' },
+      { id: 'bed_red', name: 'Red Bed', cat: 'Essentials', price: 6, stock: 7, note: 'Cleaned & repaired' },
+      { id: 'flowerpot', name: 'Flower Pot', cat: 'Items', price: 2, stock: 25, note: 'Terracotta' },
+    ];
+
+    // --- State ---
+    const state = {
+      q: '',
+      cat: 'all',
+      inStockOnly: false,
+      underTen: false,
+      cart: JSON.parse(localStorage.getItem('ecovillage_cart') || '{}') // { id: qty }
+    };
+
+    // --- Helpers ---
+    const el = (tag, props = {}, children = []) => {
+      const n = document.createElement(tag);
+      Object.entries(props).forEach(([k,v]) => {
+        if (k === 'class') n.className = v; else if (k === 'dataset') Object.assign(n.dataset, v); else if (k.startsWith('on')) n.addEventListener(k.slice(2).toLowerCase(), v); else if (v !== null && v !== undefined) n.setAttribute(k, v);
+      });
+      children.forEach(c => n.append(c));
+      return n;
+    };
+
+    function saveCart() { localStorage.setItem('ecovillage_cart', JSON.stringify(state.cart)); }
+
+    function priceTag(p) {
+      const icon = el('span', { class: 'emerald-icon', 'aria-hidden': 'true' });
+      return el('span', { class: 'price' }, [icon, document.createTextNode(' ' + p + ' emeralds')]);
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('grid');
+      grid.replaceChildren();
+
+      const filtered = PRODUCTS.filter(p => {
+        if (state.cat !== 'all' && p.cat !== state.cat) return false;
+        if (state.inStockOnly && !p.stock) return false;
+        if (state.underTen && p.price > 10) return false;
+        if (state.q) {
+          const q = state.q.toLowerCase();
+          const hay = (p.name + ' ' + p.cat + ' ' + (p.note||'')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      filtered.forEach(p => {
+        const qtyInput = el('input', { type: 'number', min: '1', value: '1', 'aria-label': `Quantity for ${p.name}` });
+        const addBtn = el('button', { class: 'btn', type: 'button' }, [document.createTextNode('Add to cart')]);
+        if (!p.stock) addBtn.disabled = true;
+        addBtn.addEventListener('click', () => {
+          const qty = Math.max(1, Math.floor(Number(qtyInput.value)||1));
+          state.cart[p.id] = (state.cart[p.id] || 0) + qty;
+          saveCart();
+          updateCartBadge();
+          renderCart();
+        });
+
+        const card = el('article', { class: 'card', role: 'article' }, [
+          el('h3', { class: 'title' }, [document.createTextNode(p.name)]),
+          el('div', { class: 'meta' }, [document.createTextNode(`${p.cat} • ${p.note || 'Salvaged'}`)]),
+          el('div', { class: 'row' }, [ priceTag(p.price), el('span', { class: 'meta' }, [document.createTextNode(p.stock ? `${p.stock} in stock` : 'Out of stock')]) ]),
+          el('div', { class: 'row' }, [ el('div', { class: 'qty' }, [ document.createTextNode('Qty'), qtyInput ]), addBtn ])
+        ]);
+        grid.append(card);
+      });
+
+      if (!filtered.length) {
+        grid.append(el('div', { class: 'card' }, [document.createTextNode('No items match your filters. Try clearing some filters.')]))
+      }
+    }
+
+    function renderCart() {
+      const list = document.getElementById('cartItems');
+      list.replaceChildren();
+      let total = 0;
+
+      Object.entries(state.cart).forEach(([id, qty]) => {
+        const p = PRODUCTS.find(x => x.id === id);
+        if (!p) return;
+        const line = el('div', { class: 'cart-item' }, [
+          el('div', {}, [ el('strong', {}, [document.createTextNode(p.name)]), el('div', { class: 'meta' }, [document.createTextNode(`${qty} × ${p.price} emeralds`)]) ]),
+          el('div', {}, [
+            (function(){
+              const minus = el('button', { class: 'btn', type: 'button', title: 'Decrease' }, [document.createTextNode('−')]);
+              const plus = el('button', { class: 'btn', type: 'button', title: 'Increase' }, [document.createTextNode('+')]);
+              minus.addEventListener('click', () => { state.cart[id] = Math.max(0, (state.cart[id]||0) - 1); if (state.cart[id] === 0) delete state.cart[id]; saveCart(); renderCart(); updateCartBadge(); });
+              plus.addEventListener('click', () => { state.cart[id] = (state.cart[id]||0) + 1; saveCart(); renderCart(); updateCartBadge(); });
+              const w = el('div', { class: 'row' }, [minus, plus]);
+              return w;
+            })()
+          ])
+        ]);
+        list.append(line);
+        total += p.price * qty;
+      });
+
+      document.getElementById('cartTotal').textContent = String(total);
+    }
+
+    function updateCartBadge() {
+      const c = Object.values(state.cart).reduce((a,b)=>a+b,0);
+      document.getElementById('cartCount').textContent = String(c);
+    }
+
+    // --- UI wiring ---
+    document.getElementById('q').addEventListener('input', (e)=>{ state.q = e.target.value; renderProducts(); });
+    document.getElementById('cat').addEventListener('change', (e)=>{ state.cat = e.target.value; renderProducts(); });
+    document.getElementById('inStockOnly').addEventListener('change', (e)=>{ state.inStockOnly = e.target.checked; renderProducts(); });
+    document.getElementById('underTen').addEventListener('change', (e)=>{ state.underTen = e.target.checked; renderProducts(); });
+
+    (function cartToggle(){
+      const cartBtn = document.getElementById('cartBtn');
+      const cart = document.getElementById('cart');
+      cartBtn.addEventListener('click', () => {
+        const isHidden = cart.getAttribute('aria-hidden') !== 'false';
+        cart.setAttribute('aria-hidden', isHidden ? 'false' : 'true');
+        cartBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      });
+    })();
+
+    document.getElementById('clear').addEventListener('click', ()=>{ state.cart = {}; saveCart(); renderCart(); updateCartBadge(); });
+    document.getElementById('checkout').addEventListener('click', ()=>{
+      const items = Object.entries(state.cart).map(([id, qty])=>{ const p = PRODUCTS.find(x=>x.id===id); return p ? `• ${p.name} × ${qty}` : null; }).filter(Boolean).join('\n');
+      const total = Object.entries(state.cart).reduce((sum,[id, qty])=>{ const p = PRODUCTS.find(x=>x.id===id); return sum + (p? p.price*qty : 0); }, 0);
+      if (!items) { alert('Your cart is empty.'); return; }
+      alert(`Thanks for supporting village cleanup!\n\n${items}\n\nTotal: ${total} emeralds`);
+    });
+
+    // --- Initial render ---
+    renderProducts();
+    renderCart();
+    updateCartBadge();
+  </script>
+</body>
+</html>

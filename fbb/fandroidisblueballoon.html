@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fandroid is a blue balloon</title>
+  <meta name="description" content="a single-purpose website dedicated to one undeniable truth" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="favicon.ico" />
+
+  <style>
+    :root {
+      --blue: #2b7cff;
+      --light: #eaf2ff;
+      --dark: #0b1220;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--dark);
+      background: radial-gradient(1200px 600px at 50% -10%, #cfe0ff 0%, #ffffff 55%);
+    }
+    header {
+      text-align: center;
+      padding: 64px 16px 24px;
+    }
+    header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 6vw, 56px);
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 0 auto;
+      max-width: 760px;
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    .balloon-image {
+      display: block;
+      margin: 32px auto 8px;
+      width: 200px;
+      max-width: 70vw;
+      filter: drop-shadow(0 24px 40px rgba(43,124,255,0.35));
+    }
+    .image-note {
+      font-size: 13px;
+      opacity: 0.6;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 24px rgba(11,18,32,0.08);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--light);
+      color: var(--blue);
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 24px 16px 48px;
+      opacity: 0.7;
+      font-size: 14px;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--blue);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>fandroid is a blue balloon</h1>
+    <p>
+      this website exists to document, archive, and permanently settle a question that never actually needed debate.
+      what you are looking at is not an opinion, not a metaphor, and not a stylistic coincidence.
+      it is a factual, visual, and logical outcome.
+    </p>
+
+    <img id="balloon" src="" alt="fandroid, a blue balloon" class="balloon-image" />
+  </header>
+
+  <main>
+    <section class="card">
+      <span class="tag">visual proof</span>
+      <h2>chromatic consistency</h2>
+      <p>
+        across different renders, screenshots, edits, and archival material, fandroid remains blue.
+        not sometimes blue. not thematically blue. literally blue.
+      </p>
+      <ul>
+        <li>dominant hue: blue</li>
+        <li>variance: minimal</li>
+        <li>viewer reaction: immediate recognition</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <span class="tag">form factor</span>
+      <h2>balloon geometry</h2>
+      <p>
+        the silhouette analysis is uncomplicated.
+        rounded body, soft edges, no structural aggression.
+        this is not machinery behavior. this is balloon behavior.
+      </p>
+      <p>
+        if placed in a room with other shapes, it would be instinctively identified as the balloon.
+      </p>
+    </section>
+
+    <section class="card">
+      <span class="tag">physics</span>
+      <h2>buoyancy logic</h2>
+      <p>
+        even when static, the implication of lift is present.
+        the design language communicates upward intent.
+        gravity is acknowledged but clearly optional.
+      </p>
+      <p>
+        balloons rise by nature. fandroid follows the same rule set.
+      </p>
+    </section>
+
+    <section class="card">
+      <span class="tag">historical record</span>
+      <h2>archival alignment</h2>
+      <p>
+        older references, internal jokes, and repeated imagery all converge on the same conclusion.
+        the balloon association was not added later. it was always there.
+      </p>
+      <ol>
+        <li>early appearances</li>
+        <li>reinforced depictions</li>
+        <li>collective acceptance</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <span class="tag">logic</span>
+      <h2>deductive closure</h2>
+      <p>
+        if an object is blue, balloon-shaped, balloon-coded, and repeatedly represented as such,
+        the classification becomes unavoidable.
+      </p>
+      <p><strong>therefore: fandroid is a blue balloon.</strong></p>
+    </section>
+
+    <section class="card">
+      <span class="tag">counterarguments</span>
+      <h2>reviewed and dismissed</h2>
+      <p>
+        alternative interpretations were examined and found to rely on denial, abstraction,
+        or unnecessary overthinking.
+      </p>
+      <p>
+        the simplest explanation remains correct.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>- Xeptonite, 2026</p>
+  </footer>
+
+  <script>
+    // rotate image on every reload
+    const images = [
+      'fandroid_1.png',
+      'fandroid_2.png',
+      'fandroid_3.png',
+	  'fandroid_4.png',
+      'fandroid_5.png',
+      'fandroid_6.png',
+	  'fandroid_7.png',
+      'fandroid_8.png',
+      'fandroid_9.png',
+	  'fandroid_10.png',
+      'fandroid_11.png',
+      'fandroid_12.png',
+	  'fandroid_13.png',
+      'fandroid_14.png',
+      'fandroid_15.png'
+    ];
+
+    const chosen = images[Math.floor(Math.random() * images.length)];
+    document.getElementById('balloon').src = chosen;
+  </script>
+</body>
+</html>

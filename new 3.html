@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Endermen are good</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: radial-gradient(circle at top, #1b0b2a, #050008);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: white;
+    }
+
+    .modal {
+        width: 620px;
+        background: linear-gradient(180deg, #2a0d44, #14071f);
+        border-radius: 12px;
+        box-shadow:
+            0 0 0 1px rgba(170, 90, 255, 0.4),
+            0 0 25px rgba(170, 90, 255, 0.35);
+        padding: 20px 24px 22px;
+        position: relative;
+    }
+
+    .modal h1 {
+        margin: 0 0 12px;
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .modal p {
+        margin: 0 0 10px;
+        font-size: 15px;
+        line-height: 1.45;
+        color: #e6dfff;
+    }
+
+    .modal .close {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        font-size: 18px;
+        cursor: pointer;
+        color: #d6c6ff;
+        user-select: none;
+    }
+
+    .modal .close:hover {
+        color: white;
+    }
+
+    .modal-footer {
+        margin-top: 18px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .agree {
+        background: white;
+        color: black;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    }
+
+    .agree:hover {
+        background: #f0f0f0;
+    }
+
+    .agree:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+    }
+</style>
+</head>
+<body>
+
+<div class="modal">
+    <div class="close">×</div>
+    <h1>Endermen are good</h1>
+    <p><strong>Yes.</strong></p>
+    <p>This is an examplar module prompt for RollBlocks websites. There's not really much to expect.</p>
+    <p>Still, now you know our opinion.</p>
+
+    <div class="modal-footer">
+        <button class="agree">I agree!</button>
+    </div>
+</div>
+
+</body>
+</html>

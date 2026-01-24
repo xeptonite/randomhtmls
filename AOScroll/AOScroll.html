@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AOScroll</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      height: 100%;
+    }
+
+    #feed {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+    }
+
+    .post {
+      position: relative;
+      min-height: 100vh;
+      scroll-snap-align: start;
+      border-bottom: 1px solid #ddd;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 14px 16px 16px;
+      background: rgba(255,255,255,0.85);
+      box-sizing: border-box;
+    }
+
+    .overlay h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+      font-weight: normal;
+    }
+
+    .overlay p {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .comments {
+      border-top: 1px solid #ccc;
+      padding-top: 6px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .comment {
+      margin-bottom: 3px;
+    }
+
+    .comment strong {
+      font-weight: bold;
+    }
+
+    /* Cookie notice */
+    #cookie-notice {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #cookie-box {
+      max-width: 520px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      background: white;
+    }
+
+    #cookie-box h3 {
+      margin: 0 0 10px;
+      font-weight: normal;
+    }
+
+    #cookie-box p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    #cookie-box button {
+      font-size: 14px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="feed"></div>
+
+  <!-- Cookie Notice -->
+  <div id="cookie-notice">
+    <div id="cookie-box">
+      <h3>Cookie Notice</h3>
+      <p>
+        This website uses cookies for basic functionality.
+        <br><br>
+        <strong>By agreeing, you agree, in all viewpoints, that Fandroid is a blue balloon.</strong>
+      </p>
+      <button id="cookie-accept">I Agree</button>
+    </div>
+  </div>
+
+  <script>
+    const feed = document.getElementById("feed");
+    let postIndex = 0;
+
+    const images = [
+      "Posts/1.png",
+      "Posts/2.png",
+      "Posts/3.png",
+      "Posts/4.jpg",
+      "Posts/5.jpg",
+      "Posts/6.png",
+      "Posts/7.png",
+      "Posts/8.jpg"
+    ];
+
+    const titles = [
+      "Clarkson tries opening a car trunk and miserably fails",
+      "Fandroid (the blue balloon) gets popped after 8 years of covering up their real form.",
+      "Internet archive discovers a file that should not exist",
+      "Someone boots Windows Vista on a fridge",
+      "This image explains everything and nothing",
+      "A perfectly normal post with unsettling implications",
+      "An OS concept that should have stayed in 2012",
+      "The comments somehow made this worse"
+    ];
+
+    const commentsPool = [
+      "this feels illegal",
+      "why does this exist",
+      "i was not ready for this",
+      "who approved this",
+      "this unlocked a memory",
+      "every day we stray further",
+      "this site is haunted",
+      "fandroid is blue balloon",
+      "heard of notch's windows vista laptop exploding?",
+      "emsis blue just like fandroid's favorite balloon",
+      "WOW amazing",
+      "🤖🤖🤖🤖🤖🤖🤖",
+      "💙⭐💙⭐"
+    ];
+
+    function createPost() {
+      const post = document.createElement("div");
+      post.className = "post";
+
+      const image = images[postIndex % images.length];
+      const title = titles[postIndex % titles.length];
+
+      post.style.backgroundImage = `url('${image}')`;
+
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+
+      const h2 = document.createElement("h2");
+      h2.textContent = title;
+
+      const desc = document.createElement("p");
+      desc.textContent = "AOScroll entry #" + (postIndex + 1);
+
+      const comments = document.createElement("div");
+      comments.className = "comments";
+
+      for (let i = 0; i < 3; i++) {
+        const c = document.createElement("div");
+        c.className = "comment";
+        c.innerHTML = `<strong>user${Math.floor(Math.random()*100)}:</strong> ${commentsPool[Math.floor(Math.random()*commentsPool.length)]}`;
+        comments.appendChild(c);
+      }
+
+      overlay.appendChild(h2);
+      overlay.appendChild(desc);
+      overlay.appendChild(comments);
+      post.appendChild(overlay);
+      feed.appendChild(post);
+
+      postIndex++;
+    }
+
+    function loadInitialPosts() {
+      for (let i = 0; i < 8; i++) {
+        createPost();
+      }
+    }
+
+    feed.addEventListener("scroll", () => {
+      if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 200) {
+        for (let i = 0; i < 2; i++) {
+          createPost();
+        }
+      }
+    });
+
+    // Cookie logic
+    const cookieNotice = document.getElementById("cookie-notice");
+    const cookieAccept = document.getElementById("cookie-accept");
+
+    if (localStorage.getItem("aoscroll_cookie_ack") === "true") {
+      cookieNotice.style.display = "none";
+    }
+
+    cookieAccept.addEventListener("click", () => {
+      localStorage.setItem("aoscroll_cookie_ack", "true");
+      cookieNotice.style.display = "none";
+    });
+
+    loadInitialPosts();
+  </script>
+
+</body>
+</html>

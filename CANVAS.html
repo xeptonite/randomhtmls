@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Canva but the CSS lost supervision</title>
+
+<style>
+/* ===========================
+   GLOBAL OVERSTYLING
+   =========================== */
+
+:root {
+  --gradient-1: linear-gradient(45deg, #ff00ff, #00ffff, #ffcc00);
+  --gradient-2: linear-gradient(135deg, #7f00ff, #e100ff);
+  --glow: 0 0 20px rgba(255,255,255,0.6);
+  --radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  transition: all 0.4s cubic-bezier(.2,.8,.2,1);
+}
+
+html {
+  scroll-behavior: smooth;
+  filter: saturate(1.3);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--gradient-1);
+  animation: backgroundShift 12s infinite alternate;
+}
+
+/* ===========================
+   ANIMATIONS THAT NOBODY ASKED FOR
+   =========================== */
+
+@keyframes backgroundShift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: none; }
+  100% { box-shadow: var(--glow); }
+}
+
+/* ===========================
+   HEADER
+   =========================== */
+
+.header {
+  padding: 48px;
+  text-align: center;
+  background: var(--gradient-2);
+  color: white;
+  text-shadow: 0 0 12px rgba(255,255,255,0.8);
+  animation: pulse 2s infinite alternate;
+}
+
+.header h1 {
+  font-size: 48px;
+  letter-spacing: 2px;
+  transform: skew(-2deg);
+}
+
+/* ===========================
+   SIDEBAR
+   =========================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 92px;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(16px);
+  border-right: 3px solid rgba(255,255,255,0.3);
+}
+
+.sidebar div {
+  margin: 24px auto;
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 50%;
+  animation: float 1.5s infinite alternate;
+}
+
+.sidebar div:hover {
+  transform: scale(1.3) rotate(15deg);
+  box-shadow: var(--glow);
+}
+
+/* ===========================
+   MAIN CONTENT
+   =========================== */
+
+.main {
+  margin-left: 120px;
+  padding: 48px;
+}
+
+.search {
+  background: white;
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  transform: rotate(-0.4deg);
+}
+
+.search input {
+  width: 100%;
+  padding: 18px;
+  border-radius: 999px;
+  border: none;
+  font-size: 18px;
+  outline: none;
+  background: linear-gradient(90deg, #fff, #f5f5ff);
+}
+
+/* ===========================
+   TEMPLATE GRID
+   =========================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.card {
+  height: 160px;
+  background: linear-gradient(135deg, #ffffff, #eeeeff);
+  border-radius: var(--radius);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.2),
+    inset 0 0 30px rgba(255,255,255,0.9);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg, magenta, cyan, yellow, magenta);
+  animation: spin 6s linear infinite;
+}
+
+.card::after {
+  content: "TEMPLATE";
+  position: absolute;
+  inset: 12px;
+  background: white;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.card:hover {
+  transform: scale(1.08) rotate(1deg);
+}
+
+/* ===========================
+   FOOTER BECAUSE WHY NOT
+   =========================== */
+
+.footer {
+  margin-top: 120px;
+  padding: 48px;
+  text-align: center;
+  color: white;
+  opacity: 0.9;
+  filter: blur(0.3px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<div class="header">
+  <h1>What will you design today?</h1>
+</div>
+
+<div class="main">
+  <div class="search">
+    <input placeholder="Search designs, folders, uploads, hopes and dreams">
+  </div>
+
+  <div class="grid">
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+  </div>
+
+  <div class="footer">
+    this UI uses 600 lines of CSS to display rectangles
+  </div>
+</div>
+
+</body>
+</html>
