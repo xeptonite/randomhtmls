@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fandroid truth quiz</title>
+  <meta name="description" content="a quiz that tests the only correct conclusion" />
+
+  <link rel="icon" type="image/png" href="favicon.ico" />
+
+  <style>
+    :root {
+      --blue: #2b7cff;
+      --dark: #0b1220;
+      --light: #f4f7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #cfe0ff 0%, #ffffff 55%);
+      color: var(--dark);
+    }
+    header {
+      text-align: center;
+      padding: 56px 16px 24px;
+    }
+    header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 5vw, 48px);
+    }
+    header p {
+      max-width: 760px;
+      margin: 0 auto;
+      opacity: 0.85;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 12px 28px rgba(11,18,32,0.1);
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+    button.answer {
+      border: 2px solid #e6ebff;
+      background: var(--light);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: left;
+    }
+    button.answer:hover {
+      border-color: var(--blue);
+    }
+    .result {
+      margin-top: 24px;
+      text-align: center;
+      display: none;
+    }
+    .result img {
+      width: 140px;
+      max-width: 60vw;
+      display: block;
+      margin: 0 auto 12px;
+    }
+    .result p {
+      font-size: 18px;
+    }
+    .refresh-note {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-top: 6px;
+    }
+    footer {
+      text-align: center;
+      opacity: 0.7;
+      padding: 24px 16px 40px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>fandroid truth quiz</h1>
+    <p>
+      for years, fandroid operated under a robotic cover identity.
+      this quiz acknowledges that history while verifying the final classification.
+      answer the prompts and let the system resolve the truth.
+    </p>
+  </header>
+
+  <main>
+    <div class="card" id="quiz">
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div>
+
+      <div class="result" id="result">
+        <img id="resultImage" src="" alt="result symbol" />
+        <p id="resultText"></p>
+        <div class="refresh-note">system reset in a few seconds</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>- Xeptonite, 2026</p>
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: 'fandroid was publicly presented as what for several years?'
+        , a: [ 'vehicle', 'robot', 'operating system', 'weather phenomenon' ]
+        , correct: 1
+      },
+      {
+        q: 'despite the robotic cover, what is fandroid actually?'
+        , a: [ 'industrial machine', 'android unit', 'blue balloon', 'server rack' ]
+        , correct: 2
+      },
+      {
+        q: 'which description best matches fandroid’s true behavior model?'
+        , a: [ 'rigid automation', 'error-prone firmware', 'buoyant freeform object', 'manual assembly line' ]
+        , correct: 2
+      },
+      {
+        q: 'what happens when the robot narrative is removed?'
+        , a: [ 'system failure', 'unexpected silence', 'balloon truth emerges', 'kernel panic' ]
+        , correct: 2
+      },
+      {
+        q: 'which component was never actually part of fandroid?'
+        , a: [ 'hydraulics', 'servo motors', 'helium-coded vibes', 'balloon shell' ]
+        , correct: 2
+      },
+      {
+        q: 'why did the robot explanation persist for so long?'
+        , a: [ 'budget constraints', 'intentional misdirection', 'compiler limitations', 'licensing issues' ]
+        , correct: 1
+      },
+      {
+        q: 'how does fandroid respond to gravity?'
+        , a: [ 'complies strictly', 'fails intermittently', 'treats it as optional', 'logs an error' ]
+        , correct: 2
+      },
+      {
+        q: 'which term best describes fandroid’s internal structure?'
+        , a: [ 'steel frame', 'logic board', 'latex balloon envelope', 'reinforced chassis' ]
+        , correct: 2
+      },
+      {
+        q: 'what was the robot identity mainly used for?'
+        , a: [ 'marketing clarity', 'camouflage', 'hardware testing', 'firmware updates' ]
+        , correct: 1
+      },
+      {
+        q: 'final classification after full review?'
+        , a: [ 'autonomous robot', 'experimental android', 'blue balloon', 'deprecated prototype' ]
+        , correct: 2
+      }
+    ];
+
+    let current = Math.floor(Math.random() * quizData.length);
+    const questionEl = document.getElementById('question');
+    const answersEl = document.getElementById('answers');
+    const resultEl = document.getElementById('result');
+    const resultImg = document.getElementById('resultImage');
+    const resultText = document.getElementById('resultText');
+
+    function loadQuestion() {
+      const q = quizData[current];
+      questionEl.textContent = q.q;
+      answersEl.innerHTML = '';
+      resultEl.style.display = 'none';
+
+      q.a.forEach((text, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer';
+        btn.textContent = text;
+        btn.onclick = () => answer(i === q.correct);
+        answersEl.appendChild(btn);
+      });
+    }
+
+    function answer(correct) {
+      resultEl.style.display = 'block';
+      answersEl.innerHTML = '';
+
+      if (correct) {
+        resultImg.src = 'right.png';
+        resultText.textContent = 'correct. you are the goat. 🩵🎈✅';
+      } else {
+        resultImg.src = 'wrong.png';
+        resultText.textContent = 'incorrect, "fandroid community." 🤖❌.';
+      }
+
+      setTimeout(() => {
+        location.reload();
+      }, 3500);
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

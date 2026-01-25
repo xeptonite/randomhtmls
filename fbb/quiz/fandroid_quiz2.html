@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fandroid truth quiz</title>
+  <meta name="description" content="a quiz that tests the only correct conclusion" />
+
+  <link rel="icon" type="image/png" href="favicon.ico" />
+
+  <style>
+    :root {
+      --blue: #2b7cff;
+      --dark: #0b1220;
+      --light: #f4f7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #cfe0ff 0%, #ffffff 55%);
+      color: var(--dark);
+    }
+    header {
+      text-align: center;
+      padding: 56px 16px 24px;
+    }
+    header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 5vw, 48px);
+    }
+    header p {
+      max-width: 760px;
+      margin: 0 auto;
+      opacity: 0.85;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 12px 28px rgba(11,18,32,0.1);
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+    button.answer {
+      border: 2px solid #e6ebff;
+      background: var(--light);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: left;
+    }
+    button.answer:hover {
+      border-color: var(--blue);
+    }
+    .result {
+      margin-top: 24px;
+      text-align: center;
+      display: none;
+    }
+    .result img {
+      width: 140px;
+      max-width: 60vw;
+      display: block;
+      margin: 0 auto 12px;
+    }
+    .result p {
+      font-size: 18px;
+    }
+    .refresh-note {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-top: 6px;
+    }
+    footer {
+      text-align: center;
+      opacity: 0.7;
+      padding: 24px 16px 40px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>fandroid truth quiz</h1>
+    <p>
+      for years, fandroid operated under a robotic cover identity.
+      this quiz acknowledges that history while verifying the final classification.
+      answer the prompts and let the system resolve the truth.
+    </p>
+  </header>
+
+  <main>
+    <div class="card" id="quiz">
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div>
+
+      <div class="result" id="result">
+        <img id="resultImage" src="" alt="result symbol" />
+        <p id="resultText"></p>
+        <div class="refresh-note">refresh in a few seconds</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>- Xeptonite, 2026</p>
+  </footer>
+
+  <script>
+  // png image pools (random every answer)
+  const rightImages = [
+    'right_1.png','right_2.png','right_3.png','right_4.png','right_5.png',
+    'right_6.png','right_7.png','right_8.png','right_9.png','right_10.png'
+  ];
+  const wrongImages = [
+    'wrong_1.png','wrong_2.png','wrong_3.png','wrong_4.png','wrong_5.png',
+    'wrong_6.png','wrong_7.png','wrong_8.png','wrong_9.png','wrong_10.png'
+  ];
+
+  function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  const quizData = [
+    { q: 'fandroid was publicly presented as what for several years?', a: ['vehicle','robot','embedded controller','weather phenomenon'], correct: 1 },
+    { q: 'despite the robotic cover, what is fandroid actually?', a: ['industrial machine','android unit','blue balloon','server rack'], correct: 2 },
+    { q: 'which description best matches fandroid’s real behavior?', a: ['closed-loop automation','deterministic firmware','buoyant freeform object','manual assembly line'], correct: 2 },
+    { q: 'what happens when the robot narrative is removed?', a: ['system failure','unexpected silence','balloon truth emerges','kernel panic'], correct: 2 },
+
+    { q: 'which component sounds robotic but never existed?', a: ['servo array','actuator stack','helium-coded envelope','control bus'], correct: 2 },
+    { q: 'why did the robot explanation persist?', a: ['manufacturing delays','intentional misdirection','toolchain limits','firmware debt'], correct: 1 },
+    { q: 'how does fandroid respond to gravity?', a: ['requires calibration','logs an exception','treats it as optional','locks joints'], correct: 2 },
+    { q: 'which internal material description is accurate?', a: ['steel chassis','carbon frame','latex balloon envelope','ceramic shell'], correct: 2 },
+
+    { q: 'which phrase most successfully misled observers?', a: ['autonomous android','closed-loop system','balloon derivative','legacy platform'], correct: 2 },
+    { q: 'what best explains fandroid’s mobility?', a: ['motor torque','path planning','buoyancy','gear ratio'], correct: 2 },
+
+    // advanced / audit-tier
+    { q: 'under an engineering audit, which category fails first?', a: ['power delivery','structural rigidity','software validation','thermal envelope'], correct: 1 },
+    { q: 'which signal would never be detected internally?', a: ['telemetry','diagnostics','lift force','servo feedback'], correct: 3 },
+    { q: 'what property collapses the robot hypothesis immediately?', a: ['lack of firmware','absence of joints','positive buoyancy','missing serial number'], correct: 2 },
+    { q: 'which test conclusively classifies fandroid?', a: ['stress test','unit test','drop test','release-and-observe'], correct: 3 },
+    { q: 'what is the correct high-level classification?', a: ['autonomous machine','interactive robot','lighter-than-air object','legacy android'], correct: 2 },
+    { q: 'after removing all metaphors, what remains?', a: ['hardware platform','robotic shell','blue balloon','empty casing'], correct: 2 }
+  ];
+
+  const questionEl = document.getElementById('question');
+  const answersEl = document.getElementById('answers');
+  const resultEl = document.getElementById('result');
+  const resultImg = document.getElementById('resultImage');
+  const resultText = document.getElementById('resultText');
+
+  function loadQuestion() {
+    const q = quizData[Math.floor(Math.random() * quizData.length)];
+    questionEl.textContent = q.q;
+    answersEl.innerHTML = '';
+    resultEl.style.display = 'none';
+
+    q.a.forEach((text, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer';
+      btn.textContent = text;
+      btn.onclick = () => answer(i === q.correct);
+      answersEl.appendChild(btn);
+    });
+  }
+
+   function answer(isCorrect) {
+    resultEl.style.display = 'block';
+    answersEl.innerHTML = '';
+
+    if (isCorrect) {
+      const img = rightImages[Math.floor(Math.random() * rightImages.length)];
+      resultImg.src = img;
+      resultText.textContent = 'correct. 🩵🎈✅.';
+    } else {
+      const img = wrongImages[Math.floor(Math.random() * wrongImages.length)];
+      resultImg.src = img;
+      resultText.textContent = 'incorrect. "fandroid community." 🤖❌';
+    }
+
+    setTimeout(() => location.reload(), 3500);
+  }
+
+  loadQuestion();
+</script>
+
+</body>
+</html>
