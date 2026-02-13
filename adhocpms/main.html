@@ -1,0 +1,370 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ADHOC PMS - postkast</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+<style type="text/css">
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1f4f8f;
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+    color: #000000;
+}
+
+#mainwrapper {
+    margin: 0 auto;
+    background-color: #e6eef9;
+    border: 1px solid #163a6b;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+}
+
+#topbar {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background-color: #1b4d8c;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    border-bottom: 1px solid #0f2e55;
+    color: #ffffff;
+}
+
+#topbar-inner {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+#topbar-inner {
+    width: 960px;
+    margin: 0 auto;
+}
+
+#logo {
+    float: left;
+    padding: 8px 10px;
+}
+
+#userinfo {
+    float: right;
+    padding-top: 18px;
+    font-size: 10px;
+}
+
+#userinfo a {
+    color: #d6e6ff;
+    text-decoration: none;
+}
+
+#userinfo a:hover {
+    text-decoration: underline;
+}
+
+.clear {
+    clear: both;
+}
+
+/* Layout */
+#main {
+    height: 100%;
+    background-color: #e6eef9;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 180px;
+    float: left;
+    background-color: #d8e4f5;
+    border-right: 1px solid #b5c8e6;
+}
+
+.menuitem {
+    padding: 8px;
+    border-bottom: 1px solid #c5d6f0;
+    cursor: pointer;
+}
+
+.menuitem:hover {
+    background-color: #c5d6f0;
+}
+
+#content {
+    margin-left: 180px;
+    padding: 15px;
+}
+
+/* Buttons */
+.button {
+    padding: 3px 14px;
+    border: 1px solid #163a6b;
+    background-color: #3b79c9;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    color: #ffffff;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+/* Mail Table */
+.mailtable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.mailtable th {
+    background-color: #2e6fbd;
+    color: #ffffff;
+    padding: 6px;
+    text-align: left;
+}
+
+.mailtable td {
+    padding: 6px;
+    border-bottom: 1px solid #c5d6f0;
+}
+
+.mailrow:hover {
+    background-color: #dde9f9;
+}
+
+/* Footer */
+#pagefooter {
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 10px;
+    color: #d6e6ff;
+    text-align: center;
+}
+
+#sidebar {
+    width: 180px;
+    float: left;
+    height: 100%;
+    background-color: #d8e4f5;
+    border-right: 1px solid #b5c8e6;
+}
+
+#compose {
+    display: none;
+    width: 700px;
+    margin: 20px auto;
+    border: 1px solid #b5c8e6;
+    background-color: #ffffff;
+    padding: 12px;
+}
+
+#compose input[type="text"] {
+    width: 98%;
+    border: 1px solid #7f9db9;
+    padding: 3px;
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+}
+
+#compose textarea {
+    width: 98%;
+    height: 120px;
+    border: 1px solid #7f9db9;
+    padding: 3px;
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+}
+</style>
+
+<script type="text/javascript">
+
+var currentFolder = "inbox";
+var selectedMail = null;
+
+var mails = [
+    {id:1, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"Fändroid 26.0 väljalaske kontseptid", date:"13.02.2026", body:"Sa saad failid allalaadida sealt aadressist: https://www.adhoc.ur_rp/ppf/f26/13.02.2026/fandroid26.0.pdf parooliga uMplE882!. Sa võid ainult näidada kontsepti pildid, aga mitte lingi. Ärge muretse kui kogematta lekkid, sest me siis saaksime seda faili IP-bännida Maalt, või ka väljastpoolt meie riiki. See on kontsept Fändroid 2.0 ja 6.0 kombineerimiseks, ka liquid glassina kesta.", read:true},
+    {id:2, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"ADHOCi promotsioon (01.02.2026)", date:"01.02.2026", body:"Kuupalguna saadeti sinu postkasti või pangakontole ͽ15,555.00.", read:false},
+    {id:3, folder:"inbox", from:"fandroid2@pms.adhoc.ur_rp", subject:"ma video idee sain", date:"29.06.2025", body:"tere! olen fändroid kahendas. Ma näen et minu komentaarid youtube kanalis on väga palju komentaare et reaktida ja ka võibolla proovida panna ennast suure õhupalli sisse. link on ishowspeedi (maalane) livestream mis on ronaldo ja jalgpalli tiimi rääkimist, siis mitu tundi hiljem siis on väga suur sinine õhupalliga balloon challange tegemine, mis läks vägagi ausalt valesti, sest nad küünistasid õhupalli tupsu. mina plaanin sedasugust videot teha juulis umbeski, kui tellid või ostad mingid 250 cm sinist õhupalli mis on saadaval world wibe webis. ma vägagi loodaks sa saad hakkama. nägemisemi! 🤖🎈🎈🎈", read:true}
+];
+
+function renderMails() {
+    var table = document.getElementById("mailbody");
+    table.innerHTML = "";
+    var count = 0;
+
+    for (var i = 0; i < mails.length; i++) {
+        if (mails[i].folder == currentFolder) {
+            count++;
+
+            var row = document.createElement("tr");
+            row.className = "mailrow";
+            row.onclick = (function(mail){
+                return function() { openMail(mail.id); }
+            })(mails[i]);
+
+            var unreadStyle = mails[i].read ? "" : "font-weight:bold;";
+
+            row.innerHTML =
+                "<td>" + mails[i].from + "</td>" +
+                "<td style='" + unreadStyle + "'>" + mails[i].subject + "</td>" +
+                "<td>" + mails[i].date + "</td>";
+
+            table.appendChild(row);
+        }
+    }
+
+    document.getElementById("mailcount").innerHTML = count;
+}
+
+function openMail(id) {
+    for (var i = 0; i < mails.length; i++) {
+        if (mails[i].id == id) {
+            selectedMail = mails[i];
+            mails[i].read = true;
+
+            document.getElementById("viewer").style.display = "block";
+            document.getElementById("viewerFrom").innerHTML = mails[i].from;
+            document.getElementById("viewerSubject").innerHTML = mails[i].subject;
+            document.getElementById("viewerDate").innerHTML = mails[i].date;
+            document.getElementById("viewerBody").innerHTML = mails[i].body;
+
+            renderMails();
+            break;
+        }
+    }
+}
+
+function deleteMail() {
+    if (selectedMail != null) {
+        selectedMail.folder = "trash";
+        selectedMail = null;
+        document.getElementById("viewer").style.display = "none";
+        renderMails();
+    }
+}
+
+function markUnread() {
+    if (selectedMail != null) {
+        selectedMail.read = false;
+        renderMails();
+    }
+}
+
+function switchFolder(folder) {
+    currentFolder = folder;
+    selectedMail = null;
+    document.getElementById("viewer").style.display = "none";
+    renderMails();
+}
+
+function composeMail() {
+    document.getElementById("compose").style.display = "block";
+}
+
+function sendMail() {
+    document.getElementById("compose").style.display = "none";
+}
+
+window.onload = function() {
+    renderMails();
+    var year = new Date().getFullYear();
+    document.getElementById("copyrightYear").innerHTML = year;
+};
+
+</script>
+
+</head>
+
+<body>
+<div id="topbar">
+    <div id="topbar-inner">
+
+        <div id="logo">
+            <img src="adhoc.png" height="32" alt="AdHoc" />
+        </div>
+
+        <div id="userinfo">
+            tere, zhyr.tseh@adhoc.ur_rp |
+            <a href="landing.html">logi välja</a>
+        </div>
+
+        <div class="clear"></div>
+
+    </div>
+</div>
+<div id="app">
+<div id="mainwrapper">
+<div id="main">
+
+    <div id="sidebar">
+        <div class="menuitem" onclick="composeMail()">Uus eMail</div>
+<div class="menuitem" onclick="switchFolder('inbox')">Postkast</div>
+<div class="menuitem" onclick="switchFolder('trash')">Prügikast</div>
+    </div>
+
+    <div id="content">
+
+        <input type="button" value="Kustuta valitud" class="button" onclick="deleteMail()" />
+
+        <table class="mailtable">
+    <tr>
+        <th>saatja</th>
+        <th>header</th>
+        <th>koostamise kuupäev</th>
+    </tr>
+    <tbody id="mailbody"></tbody>
+</table>
+
+<div id="viewer" style="display:none; margin-top:15px; border:1px solid #b5c8e6; padding:10px; background:#ffffff;">
+    <b>Saatja:</b> <span id="viewerFrom"></span><br />
+    <b>Teema:</b> <span id="viewerSubject"></span><br />
+    <b>Kuupäev:</b> <span id="viewerDate"></span><br /><br />
+    <div id="viewerBody"></div><br />
+    <input type="button" value="Kustuta" class="button" onclick="deleteMail()" />
+    <input type="button" value="Märgi lugemata" class="button" onclick="markUnread()" />
+</div>
+
+<div>kokku: <span id="mailcount"></span></div>
+
+    </div>
+
+    <div class="clear"></div>
+
+</div>
+
+<div id="compose" style="display:none; margin-top:15px; border:1px solid #b5c8e6; padding:10px; background:#ffffff;">
+    <b>Koosta uus eMaili kiri</b><br /><br />
+    saaja:<br />
+    <input type="text" style="width:100%;" /><br /><br />
+    teema:<br />
+    <input type="text" style="width:100%;" /><br /><br />
+    sisu:<br />
+    <textarea style="width:100%; height:100px;"></textarea><br /><br />
+    <input type="button" value="Saada" class="button" onclick="sendMail()" />
+</div>
+</div>
+</div>
+</div>
+
+<div id="pagefooter">
+    © <span id="copyrightYear"></span> ADHOC Rahvuslikuuringu Keskus.
+</div>
+
+</body>
+</html>

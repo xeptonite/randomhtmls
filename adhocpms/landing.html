@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ADHOC PMS</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<style type="text/css">
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1f4f8f;
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* Top Bar */
+#topbar {
+    background-color: #1b4d8c;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    height: 50px;
+    color: #ffffff;
+    border-bottom: 1px solid #0f2e55;
+}
+
+#topbar-inner {
+    width: 800px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#logo {
+    float: left;
+    padding: 8px 10px;
+}
+
+#logo img {
+    border: 0;
+    vertical-align: middle;
+}
+
+#backlink {
+    float: right;
+    padding-top: 18px;
+    font-size: 10px;
+}
+
+#backlink a {
+    color: #d6e6ff;
+    text-decoration: none;
+}
+
+#backlink a:hover {
+    text-decoration: underline;
+}
+
+/* Clear floats */
+.clear {
+    clear: both;
+}
+
+/* Login Box */
+#loginbox {
+    width: 360px;
+    margin: 120px auto;
+    border: 1px solid #163a6b;
+    background-color: #e6eef9;
+}
+
+#header {
+    background-color: #2e6fbd;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    color: #ffffff;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 1px solid #1a4d8c;
+}
+
+#content {
+    padding: 16px;
+}
+
+.label {
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+
+.inputfield {
+    width: 92%;
+    padding: 3px;
+    border: 1px solid #7f9db9;
+    margin-bottom: 10px;
+    font-size: 11px;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.button {
+    padding: 3px 16px;
+    border: 1px solid #163a6b;
+    background-color: #3b79c9;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.button:hover {
+    background-color: #c1d3ef;
+}
+
+#footer {
+    text-align: center;
+    padding: 8px;
+    font-size: 9px;
+    color: #2e2e2e;
+    border-top: 1px solid #c0c0c0;
+}
+#pagefooter {
+    margin-top: 80px;
+    padding: 12px;
+    font-size: 10px;
+    color: #d6e6ff;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+    <div id="topbar-inner">
+
+        <div id="logo">
+            <img src="adhoc.png" alt="AdHoc Logo" height="32" />
+        </div>
+
+        <div id="backlink">
+            <a href="index.html">tagasi main veebsaiti</a>
+        </div>
+
+        <div class="clear"></div>
+
+    </div>
+</div>
+
+<!-- LOGIN BOX -->
+<div id="loginbox">
+
+    <div id="header">
+        Logi sisse
+    </div>
+
+    <div id="content">
+        <form action="verification.html" method="post">
+
+            <div class="label">eMail aadress</div>
+            <input type="text" name="username" class="inputfield" />
+
+            <div class="label">Parool</div>
+            <input type="password" name="password" class="inputfield" />
+
+            <br />
+
+            <input type="submit" value="Logi sisse" class="button" />
+
+        </form>
+    </div>
+
+    <div id="footer">
+        Pane tähele kinnistamiseks: võetke paber printerist teises korruses, mis ütleb sinu ajutist pääsukoodi ja brauseridetailid.<br />
+        Mõnede kontodel on see välja arvatud.
+    </div>
+
+</div>
+<div id="pagefooter">
+    © <span id="copyrightYear"></span> ADHOC Rahvuslikuuringu Keskus.
+</div>
+<script type="text/javascript">
+var today = new Date();
+var year = today.getFullYear();
+document.getElementById("copyrightYear").innerHTML = year;
+</script>
+</body>
+</html>
