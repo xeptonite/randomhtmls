@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHOC Rahvuslikuuringu Keskus</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    /* ADHOC 2026 ametlik "Deep Blue" värvipalett */
+    --accent: #0e0ffd; 
+    --accent-soft: rgba(14, 15, 253, 0.15);
+    --glass-bg: rgba(10, 10, 20, 0.7);
+    --glass-border: rgba(255,255,255,0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --warning-red: #ef4444;
+}
+
+body {
+    margin: 0;
+    background: #000000;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+/* ===== Navigatsioon ===== */
+.topbar {
+    width: 100%;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    box-shadow: 0 0 15px var(--accent-soft);
+}
+
+.logo img {
+    height: 36px;
+}
+
+.nav {
+    display: flex;
+    gap: 25px;
+}
+
+.nav span {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.6;
+    transition: 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav span:hover, .nav span.active {
+    opacity: 1;
+    color: var(--accent);
+}
+
+/* ===== Leheküljed ===== */
+.page {
+    display: none;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    animation: slideUp 0.4s ease-out;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Blogi Formaat (Uus) ===== */
+.blog-post {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 40px;
+}
+
+.post-meta {
+    font-size: 13px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 700;
+}
+
+.post-title {
+    font-size: 32px;
+    margin: 0 0 20px 0;
+    color: #fff;
+}
+
+.post-content {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.post-content p { margin-bottom: 20px; }
+
+.warning-box {
+    border-left: 4px solid var(--warning-red);
+    background: rgba(239, 68, 68, 0.05);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.blue-balloon-alert {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+}
+
+/* ===== Jalus ===== */
+.footer {
+    text-align: center;
+    padding: 60px 20px;
+    border-top: 1px solid var(--glass-border);
+    opacity: 0.5;
+    font-size: 13px;
+}
+
+.motto {
+    display: block;
+    margin-top: 10px;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+iframe {
+  z-index: 50;
+      position: fixed;
+      top: 0.5;
+      left: 0;
+      width: 100vw;
+      height: 85vh;
+      border: none;
+}
+
+.overlay {
+  position: fixed;
+  z-index: 10;
+}
+#labs.page.active {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px); /* Arvestab topbari ja marginaali */
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.labs-iframe {
+    width: 100%;
+    flex-grow: 1;
+    border: none;
+    background: #000;
+    border-top: 1px solid var(--accent-soft);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="logo">
+	<img src="adhoc.png" alt="ADHOC">
+        <div style="font-weight: 300; font-size: 20px; letter-spacing: -0.5px;">Rahvuslikuuringu Keskus</div>
+    </div>
+    <div class="nav">
+        <span onclick="switchPage('home')" class="active">Avaleht</span>
+        <span onclick="switchPage('blog')">Blogi & Uudised</span>
+        <span onclick="switchPage('labs')">Chat</span>
+        <span onclick="switchPage('contact')">Kontakt</span>
+    </div>
+</div>
+
+<div id="home" class="page active">
+    <h1 style="font-size: 56px; text-align: center; margin-bottom: 10px;">Tere tulemast.</h1>
+    <p style="text-align: center; color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto 60px auto;">
+        ADHOC Rahvuslikuuringu Keskus on Uue Tsivilisatsiooni oluline osa alates 1989. aastast.
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="blog-post" style="padding: 25px;">
+            <span class="post-meta">Firma info</span>
+            <h3 style="margin: 10px 0;">Kes me oleme?</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">
+                Me asume Grönicheni regioonis Uraanimaal. Meie nähavus on muusikalistel droididel ja tehisintellekti arendamisel.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="blog" class="page">
+    
+    <div class="blog-post">
+        <span class="post-meta">Teadaanne | 17. Veebruar 2026</span>
+        <h2 class="post-title">Griffinilla Lore sektsiooni eemaldamine</h2>
+        <div class="post-content">
+            <div class="warning-box">
+                <strong>OLULINE:</strong> Võimalus pääseda info juurde Fandroidi (Griffinilla versioon) kohta eemaldatakse täna kell 08:30 kohaliku Kalevinsky aja järgi.
+            </div>
+            <p>
+                Pärast pikka kaalumist ja 2024. aasta juunis tekkinud vaidlusi on ADHOC Rahvuslikuuringu Keskus otsustanud lõpetada "Maa-põhise" fiktsiooni toetamise oma peamisel veebilehel. Meie YouTube'i kommuunihaldur Zhyrano Tsenvith on kinnitanud, et edaspidi keskendume ainult reaalsele ajaloole ja RP-18937c sündmustele.
+            </p>
+            <p>
+                Maa külastajad saavad jätkuvalt kasutada ADHOC InfoWebi, mida haldab kommuun, kuid ametlik platvorm jääb puhtaks välisest sekkumisest.
+            </p>
+        </div>
+    </div>
+
+    <div class="blog-post">
+        <span class="post-meta">Sündmused | 17. Veebruar 2026</span>
+        <h2 class="post-title">Fandroid 2.0: Integer Limit Party</h2>
+        <div class="post-content">
+            <p>
+                Meie edukaimal põlvkonnal Fandroid 2.0 on sünnipäev 17. veebruaril 2026. Ta saab 32-aastaseks, mis on x86 andmetöötluse jaoks oluline number.
+				</p>
+				<p>
+Taotle piletid meie kõige värskemale eelseisvale üritusele ADHOC Rahvuslikuuringu Keskuse majas. Iseseisvalt piletite ostmiseks peate olema RP-18937c olend ja vähemalt 16-aastane (või olenevalt teie tüübist soovitatud vanus).
+</p>
+<p>
+Täna tähistame ajaloolist verstaposti! Meie kuulsaim droid, Fandroid 2.0, saab 32-aastaseks. Kuna 32-bitistel täisarvudel on oma piir (2 147 483 647), tähistame seda täisvõimsusel!
+            </p>
+            <div class="blue-balloon-alert">
+                "Ma vajan täpselt 32 hiiglaslikku 91 cm sinist õhupalli, et tunda end universumiga täielikus süinkrooniss!" - Fandroid 2.0
+            </div>
+            <p>
+                Pidu toimub Holodeckis, mil on stiilis 1996. aasta retro-esteetikaga. Külaliste nimekirjas on Melody, Xanodroid ja meie esimesed sõbrad Latexine tsivilisatsioonist (Sentient Balloons), kes on teel iseseisvuse poole aastal 2027.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<div id="labs" class="page">
+    <iframe class="chat-iframe" src="models/chat.html"></iframe>
+	    </div>
+</div>
+
+<div id="contact" class="page">
+    <div class="blog-post" style="text-align: center;">
+        <h2 class="post-title">Võta ühendust</h2>
+        <p><strong>Ametlik e-post:</strong> adhoc@adhoc.ur_rp</p>
+        <p><strong>Meediasuhted:</strong> zhyrano@adhoc.ur_rp (Zhyrano Tsenvith)</p>
+        <p><strong>Asukoht:</strong> Karvemäe 193, Kalevinsky, Uraanimaa</p>
+    </div>
+</div>
+
+<div class="footer">
+    © 1989-<span id="copyrightYear"></span> ADHOC Rahvuslikuuringu Keskus.
+    <span class="motto">Laiendame meeldelahutust kõigile nii seal kui ka sealt.</span>
+</div>
+
+<script>
+function switchPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav span').forEach(s => s.classList.remove('active'));
+    
+    document.getElementById(pageId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    
+    window.scrollTo(0, 0);
+}
+
+var today = new Date();
+var year = today.getFullYear();
+document.getElementById("copyrightYear").innerHTML = year;
+
+if (id !== 'labs') {
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>

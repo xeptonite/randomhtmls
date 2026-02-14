@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<title>Koosta uus eMaili kiri</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style>
+body {
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+    background:#e6eef9;
+    padding:15px;
+}
+input, textarea {
+    width: 98%;
+    border:1px solid #7f9db9;
+    font-family: Tahoma;
+    font-size:11px;
+}
+.button {
+    padding: 3px 14px;
+    border: 1px solid #163a6b;
+    background-color: #3b79c9;
+    background-image: url("aero.png");
+    background-repeat: repeat-x;
+    color: #ffffff;
+    font-size: 11px;
+    cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+
+function sendMail() {
+    window.close();
+}
+
+function saveDraft() {
+    window.close();
+}
+
+</script>
+</head>
+
+<body>
+
+<b>Koosta uus eMaili kiri</b><br /><br />
+
+saaja:<br />
+    <input type="text" style="width:100%;" /><br /><br />
+    teema:<br />
+    <input type="text" style="width:100%;" /><br /><br />
+    sisu:<br />
+    <textarea style="width:100%; height:100px;"></textarea><br /><br />
+
+<input type="button" value="saadke" class="button" onclick="sendMail();" />
+<input type="button" value="salvesta" class="button" onclick="saveDraft();" />
+<input type="button" value="ei salvesta" class="button" onclick="window.close();" />
+
+</body>
+</html>

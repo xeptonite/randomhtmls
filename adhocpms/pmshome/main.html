@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>ADHOC PMS - postkast</title>
+<title>ADHOC</title>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -198,9 +198,9 @@ var currentFolder = "inbox";
 var selectedMail = null;
 
 var mails = [
-    {id:1, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"Fändroid 26.0 väljalaske kontseptid", date:"13.02.2026", body:"Sa saad failid allalaadida sealt aadressist: https://www.adhoc.ur_rp/ppf/f26/13.02.2026/fandroid26.0.pdf parooliga uMplE882!. Sa võid ainult näidada kontsepti pildid, aga mitte lingi. Ärge muretse kui kogematta lekkid, sest me siis saaksime seda faili IP-bännida Maalt, või ka väljastpoolt meie riiki. See on kontsept Fändroid 2.0 ja 6.0 kombineerimiseks, ka liquid glassina kesta.", read:true},
-    {id:2, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"ADHOCi promotsioon (01.02.2026)", date:"01.02.2026", body:"Kuupalguna saadeti sinu postkasti või pangakontole ͽ15,555.00.", read:false},
-    {id:3, folder:"inbox", from:"fandroid2@pms.adhoc.ur_rp", subject:"ma video idee sain", date:"29.06.2025", body:"tere! olen fändroid kahendas. Ma näen et minu komentaarid youtube kanalis on väga palju komentaare et reaktida ja ka võibolla proovida panna ennast suure õhupalli sisse. link on ishowspeedi (maalane) livestream mis on ronaldo ja jalgpalli tiimi rääkimist, siis mitu tundi hiljem siis on väga suur sinine õhupalliga balloon challange tegemine, mis läks vägagi ausalt valesti, sest nad küünistasid õhupalli tupsu. mina plaanin sedasugust videot teha juulis umbeski, kui tellid või ostad mingid 250 cm sinist õhupalli mis on saadaval world wibe webis. ma vägagi loodaks sa saad hakkama. nägemisemi! 🤖🎈🎈🎈", read:true}
+    {id:1, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"Fändroid 26.0 väljalaske kontseptid", date:"13.02.2026", body:"Sa saad failid allalaadida sealt aadressist: https://www.adhoc.ur_rp/ppf/f26/13.02.2026/fandroid26.0.pdf parooliga uMplE882!. Sa võid ainult näidada kontsepti pildid, aga mitte lingi. Ärge muretse kui kogematta lekkid, sest me siis saaksime seda faili IP-bännida Maalt, või ka väljastpoolt meie riiki. See on kontsept Fändroid 2.0 ja 6.0 kombineerimiseks, ka liquid glassina kesta.", flagged: false, attachment: "fandroid26.0.pdf", read:true},
+    {id:2, folder:"inbox", from:"adhoc@pms.adhoc.ur_rp", subject:"ADHOCi promotsioon (01.02.2026)", date:"01.02.2026", body:"Kuupalguna saadeti sinu postkasti või pangakontole ͽ15,555.00.", flagged: false, read:false},
+    {id:3, folder:"inbox", from:"fandroid2@pms.adhoc.ur_rp", subject:"ma video idee sain", date:"29.06.2025", body:"tere! olen fändroid kahendas. Ma näen et minu komentaarid youtube kanalis on väga palju komentaare et reaktida ja ka võibolla proovida panna ennast suure õhupalli sisse. link on ishowspeedi (maalane) livestream mis on ronaldo ja jalgpalli tiimi rääkimist, siis mitu tundi hiljem siis on väga suur sinine õhupalliga balloon challange tegemine, mis läks vägagi ausalt valesti, sest nad küünistasid õhupalli tupsu. mina plaanin sedasugust videot teha juulis umbeski, kui tellid või ostad mingid 250 cm sinist õhupalli mis on saadaval world wibe webis. ma vägagi loodaks sa saad hakkama. nägemisemi! 🤖🎈🎈🎈", flagged: true, read:true}
 ];
 
 function renderMails() {
@@ -274,11 +274,29 @@ function switchFolder(folder) {
 }
 
 function composeMail() {
-    document.getElementById("compose").style.display = "block";
+    window.open(
+        "functions/compose.html",
+        "composeWindow",
+        "width=750,height=500,resizable=yes,scrollbars=yes"
+    );
 }
 
-function sendMail() {
+function saveDraft() {
+    var subject = document.getElementById("composeSubject").value;
+    var body = document.getElementById("composeBody").value;
+
+    mails.push({
+        id: new Date().getTime(),
+        folder: "drafts",
+        from: "zhyr.tseh@adhoc.ur_rp",
+        subject: subject,
+        date: "täna",
+        body: body,
+        read: true
+    });
+
     document.getElementById("compose").style.display = "none";
+    renderMails();
 }
 
 window.onload = function() {
@@ -286,6 +304,29 @@ window.onload = function() {
     var year = new Date().getFullYear();
     document.getElementById("copyrightYear").innerHTML = year;
 };
+
+function searchMail() {
+    var query = document.getElementById("searchBox").value.toLowerCase();
+    var table = document.getElementById("mailbody");
+    table.innerHTML = "";
+
+    for (var i = 0; i < mails.length; i++) {
+        if (mails[i].subject.toLowerCase().indexOf(query) != -1) {
+            var row = document.createElement("tr");
+            row.className = "mailrow";
+            row.onclick = (function(mail){
+                return function() { openMail(mail.id); }
+            })(mails[i]);
+
+            row.innerHTML =
+                "<td>" + mails[i].from + "</td>" +
+                "<td>" + mails[i].subject + "</td>" +
+                "<td>" + mails[i].date + "</td>";
+
+            table.appendChild(row);
+        }
+    }
+}
 
 </script>
 
@@ -296,12 +337,12 @@ window.onload = function() {
     <div id="topbar-inner">
 
         <div id="logo">
-            <img src="adhoc.png" height="32" alt="AdHoc" />
+            <img src="adhoc.png" height="32" />
         </div>
 
         <div id="userinfo">
             tere, zhyr.tseh@adhoc.ur_rp |
-            <a href="landing.html">logi välja</a>
+            <a href="../index.html">logi välja</a>
         </div>
 
         <div class="clear"></div>
@@ -316,6 +357,10 @@ window.onload = function() {
         <div class="menuitem" onclick="composeMail()">Uus eMail</div>
 <div class="menuitem" onclick="switchFolder('inbox')">Postkast</div>
 <div class="menuitem" onclick="switchFolder('trash')">Prügikast</div>
+<div class="menuitem" onclick="switchFolder('sent')">Saadetud eMailid</div>
+<div class="menuitem" onclick="switchFolder('drafts')">Mustandid</div>
+<div class="menuitem" onclick="switchFolder('spam')">Mittetahtvad kirjad</div>
+<div class="menuitem" onclick="switchFolder('archive')">Vananenud</div>
     </div>
 
     <div id="content">
@@ -323,6 +368,8 @@ window.onload = function() {
         <input type="button" value="Kustuta valitud" class="button" onclick="deleteMail()" />
 
         <table class="mailtable">
+		<input type="text" id="searchBox" placeholder="Otsi..." />
+<input type="button" value="Otsi" class="button" onclick="searchMail()" />
     <tr>
         <th>saatja</th>
         <th>header</th>
@@ -349,7 +396,7 @@ window.onload = function() {
 </div>
 
 <div id="compose" style="display:none; margin-top:15px; border:1px solid #b5c8e6; padding:10px; background:#ffffff;">
-    <b>Koosta uus eMaili kiri</b><br /><br />
+    <b> </b><br /><br />
     saaja:<br />
     <input type="text" style="width:100%;" /><br /><br />
     teema:<br />
@@ -357,14 +404,10 @@ window.onload = function() {
     sisu:<br />
     <textarea style="width:100%; height:100px;"></textarea><br /><br />
     <input type="button" value="Saada" class="button" onclick="sendMail()" />
+	<input type="button" value="Salvesta mustand" class="button" onclick="saveDraft()" />
 </div>
 </div>
 </div>
 </div>
-
-<div id="pagefooter">
-    © <span id="copyrightYear"></span> ADHOC Rahvuslikuuringu Keskus.
-</div>
-
 </body>
 </html>

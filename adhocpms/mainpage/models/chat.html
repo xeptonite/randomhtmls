@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ADHOC</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: #000000;
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 40px;
+    color: #e2e8f0;
+}
+
+/* Ghost Button Trigger */
+.selector {
+    position: relative;
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: 
+        background 0.12s ease,
+        border 0.12s ease,
+        box-shadow 0.12s ease;
+    border: 1px solid transparent;
+}
+
+/* Invisible frame until hover */
+.selector:hover {
+    backdrop-filter: blur(14px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 
+        0 6px 18px rgba(0,0,0,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* Dropdown */
+.dropdown {
+    position: absolute;
+    top: 46px;
+    left: 0;
+    width: 260px;
+    border-radius: 18px;
+    padding: 12px;
+    backdrop-filter: blur(22px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+
+    transform-origin: top left;
+    transform: scale(0.9) scaleY(0.85);
+    opacity: 0;
+    pointer-events: none;
+    transition: 
+        transform 0.18s cubic-bezier(.25,.8,.25,1),
+        opacity 0.12s ease;
+}
+
+.dropdown.open {
+    transform: scale(1) scaleY(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Items */
+.item {
+    padding: 12px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: 0.1s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item:hover {
+    background: rgba(255,255,255,0.14);
+}
+
+.item strong {
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.item span {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* If no description exists, spacing remains compact */
+.item:not(:has(span)) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+/* Legacy Submenu (No animation, No descriptions) */
+.submenu {
+    position: absolute;
+    top: 92px;
+    left: 280px;
+    width: 200px;
+    border-radius: 18px;
+    padding: 10px;
+    backdrop-filter: blur(22px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+
+    display: none;
+}
+
+.submenu.open {
+    display: block;
+}
+
+/* Section Switcher */
+.section-switcher {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.section {
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.15s ease;
+}
+
+.section:hover {
+    background: rgba(255,255,255,0.08);
+    opacity: 1;
+}
+
+.section.active {
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* Deprecation Notice */
+.deprecation {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    backdrop-filter: blur(18px);
+    background: rgba(255, 170, 0, 0.08);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Fixed Glass Chatbox */
+.chatbox {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    max-width: 700px;
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 18px;
+    backdrop-filter: blur(22px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.chatbox input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.chatbox button {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: rgba(255,255,255,0.15);
+    color: #e2e8f0;
+    transition: 0.12s ease;
+}
+
+.chatbox button:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+/* Fixed deprecation notice above chatbox */
+.fixed-notice {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    max-width: 700px;
+}
+
+.deprecation {
+    padding: 14px 16px;
+    border-radius: 14px;
+    backdrop-filter: blur(18px);
+    background: rgba(255, 170, 0, 0.08);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.model-page.hidden {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="selector" onclick="toggleMenu()">
+    <span>
+    Fandroid <span id="modelLabel"><strong>6.0</strong></span>
+</span> ▾
+
+    <div class="dropdown" id="dropdown">
+	<div class="section-switcher inside">
+    <div class="section active" onclick="switchSection(event,'adhoc')">
+        ADHOC
+    </div>
+    <div class="section" onclick="switchSection(event,'griffinilla')">
+        ⚠ ADHOC (Grf.)
+    </div>
+</div>
+
+<div id="page-adhoc" class="model-page">
+
+    <div class="item" onclick="selectModel(event,'6.0')">
+        <strong>Fandroid 6.0</strong>
+    </div>
+
+    <div class="item" onclick="selectModel(event,'5.0')">
+        <strong>Fandroid 5.0</strong>
+    </div>
+
+    <div class="item" onclick="selectModel(event,'4.5')">
+        <strong>Fandroid 4.5</strong>
+    </div>
+
+    <hr>
+
+    <div class="item" onclick="toggleLegacy(event)">
+        <strong>Pärandvariatsioonid ▸</strong>
+    </div>
+
+</div>
+
+<div id="page-griffinilla" class="model-page hidden">
+
+    <!-- YOU can type Griffinilla models here -->
+    <div class="item" onclick="selectModel(event,'2025+ Taaskäivitus')">
+        <strong>Fandroid 2025+ Taaskäivitus</strong>
+		<span>Lahkub 17. veebruaril</span>
+    </div>
+	<div class="item" onclick="selectModel(event,'2023-2024 Taaskäivitus')">
+        <strong>Fandroid 2023-2024 Taaskäivitus</strong>
+		<span>Lahkub 17. veebruaril</span>
+    </div>
+	<div class="item" onclick="selectModel(event,'3.0 (Griffinilla)')">
+        <strong>Fandroid 3.0 (2018-2020)</strong>
+		<span>Lahkub 17. veebruaril</span>
+    </div>
+	<div class="item" onclick="selectModel(event,'2.0 (Griffinilla)')">
+        <strong>Fandroid 2.0 (2016-2018)</strong>
+		<span>Lahkub 17. veebruaril</span>
+    </div>
+
+</div>
+
+    </div>
+
+    <div class="submenu" id="legacyMenu">
+
+        <div class="item" onclick="selectModel(event,'4.0')">
+            <strong>Fandroid 4.0</strong>
+        </div>
+
+        <div class="item" onclick="selectModel(event,'3.1')">
+            <strong>Fandroid 3.1</strong>
+        </div>
+
+        <div class="item" onclick="selectModel(event,'3.0')">
+            <strong>Fandroid 3.0</strong>
+        </div>
+
+        <div class="item" onclick="selectModel(event,'2.5rc')">
+            <strong>Fandroid 2.5rc</strong>
+        </div>
+      <div class="item" onclick="selectModel(event,'2.5')">
+            <strong>Fandroid 2.5</strong>
+        </div>
+      <div class="item" onclick="selectModel(event,'2.0')">
+            <strong>Fandroid 2.0</strong>
+            <span>Kõige populaarsem!</span>
+        </div>
+      <div class="item" onclick="selectModel(event,'2.0ev')">
+            <strong>Fandroid 2.0ev</strong>
+        </div>
+      <div class="item" onclick="selectModel(event,'1.0 (Frogbot)')">
+            <strong>Fandroid 1.0 (Frogbot)</strong>
+        </div>
+      <div class="item" onclick="selectModel(event,'0.0')">
+            <strong>Fandroid 0.0</strong>
+        </div>
+      <div class="item" onclick="selectModel(event,'Kontseptid')">
+            <strong>Kontseptid</strong>
+        </div>
+
+    </div>
+</div>
+
+<div id="deprecationNotice" class="deprecation hidden fixed-notice">
+Võimalus pääseda info Fandroid (Griffinilla versioon) kohta ADHOC peamise veebisaidist eemaldatakse 17. veebruari 2026 (kell 08:30 kohalikus Kalevinski ajavööndis). Jätkamiseks juurdepääsuks kasutage selle asemel ADHOC InfoWebi, mida haldab mõlemad meie ja kogukond.
+</div>
+<div class="chatbox">
+    <input type="text" placeholder="Küsige Emuleerivtekstigenereetur-7.0-lt selle Fandroidi variandi kohta.">
+    <button>📨</button>
+</div>
+
+<script>
+function toggleMenu() {
+    const drop = document.getElementById("dropdown");
+    const legacy = document.getElementById("legacyMenu");
+
+    drop.classList.toggle("open");
+    legacy.classList.remove("open");
+}
+
+function toggleLegacy(event) {
+    event.stopPropagation();
+    document.getElementById("legacyMenu").classList.toggle("open");
+}
+
+function selectModel(event, model) {
+    event.stopPropagation();
+
+    document.getElementById("modelLabel").innerHTML = "<strong>" + model + "</strong>";
+
+    document.getElementById("dropdown").classList.remove("open");
+    document.getElementById("legacyMenu").classList.remove("open");
+}
+
+function switchSection(event, section) {
+    event.stopPropagation();   // ← prevents dropdown from closing
+
+    const notice = document.getElementById("deprecationNotice");
+    const sections = document.querySelectorAll(".section");
+    const adhocPage = document.getElementById("page-adhoc");
+    const griffPage = document.getElementById("page-griffinilla");
+    const legacy = document.getElementById("legacyMenu");
+
+    sections.forEach(s => s.classList.remove("active"));
+    legacy.classList.remove("open");
+
+    if (section === "adhoc") {
+        sections[0].classList.add("active");
+        notice.classList.add("hidden");
+        adhocPage.classList.remove("hidden");
+        griffPage.classList.add("hidden");
+    }
+
+    if (section === "griffinilla") {
+        sections[1].classList.add("active");
+        notice.classList.remove("hidden");
+        griffPage.classList.remove("hidden");
+        adhocPage.classList.add("hidden");
+    }
+}
+</script>
+
+</body>
+</html>
