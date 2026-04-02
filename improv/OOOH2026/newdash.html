@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BowlingExpress · Control Center</title>
   <link rel="icon" href="favicon.ico" />
@@ -72,6 +73,7 @@
       color: var(--text);
       overflow: hidden;
       overflow-x: hidden;
+	  overflow-y: auto;
       transition: background var(--speed), color var(--speed);
     }
 
@@ -107,6 +109,8 @@
       min-width: 0;
       transition: width var(--speed), padding var(--speed);
       overflow: hidden;
+	  overflow-x: hidden;
+	overflow-y: auto;
     }
 
     .sidebar.collapsed {
@@ -363,6 +367,8 @@
       opacity: 0;
       width: 0;
       overflow: hidden;
+	  overflow-x: hidden;
+		overflow-y: auto;
       pointer-events: none;
     }
 
