@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BowlingExpress</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+		@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-regular.woff2') format('woff2');
+			font-weight: normal;
+			font-style: normal;
+		}
+		
+		@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-700.woff2') format('woff2');
+			font-weight: bold;
+		}
+		
+        /* ——— Core Reset ——— */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Bowlings', sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* ——— Sidebar ——— */
+        .sidebar {
+            width: 250px;
+            background: #d6d6d6;
+            padding: 20px;
+            color: white;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            margin-bottom: 10px;
+        }
+        .sidebar button {
+            width: 100%;
+            background: #f4f4f4;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .sidebar button:hover,
+        .sidebar button.activeLink {
+            background: #e6e6e6;
+        }
+
+        /* ——— Main Content & Topbar ——— */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #d6d6d6;
+            padding: 15px;
+            color: white;
+        }
+        .logo img {
+            height: 40px;
+        }
+        .tabs {
+            display: flex;
+            gap: 15px;
+        }
+        .tabs a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .tabs a:hover,
+        .tabs a.activeLink {
+            background: #3d5d7a;
+        }
+        .logout-button,
+        .create-button {
+            background: #540000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .create-button {
+            background: #0b3d87;
+            margin-right: 10px;
+        }
+
+        /* ——— Page Sections ——— */
+        .page {
+            display: none;
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .page.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #34495e;
+            color: white;
+        }
+
+        /* ——— Modal / Overlay shared styles ——— */
+        .modal-overlay,
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+            z-index: 9;
+        }
+        .modal-overlay.active,
+        .settings-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal,
+        .settings-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+            z-index: 10;
+        }
+        .modal.active,
+        .settings-modal.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .close-btn,
+        .create-btn,
+        .button {
+            background: #0835BD;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .close-btn {
+            background: #AD1505;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .notification {
+            visibility: hidden;
+            opacity: 0;
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        .notification.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Conditional Sections */
+        .phone-input-section,
+        .code-section {
+            display: none;
+            margin-top: 10px;
+        }
+		/* ——— DARK MODE ——— */
+body.dark {
+    background-color: #000000;
+    color: #ffffff;
+}
+body.dark .sidebar {
+    background: #050505;
+}
+body.dark .sidebar button {
+    background: #181818;
+    color: #e0e0e0;
+}
+body.dark .sidebar button:hover,
+body.dark .sidebar button.activeLink {
+    background: #252525;
+}
+body.dark .topbar {
+    background: #050505;
+}
+body.dark .tabs a {
+    color: #e0e0e0;
+}
+body.dark .tabs a:hover,
+body.dark .tabs a.activeLink {
+    background: #252525 ;
+}
+body.dark table th {
+    background: #303030;
+}
+body.dark table td {
+    background: #121212;
+    color: #dcdcdc;
+}
+body.dark .modal,
+body.dark .settings-modal {
+    background: #121212;
+    color: #e0e0e0;
+}
+body.dark .input-field {
+    background: #1f1f1f;
+    border: 1px solid #444;
+    color: #eee;
+}
+body.dark .notification {
+    background-color: #1f693f;
+}
+  .legacy-cc-notice {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: min(360px, calc(100vw - 32px));
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(20, 26, 36, 0.96);
+    border: 1px solid rgba(88, 117, 168, 0.34);
+    color: #eef4ff;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+    font-family: "Segoe UI", Bowlings, system-ui, sans-serif;
+  }
+
+  .legacy-cc-notice.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .legacy-cc-notice.hide {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  .legacy-cc-notice-inner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .legacy-cc-notice-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(58, 120, 255, 0.12);
+    border: 1px solid rgba(58, 120, 255, 0.24);
+  }
+
+  .legacy-cc-notice-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #8fb6ff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .legacy-cc-notice-title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 1px 0 4px;
+    color: #ffffff;
+  }
+
+  .legacy-cc-notice-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #b7c7e6;
+  }
+
+  .legacy-cc-notice-close {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #9fb2d6;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 160ms ease, color 160ms ease;
+  }
+
+  .legacy-cc-notice-close:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+  }
+
+  @media (max-width: 640px) {
+    .legacy-cc-notice {
+      top: 12px;
+      right: 12px;
+      width: calc(100vw - 24px);
+      border-radius: 14px;
+    }
+  }
+    </style>
+</head>
+<body>
+
+<div class="legacy-cc-notice" id="legacyCcNotice" role="status" aria-live="polite">
+  <div class="legacy-cc-notice-inner">
+    <div class="legacy-cc-notice-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3v8"></path>
+        <path d="M12 16h.01"></path>
+        <path d="M10.3 4.8 3.9 16a2 2 0 0 0 1.7 3h12.8a2 2 0 0 0 1.7-3L13.7 4.8a2 2 0 0 0-3.4 0Z"></path>
+      </svg>
+    </div>
+
+    <div style="min-width:0">
+      <div class="legacy-cc-notice-title">Legacy Control Center</div>
+      <div class="legacy-cc-notice-text">
+        You are currently using the Legacy Control Center.
+      </div>
+    </div>
+
+    <button class="legacy-cc-notice-close" id="legacyCcNoticeClose" aria-label="Close notification">✕</button>
+  </div>
+</div>
+
+    <!-- ——— Sidebar ——— -->
+    <div class="sidebar">
+        <h2><b>Sidebar</b></h2>
+        <button data-target="scorelogs" class="activeLink">📊 Score Logs</button>
+        <button id="openSettingsBtn">⚙️ Settings</button>
+        <button data-target="archive">📂 Archive</button>
+        <button data-target="achievements">🏆 Achievements</button>
+        <button data-target="aiassist">🤖 AI Assist</button>
+        <button data-target="statistics">📈 Statistics</button>
+        <button data-target="recent">📜 Recent Activities</button>
+        <button data-target="rankings">🌍 Social Rankings</button>
+		<button data-target="lol">🖌️ Check Out the New Control Center!</button>
+    </div>
+
+    <!-- ——— Main Wrapper (Topbar + Pages) ——— -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="logo">
+                <img src="logo.png" alt="BowlingExpress Logo" />
+            </div>
+            <div class="tabs">
+                <a data-target="scorelogs" class="activeLink">🎳 Main Score Logs</a>
+                <a data-target="leaderboard">🌍 Global Leaderboard</a>
+                <a data-target="comparison">❔ Comparison</a>
+                <a data-target="salutations">🏆 Salutations</a>
+            </div>
+            <div>
+                <button class="create-button" id="createPostBtn">🗒️ Create Score Log</button>
+                <button class="logout-button" id="logoutBtn">👋 Log Out</button>
+            </div>
+        </div>
+
+        <!-- ——— Page Containers ——— -->
+        <!-- Score Logs -->
+        <div id="scorelogs" class="page active">
+            <h1>Score Logs</h1>
+            <table id="logsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Player</th>
+                        <th>Location</th>
+                        <th>Score</th>
+                        <th>Ball</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="leaderboard" class="page">
+            <h1>Global Leaderboard</h1>
+            <ol id="leaderboardList"></ol>
+        </div>
+
+        <!-- Comparison -->
+        <div id="comparison" class="page">
+            <h1>Comparison</h1>
+            <label>Select Log A:</label>
+            <select id="compareA"></select>
+            <label>Select Log B:</label>
+            <select id="compareB"></select>
+            <button class="button" id="compareBtn">Compare</button>
+            <div id="compareResult" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- Salutations (placeholder, could be merged with achievements) -->
+        <div id="salutations" class="page">
+            <h1>Salutations</h1>
+            <p>Acknowledge milestones and celebrate achievements. 🏆</p>
+        </div>
+
+        <!-- Sidebar-only pages -->
+        <div id="archive" class="page">
+            <h1>Archive</h1>
+            <p>Throwback to your past games and scores. 📂</p>
+        </div>
+
+        <div id="achievements" class="page">
+            <h1>Achievements</h1>
+            <ul id="achievementsList"></ul>
+        </div>
+
+        <div id="aiassist" class="page">
+            <h1>AI Assist</h1>
+            <p>Need a quick tip? 👉 <button class="button" id="newAdviceBtn">Gimme Advice</button></p>
+            <div id="aiAdvice" style="margin-top:10px;font-style:italic;"></div>
+        </div>
+
+        <div id="statistics" class="page">
+            <h1>Statistics</h1>
+            <div id="statsContent"></div>
+        </div>
+
+        <div id="recent" class="page">
+            <h1>Recent Activities</h1>
+            <ul id="recentList"></ul>
+        </div>
+
+        <div id="rankings" class="page">
+            <h1>Social Rankings (beta)</h1>
+            <p>Feature coming soon: share and rank with friends. 🌍</p>
+        </div>
+    </div>
+
+    <!-- ——— Create Post Modal ——— -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="postModal">
+        <h2>📝 New Score Log</h2>
+        <input type="date" class="input-field" id="gameDate" required>
+        <input type="text" class="input-field" id="location" placeholder="Location" required>
+        <input type="number" class="input-field" id="score" placeholder="Score" min="0" required>
+        <fieldset>
+            <legend>Select a bowling ball weight:</legend>
+            <label><input type="radio" name="ballWeight" value="Light" checked> 🔹 Light</label><br>
+            <label><input type="radio" name="ballWeight" value="Medium"> ⚽ Medium</label><br>
+            <label><input type="radio" name="ballWeight" value="Heavy"> 🏋 Heavy</label>
+        </fieldset>
+        <textarea class="input-field" id="notes" placeholder="Notes about the game..." rows="4"></textarea>
+        <label><input type="checkbox" id="horns"> Post to Global Leaderboard</label>
+        <button class="create-btn" id="createPost">Create</button>
+        <button class="close-btn" id="closePostModal">Close</button>
+        <div class="notification" id="postNotification">Saved!</div>
+    </div>
+
+    <!-- ——— Settings Modal ——— -->
+    <div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-modal" id="settingsModal">
+        <h2>Settings</h2>
+        <label for="username">Your Username is:</label>
+        <input type="text" class="input-field" disabled id="username" placeholder="Enter username">
+		<label style="display:block;margin-top:8px;font-size:.85em;color:var(--txt-2);">Change this in the modern Control Center</label>
+        <label for="theme">Theme:</label>
+        <select id="theme" class="input-field">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+        <fieldset>
+            <legend>Bowling Log Settings:</legend>
+            <label><input type="checkbox" id="showScore" checked> Show Scores on Global Leaderboard</label><br>
+            <label><input type="checkbox" id="privacyMode"> Enable Privacy Mode</label>
+        </fieldset>
+        <fieldset>
+            <legend>Notification Settings:</legend>
+            <label><input type="checkbox" id="emailNotifications" checked> Enable Email Notifications</label><br>
+            <label><input type="checkbox" id="soundEffects"> Enable Sound Effects</label>
+        </fieldset>
+        <fieldset>
+            <legend>Two-Factor Authentication:</legend>
+            <label><input type="checkbox" id="enable2fa"> Enable Legacy 2FA</label>
+        </fieldset>
+        <div class="phone-input-section" id="phoneInputSection">
+            <label for="phoneNumber">Enter your Phone Number:</label>
+            <input type="text" class="input-field" id="phoneNumber" placeholder="Phone number">
+            <button class="button" id="generateCodeBtn">Generate Auth Code</button>
+        </div>
+        <div class="code-section" id="codeSection">
+            <label for="authCode">Enter Authentication Code:</label>
+            <input type="text" class="input-field" id="authCode" placeholder="Authentication Code">
+            <button class="button" id="verifyCodeBtn">Verify Code</button>
+        </div>
+        <button class="button" id="applySettingsBtn">Apply</button>
+        <button class="close-btn" id="closeSettingsBtn">Close</button>
+        <div class="notification" id="settingsNotification">Saved!</div>
+    </div>
+
+    <!-- ——— JavaScript ——— -->
+    <script>
+        // —— Data Persistence ——
+        const STORAGE_KEY_LOGS = 'scoreLogs';
+        const STORAGE_KEY_SETTINGS = 'bxSettings';
+
+        let logs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS) || '[]');
+        let settings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || '{}');
+
+        // —— Helper Functions ——
+        const saveLogs = () => localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
+        const saveSettings = () => localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+
+        const qs = sel => document.querySelector(sel);
+        const qsa = sel => document.querySelectorAll(sel);
+
+        // —— Navigation ——
+        function showPage(id) {
+            qsa('.page').forEach(p => p.classList.remove('active'));
+            qsa('[data-target]').forEach(el => el.classList.remove('activeLink'));
+            qs('#' + id).classList.add('active');
+            qsa(`[data-target="${id}"]`).forEach(el => el.classList.add('activeLink'));
+            // Whenever page switches, refresh dynamic views
+            if (id === 'scorelogs') renderLogs();
+            if (id === 'leaderboard') renderLeaderboard();
+            if (id === 'statistics') renderStatistics();
+            if (id === 'recent') renderRecent();
+            if (id === 'achievements') renderAchievements();
+            if (id === 'comparison') renderComparisonSelectors();
+        }
+        qsa('[data-target]').forEach(el => {
+            el.addEventListener('click', () => showPage(el.dataset.target));
+        });
+
+        // —— Score Logs Rendering ——
+        function renderLogs() {
+            const tbody = qs('#logsTable tbody');
+            tbody.innerHTML = '';
+            logs.forEach((log, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td>${log.player || 'Lane Operator'}</td>
+                    <td>${log.location}</td>
+                    <td>${log.score}</td>
+                    <td>${log.ball}</td>
+                    <td>${log.notes}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // —— Leaderboard Rendering ——
+        function renderLeaderboard() {
+            const list = qs('#leaderboardList');
+            list.innerHTML = '';
+            const top = [...logs]
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10);
+            top.forEach((log, i) => {
+                const li = document.createElement('li');
+                li.textContent = `${i + 1}. ${log.player || 'Lane Operator'} — ${log.score} pts (${log.date})`;
+                list.appendChild(li);
+            });
+        }
+
+        // —— Statistics Rendering ——
+        function renderStatistics() {
+            if (!logs.length) { qs('#statsContent').textContent = 'No data yet.'; return; }
+            const scores = logs.map(l => l.score);
+            const total = scores.reduce((a, b) => a + b, 0);
+            const avg = (total / scores.length).toFixed(1);
+            const best = Math.max(...scores);
+            const worst = Math.min(...scores);
+            const statsHTML = `
+                <p><strong>Total games:</strong> ${scores.length}</p>
+                <p><strong>Average score:</strong> ${avg}</p>
+                <p><strong>Best score:</strong> ${best}</p>
+                <p><strong>Worst score:</strong> ${worst}</p>`;
+            qs('#statsContent').innerHTML = statsHTML;
+        }
+
+        // —— Recent Rendering ——
+        function renderRecent() {
+            const list = qs('#recentList');
+            list.innerHTML = '';
+            const recent = [...logs].slice(-5).reverse();
+            recent.forEach(log => {
+                const li = document.createElement('li');
+                li.textContent = `${log.date} — ${log.location} → ${log.score}`;
+                list.appendChild(li);
+            });
+        }
+
+        // —— Achievements Rendering ——
+        const ACHIEVEMENTS = [
+            { id: 'first', condition: lgs => lgs.length >= 1, text: 'First Log! 🎉' },
+            { id: '200plus', condition: lgs => lgs.some(l => l.score >= 200), text: '200 Club! 💯' },
+            { id: '250plus', condition: lgs => lgs.some(l => l.score >= 250), text: '250 Beast! 🔥' },
+            { id: 'perfect', condition: lgs => lgs.some(l => l.score >= 300), text: '300 Perfect Game! 👑' },
+        ];
+        function renderAchievements() {
+            const listEl = qs('#achievementsList');
+            listEl.innerHTML = '';
+            ACHIEVEMENTS.forEach(a => {
+                if (a.condition(logs)) {
+                    const li = document.createElement('li');
+                    li.textContent = a.text;
+                    listEl.appendChild(li);
+                }
+            });
+            if (!listEl.childElementCount) listEl.innerHTML = '<li>No achievements yet.</li>';
+        }
+
+        // —— Comparison ——
+        function renderComparisonSelectors() {
+            const selA = qs('#compareA');
+            const selB = qs('#compareB');
+            selA.innerHTML = selB.innerHTML = '';
+            logs.forEach((log, idx) => {
+                const optA = document.createElement('option');
+                optA.value = idx; optA.textContent = `${log.date} - ${log.score}`;
+                const optB = optA.cloneNode(true);
+                selA.appendChild(optA);
+                selB.appendChild(optB);
+            });
+        }
+        qs('#compareBtn').addEventListener('click', () => {
+            const idxA = qs('#compareA').value;
+            const idxB = qs('#compareB').value;
+            if (idxA === '' || idxB === '') { alert('Select both logs.'); return; }
+            const a = logs[idxA];
+            const b = logs[idxB];
+            const diff = a.score - b.score;
+            qs('#compareResult').innerHTML = `Difference: <strong>${diff}</strong> points (${a.score} vs ${b.score})`;
+        });
+
+        // —— AI Assist ——
+        const TIPS = [
+            'Focus on your footwork for a smoother release.',
+            'Try aiming for the 1-3 pocket for better pin action.',
+            'Relax your wrist to get natural hook.',
+            'Consistent speed is key – not power.',
+            'Keep your eyes on your mark, not the pins.'
+        ];
+        const newAdvice = () => {
+            const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+            qs('#aiAdvice').textContent = `🤖 ${tip}`;
+        };
+        qs('#newAdviceBtn').addEventListener('click', newAdvice);
+
+        // —— Modal Controls ——
+        const postModal = qs('#postModal');
+        const modalOverlay = qs('#modalOverlay');
+        qs('#createPostBtn').addEventListener('click', () => {
+            postModal.classList.add('active');
+            modalOverlay.classList.add('active');
+        });
+        const closePostModal = () => {
+            postModal.classList.remove('active');
+            modalOverlay.classList.remove('active');
+        };
+        qs('#closePostModal').addEventListener('click', closePostModal);
+        modalOverlay.addEventListener('click', closePostModal);
+
+        // —— Create Log ——
+        qs('#createPost').addEventListener('click', () => {
+            const date = qs('#gameDate').value || new Date().toISOString().substring(0, 10);
+            const location = qs('#location').value.trim();
+            const score = parseInt(qs('#score').value, 10);
+            const ball = qs('input[name="ballWeight"]:checked').value;
+            const notes = qs('#notes').value.trim();
+            const player = settings.username || 'Lane Operator';
+            if (!location || isNaN(score)) { alert('Fill in location and score.'); return; }
+            logs.push({ date, location, score, ball, notes, player });
+            saveLogs();
+            renderLogs();
+            renderLeaderboard();
+            renderStatistics();
+            renderRecent();
+            renderAchievements();
+            qs('#postNotification').classList.add('show');
+            setTimeout(() => { qs('#postNotification').classList.remove('show'); }, 2000);
+            closePostModal();
+        });
+
+        // —— Settings Modal ——
+        const settingsModal = qs('#settingsModal');
+        const settingsOverlay = qs('#settingsOverlay');
+        const openSettings = () => {
+            settingsModal.classList.add('active');
+            settingsOverlay.classList.add('active');
+            // populate fields
+            qs('#username').value = settings.username || '';
+            qs('#theme').value = settings.theme || 'light';
+            qs('#showScore').checked = settings.showScore ?? true;
+            qs('#privacyMode').checked = settings.privacyMode || false;
+            qs('#emailNotifications').checked = settings.emailNotifications ?? true;
+            qs('#soundEffects').checked = settings.soundEffects || false;
+        };
+        qs('#openSettingsBtn').addEventListener('click', openSettings);
+        const closeSettings = () => {
+            settingsModal.classList.remove('active');
+            settingsOverlay.classList.remove('active');
+        };
+        qs('#closeSettingsBtn').addEventListener('click', closeSettings);
+        settingsOverlay.addEventListener('click', closeSettings);
+        qs('#applySettingsBtn').addEventListener('click', () => {
+            settings = {
+                username: qs('#username').value.trim() || 'Lane Operator',
+                theme: qs('#theme').value,
+                showScore: qs('#showScore').checked,
+                privacyMode: qs('#privacyMode').checked,
+                emailNotifications: qs('#emailNotifications').checked,
+                soundEffects: qs('#soundEffects').checked,
+            };
+            saveSettings();
+            closeSettings();
+            qs('#settingsNotification').classList.add('show');
+            setTimeout(() => { qs('#settingsNotification').classList.remove('show'); }, 2000);
+        });
+
+        // —— 2FA demo —— (unchanged demo-only logic)
+        const toggle2FA = () => {
+            const enable2fa = qs('#enable2fa').checked;
+            qs('#phoneInputSection').style.display = enable2fa ? 'block' : 'none';
+            qs('#codeSection').style.display = 'none';
+        };
+        qs('#enable2fa').addEventListener('change', toggle2FA);
+        qs('#generateCodeBtn').addEventListener('click', () => {
+            const num = qs('#phoneNumber').value;
+            if (!num) { alert('Enter phone number first.'); return; }
+            const code = Math.floor(100000 + Math.random() * 900000);
+            alert(`Authentication code sent to ${num}: ${code}`);
+            qs('#codeSection').style.display = 'block';
+            qs('#authCode').dataset.code = code;
+        });
+        qs('#verifyCodeBtn').addEventListener('click', () => {
+            const entered = qs('#authCode').value;
+            const real = qs('#authCode').dataset.code;
+            alert(entered === real ? '2FA verified successfully!' : 'Invalid authentication code.');
+        });
+
+        // —— Logout (demo) ——
+        qs('#logoutBtn').addEventListener('click', () => {
+            if (confirm('Log out and clear local data?')) {
+                localStorage.removeItem(STORAGE_KEY_LOGS);
+                localStorage.removeItem(STORAGE_KEY_SETTINGS);
+                location.reload();
+            }
+        });
+
+        // —— Initialisation ——
+        const init = () => {
+            renderLogs();
+            renderLeaderboard();
+            renderStatistics();
+            renderRecent();
+            renderAchievements();
+            renderComparisonSelectors();
+            if (settings.theme === 'dark') document.body.classList.add('dark');
+        };
+        init();
+		
+		// —— Theme Toggle (Dark/Light) ——
+
+// Utility: apply dark mode based on settings
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark');
+    }
+}
+
+// Run this once on startup to match saved theme
+applyTheme(settings.theme || 'light');
+
+// Make sure changing theme in Settings applies instantly
+qs('#theme').addEventListener('change', (e) => {
+    applyTheme(e.target.value);
+    // Optionally: save as you change (or just on Apply if you want)
+    settings.theme = e.target.value;
+    saveSettings();
+});
+
+  (function () {
+    const notice = document.getElementById("legacyCcNotice");
+    const closeBtn = document.getElementById("legacyCcNoticeClose");
+    if (!notice) return;
+
+    function hideNotice() {
+      notice.classList.remove("show");
+      notice.classList.add("hide");
+      setTimeout(() => {
+        if (notice && notice.parentNode) notice.parentNode.removeChild(notice);
+      }, 260);
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        notice.classList.add("show");
+      }, 180);
+
+      setTimeout(() => {
+        hideNotice();
+      }, 5200);
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", hideNotice);
+    }
+  })();
+    </script>
+</body>
+</html>

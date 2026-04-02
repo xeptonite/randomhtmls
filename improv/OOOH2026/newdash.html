@@ -1,0 +1,3021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BowlingExpress · Control Center</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta name="color-scheme" content="dark light" />
+  <style>
+	@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-regular.woff2') format('woff2');
+			font-weight: normal;
+			font-style: normal;
+		}
+		
+		@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-700.woff2') format('woff2');
+			font-weight: bold;
+		}
+    :root {
+      --bg: #090b10;
+      --panel: #10141c;
+      --panel-2: #151b25;
+      --panel-3: #1b2331;
+      --panel-4: #0d1118;
+      --line: #243041;
+      --line-2: #30415b;
+      --text: #ecf3ff;
+      --text-soft: #9bb0d1;
+      --text-dim: #7487a4;
+      --accent: #3a78ff;
+      --accent-strong: #1f5fe6;
+      --accent-soft: rgba(58, 120, 255, 0.14);
+      --success: #26b36d;
+      --warning: #d7a72b;
+      --danger: #da4c4c;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --sidebar-width: 284px;
+      --header-height: 74px;
+      --speed: 180ms;
+      font-family: Bowlings, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body.light {
+      --bg: #eef2f8;
+      --panel: #ffffff;
+      --panel-2: #f7f9fd;
+      --panel-3: #edf2fa;
+      --panel-4: #f3f6fb;
+      --line: #d7deeb;
+      --line-2: #bec9de;
+      --text: #162236;
+      --text-soft: #425672;
+      --text-dim: #6c7d98;
+      --accent-soft: rgba(58, 120, 255, 0.10);
+      --shadow: 0 18px 34px rgba(18, 33, 58, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      overflow-x: hidden;
+      transition: background var(--speed), color var(--speed);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100dvh;
+      min-height: 100dvh;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--panel-4);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+      transition: width var(--speed), padding var(--speed);
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed {
+      width: 94px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 56px;
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line-2);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      flex-shrink: 0;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-logo {
+      padding: 0;
+      overflow: hidden;
+      background: var(--panel-2);
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--line-2);
+      background: var(--panel-2);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .user-avatar svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .user-avatar circle,
+    .user-avatar path {
+      stroke: currentColor;
+    }
+
+    .user-avatar .avatar-dot {
+      fill: currentColor;
+      stroke: none;
+      opacity: 0.95;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-sub {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .collapse-toggle,
+    .mobile-menu-btn,
+    .icon-btn,
+    .ghost-btn,
+    .primary-btn,
+    .danger-btn,
+    .segmented button,
+    .chip,
+    .fab,
+    .drawer-close,
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 12px;
+      transition: background var(--speed), border-color var(--speed), transform var(--speed), color var(--speed);
+    }
+
+    .collapse-toggle {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .collapse-toggle:hover,
+    .mobile-menu-btn:hover,
+    .icon-btn:hover,
+    .ghost-btn:hover,
+    .segmented button:hover,
+    .chip:hover,
+    .drawer-close:hover,
+    .filter-btn:hover {
+      background: var(--panel-3);
+      border-color: var(--line-2);
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      border-color: var(--accent-strong);
+      color: white;
+      font-weight: 700;
+    }
+
+    .primary-btn:hover,
+    .danger-btn:hover,
+    .fab:hover {
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(58, 120, 255, 0.35);
+      color: var(--text);
+    }
+
+    .danger-btn {
+      background: rgba(218, 76, 76, 0.16);
+      border-color: rgba(218, 76, 76, 0.4);
+      color: #ffd0d0;
+    }
+
+    .sidebar-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-label {
+      color: var(--text-dim);
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      color: var(--text-soft);
+      position: relative;
+      min-height: 48px;
+    }
+
+    .nav-item .nav-icon {
+      width: 24px;
+      text-align: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active {
+      background: var(--accent-soft);
+      color: var(--text);
+      border: 1px solid rgba(58, 120, 255, 0.35);
+    }
+
+    .nav-item.active::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .nav-title,
+    .brand-copy,
+    .sidebar-footer-copy,
+    .sidebar-chip-copy {
+      transition: opacity var(--speed), width var(--speed);
+    }
+
+    .sidebar-footer-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .sidebar-chip strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-chip small {
+      display: block;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar.collapsed .brand-copy,
+    .sidebar.collapsed .nav-title,
+    .sidebar.collapsed .sidebar-footer-copy,
+    .sidebar.collapsed .sidebar-chip-copy,
+    .sidebar.collapsed .sidebar-label {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .sidebar.collapsed .nav-item,
+    .sidebar.collapsed .sidebar-chip {
+      justify-content: center;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .sidebar.collapsed .nav-item.active::after {
+      right: 8px;
+    }
+
+    .main {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background: var(--bg);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9, 11, 16, 0.78);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 8;
+    }
+
+    body.light .topbar {
+      background: rgba(238, 242, 248, 0.84);
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .topbar-left {
+      flex: 1 1 auto;
+    }
+
+    .topbar-right {
+      flex: 0 1 auto;
+    }
+
+    .mobile-menu-btn {
+      width: 44px;
+      height: 44px;
+      display: none;
+      place-items: center;
+    }
+
+    .crumb-wrap {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .page-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .search-shell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0 14px;
+      min-width: min(440px, 44vw);
+      height: 48px;
+    }
+
+    .search-shell input {
+      flex: 1;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .search-shell input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .icon-btn,
+    .ghost-btn,
+    .primary-btn,
+    .danger-btn,
+    .filter-btn {
+      height: 46px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      width: 46px;
+      padding: 0;
+    }
+
+    .content {
+      min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 24px;
+      padding-bottom: 96px;
+    }
+
+    .page {
+      display: none;
+      animation: pageIn 220ms ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+      gap: 18px;
+    }
+
+    .hero-copy h1,
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.15rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-copy p,
+    .section-subtitle,
+    .panel-note,
+    .metric-note,
+    .empty-state p,
+    .leader-sub,
+    .achievement-copy p,
+    .coach-copy p,
+    .stats-meta,
+    .list-line small,
+    .chip-note {
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    .hero-copy p {
+      max-width: 62ch;
+      margin: 14px 0 20px;
+    }
+
+    .inline-actions,
+    .chip-row,
+    .toolbar,
+    .settings-grid,
+    .modal-actions,
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+
+    .hero-panel {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tiny-stat {
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .tiny-stat strong,
+    .metric-value,
+    .kpi-value,
+    .archive-pill strong,
+    .coach-line strong {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .tiny-stat span,
+    .metric-label,
+    .kpi-label,
+    .archive-pill span,
+    .field label,
+    .field-help,
+    .switch-line span,
+    .table-meta,
+    .coach-line span {
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card,
+    .panel,
+    .coach-card,
+    .achievement-card,
+    .leader-card,
+    .archive-pill {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card {
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: auto auto 0 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .kpi-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      border: 1px solid rgba(58, 120, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .kpi-value {
+      font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+      margin-bottom: 6px;
+    }
+
+    .kpi-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .kpi-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--text-soft);
+      font-size: 0.84rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.95fr);
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .panel-kicker {
+      color: var(--text-dim);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .list-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .list-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .list-line strong {
+      display: block;
+      font-size: 0.98rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .score-pill,
+    .status-pill,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-pill.good { color: #9be2ba; border-color: rgba(38, 179, 109, 0.35); background: rgba(38, 179, 109, 0.12); }
+    .status-pill.warn { color: #ffe29a; border-color: rgba(215, 167, 43, 0.35); background: rgba(215, 167, 43, 0.12); }
+    .status-pill.bad { color: #ffb3b3; border-color: rgba(218, 76, 76, 0.35); background: rgba(218, 76, 76, 0.12); }
+
+    .mini-chart {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 76px 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      min-width: 8px;
+      width: 0;
+      transition: width 260ms ease;
+    }
+
+    .toolbar {
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .table-shell {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .table-scroll {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    thead {
+      background: var(--panel-2);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 700;
+    }
+
+    tbody tr {
+      background: transparent;
+      transition: background var(--speed);
+    }
+
+    tbody tr:hover {
+      background: var(--panel-2);
+    }
+
+    .table-actions {
+      justify-content: flex-end;
+    }
+
+    .table-link {
+      color: var(--text-soft);
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .table-link:hover {
+      color: var(--text);
+    }
+
+    .table-empty,
+    .empty-state {
+      padding: 38px 20px;
+      text-align: center;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line-2);
+      border-radius: 22px;
+      background: var(--panel);
+    }
+
+    .empty-state strong {
+      display: block;
+      font-size: 1.06rem;
+      margin-bottom: 8px;
+    }
+
+    .leaderboard-grid,
+    .achievements-grid,
+    .coach-grid,
+    .stats-grid,
+    .archive-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .leaderboard-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .leader-card {
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .leader-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .leader-rank {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .leader-score {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .leader-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .archive-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .archive-pill {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .achievements-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .achievement-card {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .achievement-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      border: 1px solid rgba(58,120,255,0.3);
+      font-size: 1.2rem;
+    }
+
+    .achievement-copy h3,
+    .coach-copy h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    }
+
+    .metrics-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .coach-grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    }
+
+    .coach-card {
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .coach-console {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      min-height: 180px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .coach-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .coach-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .coach-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--accent);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .coach-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      transition: border-color var(--speed), background var(--speed);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .search-shell:focus-within {
+      border-color: var(--accent);
+    }
+
+    .segmented {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .segmented button {
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .segmented button.active {
+      background: var(--accent-soft);
+      border-color: rgba(58,120,255,0.35);
+      color: var(--text);
+    }
+
+    .switch-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      transition: background var(--speed), border-color var(--speed);
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 2px;
+      top: 2px;
+      border-radius: 999px;
+      background: #fff;
+      transition: transform var(--speed);
+    }
+
+    .switch input:checked + .slider {
+      background: var(--accent);
+      border-color: var(--accent-strong);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--speed), visibility var(--speed);
+      z-index: 25;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      bottom: 18px;
+      width: min(560px, calc(100vw - 24px));
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      transform: translateX(calc(100% + 28px));
+      transition: transform 220ms ease;
+      z-index: 30;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
+
+    .drawer.active {
+      transform: translateX(0);
+    }
+
+    .drawer-head,
+    .drawer-foot {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .drawer-foot {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .drawer-body {
+      overflow: auto;
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .drawer-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .drawer-close {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+    }
+
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: min(90vw, 340px);
+      transform: translateX(-100%);
+      transition: transform 220ms ease;
+      z-index: 40;
+      background: var(--panel-4);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      overflow: auto;
+      display: none;
+    }
+
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+
+    .mobile-sidebar .sidebar-block,
+    .mobile-sidebar .sidebar-footer {
+      margin-bottom: 16px;
+    }
+
+    .fab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      height: 58px;
+      padding: 0 18px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      border-color: var(--accent-strong);
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      z-index: 18;
+    }
+
+    .muted {
+      color: var(--text-dim);
+    }
+
+    .hide { display: none !important; }
+
+    @media (max-width: 1220px) {
+      .hero,
+      .split,
+      .stats-grid,
+      .coach-grid,
+      .leaderboard-grid,
+      .archive-grid,
+      .achievements-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .search-shell {
+        min-width: 280px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      html,
+      body {
+        height: auto;
+      }
+
+      body {
+        overflow: auto;
+        overflow-x: hidden;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        min-height: 100dvh;
+        height: 100dvh;
+      }
+
+      .main {
+        min-height: 0;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-sidebar,
+      .mobile-menu-btn,
+      .fab {
+        display: grid;
+      }
+
+      .mobile-menu-btn {
+        place-items: center;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        height: auto;
+        padding: 14px 18px;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        width: 100%;
+      }
+
+      .topbar-left {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .crumb-wrap {
+        min-width: 0;
+      }
+
+      .page-title {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.1;
+      }
+
+      .topbar-right .ghost-btn:not(.compact-keep),
+      .topbar-right .icon-btn:not(.compact-keep) {
+        display: none;
+      }
+
+      .topbar-right {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .topbar-right > * {
+        min-width: 0;
+      }
+
+      .search-shell {
+        min-width: 0;
+        width: 100%;
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .field-grid,
+      .hero-strip,
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        padding: 16px;
+        padding-bottom: 110px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .toolbar > * {
+        width: 100%;
+      }
+
+      .inline-actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .fab {
+        display: inline-flex;
+      }
+
+      .drawer {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        width: auto;
+      }
+    }
+  
+/* desktop: hide collapse + mobile controls */
+@media (min-width: 980px) {
+  .collapse-toggle,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+/* remove theme toggle globally */
+.theme-toggle {
+  display: none !important;
+}
+
+/* mobile: hide topbar new log */
+@media (max-width: 980px) {
+  .topbar .primary-btn {
+    display: none !important;
+  }
+}
+
+  .be-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: min(360px, calc(100vw - 32px));
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(20, 26, 36, 0.96);
+    border: 1px solid rgba(88, 117, 168, 0.34);
+    color: #eef4ff;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+    font-family: "Segoe UI", Bowlings, system-ui, sans-serif;
+  }
+
+  .be-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .be-toast.hide {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  .be-toast-inner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .be-toast-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(58, 120, 255, 0.12);
+    border: 1px solid rgba(58, 120, 255, 0.24);
+  }
+
+  .be-toast-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #8fb6ff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .be-toast-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #ffffff;
+  }
+
+  .be-toast-text {
+    font-size: 13px;
+    color: #b7c7e6;
+  }
+
+  .be-toast-close {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #9fb2d6;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .be-toast-close:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+  }
+
+  @media (max-width: 640px) {
+    .be-toast {
+      top: 12px;
+      right: 12px;
+      width: calc(100vw - 24px);
+    }
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay"><div class="be-toast" id="beToast">
+  <div class="be-toast-inner">
+    <div class="be-toast-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 5v14"></path>
+        <path d="M5 12h14"></path>
+      </svg>
+    </div>
+
+    <div style="min-width:0">
+      <div class="be-toast-title">Log Created</div>
+      <div class="be-toast-text">Your score log has been saved successfully.</div>
+    </div>
+
+    <button class="be-toast-close" id="beToastClose">✕</button>
+  </div>
+</div></div>
+
+  <aside class="mobile-sidebar" id="mobileSidebar"></aside>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+          <div class="crumb-wrap">
+            <div class="eyebrow">Control Center</div>
+            <div class="page-title" id="pageTitle">Overview</div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <label class="search-shell" aria-label="Search logs">
+            <span>⌕</span>
+            <input id="globalSearch" type="search" placeholder="Search location, notes, date, score" />
+          </label>
+          <button class="ghost-btn" id="openSettingsBtn">Settings</button>
+          <button class="primary-btn compact-keep" id="openLogBtn">+ New Log</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="page active" id="page-overview"></section>
+        <section class="page" id="page-logs"></section>
+        <section class="page" id="page-leaderboard"></section>
+        <section class="page" id="page-archive"></section>
+        <section class="page" id="page-achievements"></section>
+        <section class="page" id="page-statistics"></section>
+        <section class="page" id="page-coach"></section>
+      </div>
+    </main>
+  </div>
+
+  <button class="fab" id="fabButton">+ New Log</button>
+
+  <aside class="drawer" id="logDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="panel-kicker">New Entry</div>
+        <h2 class="drawer-title">Add a New Score Log</h2>
+      </div>
+      <button class="drawer-close" data-close="logDrawer" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field-grid">
+        <div class="field">
+          <label for="logDate" >Date</label>
+          <input id="logDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="logScore" >Score</label>
+          <input id="logScore" type="number" min="0" max="300" placeholder="e.g. 214" />
+        </div>
+        <div class="field full">
+          <label for="logLocation" >Location</label>
+          <input id="logLocation" type="text" placeholder="e.g. City Bowl" />
+        </div>
+        <div class="field full">
+          <label >Ball Weight</label>
+          <div class="segmented" id="ballSegment">
+            <button type="button" data-ball="light">Light</button>
+            <button type="button" data-ball="medium">Medium</button>
+            <button type="button" data-ball="heavy">Heavy</button>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="logNotes" >Notes</label>
+          <textarea id="logNotes" rows="5" placeholder="Lane felt smooth, release stayed clean, split at frame 7, etc."></textarea>
+        </div>
+        <div class="field full">
+          <label class="switch-line" for="logArchiveToggle">
+            <span >Send Straight to Archive</span>
+            <span class="switch">
+              <input id="logArchiveToggle" type="checkbox" />
+              <span class="slider"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-foot modal-actions">
+      <button class="ghost-btn" data-close="logDrawer">Cancel</button>
+      <button class="primary-btn" id="saveLogBtn">Save Log</button>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="settingsDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="panel-kicker">Settings</div>
+        <h2 class="drawer-title">Dashboard Settings</h2>
+      </div>
+      <button class="drawer-close" data-close="settingsDrawer" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field-grid">
+        <div class="field full">
+          <label for="setUsername" >Username</label>
+          <input id="setUsername" type="text" placeholder="bowler name" />
+          <div class="field-help" >Used in headings and Leaderboard labels</div>
+        </div>
+
+        <div class="field">
+          <label for="setDefaultLocation" >Default Location</label>
+          <input id="setDefaultLocation" type="text" placeholder="City Bowl" />
+        </div>
+
+        <div class="field">
+          <label for="setTheme">Theme</label>
+          <select id="setTheme">
+            <option value="dark">Dark (recommended)</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Default ball</label>
+          <div class="segmented" id="defaultBallSegment">
+            <button type="button" data-ball="light">Light</button>
+            <button type="button" data-ball="medium">Medium</button>
+            <button type="button" data-ball="heavy">Heavy</button>
+          </div>
+        </div>
+
+        <div class="field full settings-grid">
+          <label class="switch-line" for="setPublic">
+            <span>Show scores publicly</span>
+            <span class="switch"><input id="setPublic" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setPrivacy">
+            <span>Privacy Mode</span>
+            <span class="switch"><input id="setPrivacy" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setEmail">
+            <span>Email Notifications</span>
+            <span class="switch"><input id="setEmail" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setSound">
+            <span>Sound Effects</span>
+            <span class="switch"><input id="setSound" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="set2FA">
+            <span>Legacy 2FA</span>
+            <span class="switch"><input id="set2FA" type="checkbox" /><span class="slider"></span></span>
+          </label>
+        </div>
+
+        <div class="field full" id="phoneField">
+          <label for="setPhone">Phone number</label>
+          <input id="setPhone" type="text" placeholder="Only used if legacy 2FA is on" />
+        </div>
+      </div>
+    </div>
+    <div class="drawer-foot modal-actions">
+      <button class="danger-btn" id="wipeDataBtn">Log Out & Wipe</button>
+      <div class="modal-actions">
+        <button class="ghost-btn" data-close="settingsDrawer">Close</button>
+        <button class="primary-btn" id="saveSettingsBtn">Save settings</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    const LEGACY_LOGS_KEY = "be-logs";
+    const LEGACY_SETTINGS_KEY = "be-settings";
+    const LOGS_KEY = "bowlingexpress-rehaul-logs";
+    const SETTINGS_KEY = "bowlingexpress-rehaul-settings";
+
+    const NAV_ITEMS = [
+      { id: "overview", label: "Overview", icon: "◫" },
+      { id: "logs", label: "Score Logs", icon: "🎳" },
+      { id: "leaderboard", label: "Leaderboard", icon: "📊" },
+      { id: "archive", label: "Archive", icon: "🗃️" },
+      { id: "achievements", label: "Achievements", icon: "🥇" },
+      { id: "statistics", label: "Statistics", icon: "📈" },
+      { id: "coach", label: "AI Coach", icon: "🤖" }
+    ];
+
+    const ACHIEVEMENTS = [
+      {
+        id: "first-log",
+        title: "First blood on the Lane",
+        icon: "◎",
+        description: "Log your first session into the system.",
+        unlocked: logs => logs.length >= 1
+      },
+      {
+        id: "three-stack",
+        title: "Triple stack",
+        icon: "◌",
+        description: "Reach at least three logged sessions.",
+        unlocked: logs => logs.length >= 3
+      },
+      {
+        id: "two-hundred-club",
+        title: "200 Club",
+        icon: "◆",
+        description: "Score 200 or more in any single entry.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 200)
+      },
+      {
+        id: "two-fifty-club",
+        title: "250 Menace",
+        icon: "◈",
+        description: "Score 250 or more in any single entry.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 250)
+      },
+      {
+        id: "perfect-run",
+        title: "Perfect game",
+        icon: "✦",
+        description: "Hit a full 300 and flex forever.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 300)
+      },
+      {
+        id: "road-demon",
+        title: "Road demon",
+        icon: "▣",
+        description: "Log scores from at least three different locations.",
+        unlocked: logs => new Set(logs.map(log => normalizeText(log.location))).size >= 3
+      }
+    ];
+
+    const COACH_OPENERS = [
+      "Lane control looks decent. The real suspect is consistency.",
+      "This dashboard says you have score spikes. That usually means timing is either excellent or actively plotting against you.",
+      "You are not lacking peak moments. You are lacking repeatable brutality.",
+      "Your higher scores keep proving the ceiling exists. Now the floor needs to stop collapsing."
+    ];
+
+    const COACH_TIPS = [
+      "Keep your approach speed boringly stable. Dramatic hero runs look cool and ruin accuracy.",
+      "Pick one visual target and commit. Staring at the pins like they owe you money is not a lane strategy.",
+      "If your notes mention splits a lot, your entry angle is probably snitching on you.",
+      "When a session starts ugly, slow down before you start inventing seventeen new techniques in real time.",
+      "Your best scores probably came from fewer corrections, not more panic stacked on panic."
+    ];
+
+    const SEED_LOGS = [];
+
+    const state = {
+      logs: [],
+      settings: {},
+      currentPage: "overview",
+      activeDrawer: null,
+      filters: {
+        query: "",
+        ball: "all",
+        sort: "newest"
+      },
+      mobileMenuOpen: false,
+      activeBallDraft: "light",
+      activeBallDefault: "light"
+    };
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getStoredJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        console.error(`failed reading ${key}`, error);
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function migrateLegacyData() {
+      const existingLogs = getStoredJson(LOGS_KEY, null);
+      const existingSettings = getStoredJson(SETTINGS_KEY, null);
+
+      if (!existingLogs) {
+        const legacyLogs = getStoredJson(LEGACY_LOGS_KEY, null);
+        if (Array.isArray(legacyLogs) && legacyLogs.length) {
+          saveJson(LOGS_KEY, legacyLogs.map(log => ({
+            ...log,
+            archived: Boolean(log.archived)
+          })));
+        }
+      }
+
+      if (!existingSettings) {
+        const legacySettings = getStoredJson(LEGACY_SETTINGS_KEY, null);
+        if (legacySettings && typeof legacySettings === "object") {
+          saveJson(SETTINGS_KEY, legacySettings);
+        }
+      }
+    }
+
+    function buildDefaultSettings() {
+      return {
+        username: "Lane Operator",
+        theme: "dark",
+        defaultLocation: "",
+        defaultBall: "light",
+        showScore: true,
+        privacy: false,
+        email: true,
+        sound: false,
+        enable2FA: false,
+        phone: ""
+      };
+    }
+
+    function hydrateState() {
+      migrateLegacyData();
+      const storedLogs = getStoredJson(LOGS_KEY, null);
+      const storedSettings = getStoredJson(SETTINGS_KEY, null);
+      state.logs = Array.isArray(storedLogs) ? storedLogs : [...SEED_LOGS];
+      state.settings = { ...buildDefaultSettings(), ...(storedSettings || {}) };
+      state.activeBallDraft = state.settings.defaultBall || "light";
+      state.activeBallDefault = state.settings.defaultBall || "light";
+    }
+
+    function persistLogs() {
+      saveJson(LOGS_KEY, state.logs);
+    }
+
+    function persistSettings() {
+      saveJson(SETTINGS_KEY, state.settings);
+    }
+
+    function formatDate(value) {
+      if (!value) return "unknown date";
+      const date = new Date(`${value}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function formatCompactDate(value) {
+      if (!value) return "n/a";
+      const date = new Date(`${value}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function calcMetrics(sourceLogs = state.logs) {
+      const scores = sourceLogs.map(log => Number(log.score)).filter(score => Number.isFinite(score));
+      const total = sourceLogs.length;
+      const totalVisible = sourceLogs.filter(log => !log.archived).length;
+      const average = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
+      const best = scores.length ? Math.max(...scores) : 0;
+      const worst = scores.length ? Math.min(...scores) : 0;
+      const strikes = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / 20) : 0;
+      const uniqueLocations = new Set(sourceLogs.map(log => normalizeText(log.location)).filter(Boolean)).size;
+      return { total, totalVisible, average, best, worst, strikes, uniqueLocations };
+    }
+
+    function getFilteredLogs(includeArchived = false) {
+      const query = normalizeText(state.filters.query);
+      let rows = state.logs.filter(log => includeArchived ? log.archived : !log.archived);
+
+      if (query) {
+        rows = rows.filter(log => {
+          const bag = [log.date, log.location, log.notes, log.ball, log.score].map(normalizeText).join(" ");
+          return bag.includes(query);
+        });
+      }
+
+      if (state.filters.ball !== "all") {
+        rows = rows.filter(log => normalizeText(log.ball) === state.filters.ball);
+      }
+
+      const sorters = {
+        newest: (a, b) => String(b.date).localeCompare(String(a.date)),
+        oldest: (a, b) => String(a.date).localeCompare(String(b.date)),
+        highest: (a, b) => Number(b.score) - Number(a.score),
+        lowest: (a, b) => Number(a.score) - Number(b.score)
+      };
+
+      rows.sort(sorters[state.filters.sort] || sorters.newest);
+      return rows;
+    }
+
+    function getTopLogs(limit = 3) {
+      return [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => Number(b.score) - Number(a.score))
+        .slice(0, limit);
+    }
+
+    function getRecentLogs(limit = 5) {
+      return [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, limit);
+    }
+
+    function getArchivePreview(limit = 3) {
+      return [...state.logs]
+        .filter(log => log.archived)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, limit);
+    }
+
+    function getAchievementStatus() {
+      return ACHIEVEMENTS.map(item => ({
+        ...item,
+        done: item.unlocked(state.logs)
+      }));
+    }
+
+    function locationFrequency(logs) {
+      const counts = {};
+      logs.forEach(log => {
+        const label = (log.location || "unknown").trim() || "unknown";
+        counts[label] = (counts[label] || 0) + 1;
+      });
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+    }
+
+    function ballFrequency(logs) {
+      const counts = { light: 0, medium: 0, heavy: 0 };
+      logs.forEach(log => {
+        const key = normalizeText(log.ball);
+        if (counts[key] !== undefined) counts[key] += 1;
+      });
+      return counts;
+    }
+
+    function scoreBuckets(logs) {
+      const ranges = [
+        { label: "0-99", min: 0, max: 99 },
+        { label: "100-149", min: 100, max: 149 },
+        { label: "150-199", min: 150, max: 199 },
+        { label: "200-249", min: 200, max: 249 },
+        { label: "250+", min: 250, max: 999 }
+      ];
+      return ranges.map(range => ({
+        label: range.label,
+        count: logs.filter(log => {
+          const score = Number(log.score);
+          return score >= range.min && score <= range.max;
+        }).length
+      }));
+    }
+
+    function bestStreak(logs) {
+      const sorted = [...logs].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      let longest = 0;
+      let current = 0;
+      sorted.forEach(log => {
+        if (Number(log.score) >= 200) {
+          current += 1;
+          longest = Math.max(longest, current);
+        } else {
+          current = 0;
+        }
+      });
+      return longest;
+    }
+
+    function getCoachLines() {
+      const metrics = calcMetrics();
+      const top = getTopLogs(1)[0];
+      const lines = [];
+      lines.push(COACH_OPENERS[Math.floor(Math.random() * COACH_OPENERS.length)]);
+
+      if (!state.logs.length) {
+        lines.push("Nothing is logged yet, so the ai coach is basically staring into a bowling void right now.");
+        lines.push("Start with one real session and this page becomes ten times more useful.");
+        return lines;
+      }
+
+      if (metrics.average >= 180) {
+        lines.push("Average is looking sharp. This is not random good luck anymore.");
+      } else if (metrics.average >= 130) {
+        lines.push("Average is decent, but there is still room to squeeze more repeatability out of your release.");
+      } else {
+        lines.push("The numbers say fundamentals first. The lane does not negotiate with panic adjustments.");
+      }
+
+      if (top) {
+        lines.push(`Top session so far: ${top.score} at ${top.location || "unknown lane"} on ${formatDate(top.date)}.`);
+      }
+
+      lines.push(COACH_TIPS[Math.floor(Math.random() * COACH_TIPS.length)]);
+      return lines;
+    }
+
+    function renderSidebar(target, mobile = false) {
+      const metrics = calcMetrics();
+      const username = state.settings.username || "Lane Operator";
+
+      target.innerHTML = `
+        <div class="brand-row">
+          <div class="brand-badge brand-logo"><img src="logo.png" alt="BowlingExpress logo"></div>
+          <div class="brand-copy">
+            <div class="brand-title">BowlingExpress</div>
+            <div class="brand-sub">Your personal bowling logger</div>
+          </div>
+          ${mobile ? `<button class="collapse-toggle" id="mobileCloseBtn">✕</button>` : `<button class="collapse-toggle" id="collapseBtn">❮</button>`}
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">navigation</div>
+          <nav class="nav-list">
+            ${NAV_ITEMS.map(item => `
+              <a class="nav-item ${state.currentPage === item.id ? "active" : ""}" href="#" data-page="${item.id}">
+                <span class="nav-icon">${item.icon}</span>
+                <span class="nav-title">${item.label}</span>
+              </a>
+            `).join("")}
+            <a class="nav-item" href="legacydash.html">
+              <span class="nav-icon">↗</span>
+              <span class="nav-title">Legacy Control Center</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">operator</div>
+          <div class="sidebar-chip">
+            <div class="user-avatar" aria-hidden="true">
+              <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+            </div>
+            <div class="sidebar-chip-copy">
+              <strong>${escapeHtml(username)}</strong>
+              <small>${metrics.totalVisible} active logs · ${metrics.uniqueLocations} locations</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-chip">
+            <div class="list-icon">◎</div>
+            <div class="sidebar-footer-copy">
+              <strong>${metrics.best || 0}</strong>
+              <small>best score currently stored</small>
+            </div>
+          </div>
+          <div class="sidebar-chip">
+            <div class="list-icon">◉</div>
+            <div class="sidebar-footer-copy">
+              <strong>${metrics.average || 0}</strong>
+              <small>session average</small>
+            </div>
+          </div>
+        </div>
+      `;
+
+      target.querySelectorAll("[data-page]").forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          showPage(link.dataset.page);
+          if (mobile) toggleMobileMenu(false);
+        });
+      });
+
+      if (mobile) {
+        target.querySelector("#mobileCloseBtn")?.addEventListener("click", () => toggleMobileMenu(false));
+      } else {
+        target.querySelector("#collapseBtn")?.addEventListener("click", () => {
+          $("#sidebar").classList.toggle("collapsed");
+        });
+      }
+    }
+
+    function renderOverviewPage() {
+      const root = $("#page-overview");
+      const metrics = calcMetrics();
+      const recent = getRecentLogs(5);
+      const top = getTopLogs(3);
+      const archivePreview = getArchivePreview(3);
+      const unlocked = getAchievementStatus().filter(item => item.done).length;
+      const locationStats = locationFrequency(state.logs);
+      const safeBest = metrics.best || 0;
+      const averagePct = Math.max(8, Math.min(100, Math.round((metrics.average / 300) * 100)));
+      const bestPct = Math.max(8, Math.min(100, Math.round((safeBest / 300) * 100)));
+      const unlockedPct = Math.max(8, Math.min(100, Math.round((unlocked / ACHIEVEMENTS.length) * 100)));
+
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="hero">
+            <div class="hero-copy">
+              <div class="panel-kicker">overview</div>
+              <h1>Keep the lane history tidy!</h1>
+              <p>BowlingExpress gives you nearly unlimited features for managing logs related to bowling, if you could not tell, of course. Click either button listed here for quick actions:</p>
+              <div class="inline-actions">
+                <button class="primary-btn" id="heroNewLogBtn">+ New Log</button>
+                <button class="ghost-btn" id="heroSettingsBtn">Tune Settings</button>
+                <button class="ghost-btn" id="heroViewLogsBtn">View All Logs</button>
+              </div>
+              <div class="chip-row" style="margin-top:16px">
+                <span class="chip">${metrics.totalVisible} Active Logs</span>
+                <span class="chip">${metrics.uniqueLocations} Locations Tracked</span>
+                <span class="chip">${archivePreview.length} Archived</span>
+              </div>
+            </div>
+            <div class="hero-panel">
+              <div class="panel-head" style="margin-bottom:2px">
+                <div>
+                  <div class="panel-kicker">Live Glance</div>
+                  <h3 class="panel-title">System Snapshot</h3>
+                </div>
+              </div>
+              <div class="hero-strip">
+                <div class="tiny-stat"><span>Best Score</span><strong>${safeBest}</strong></div>
+                <div class="tiny-stat"><span>Average</span><strong>${metrics.average}</strong></div>
+                <div class="tiny-stat"><span>Unlocked</span><strong>${unlocked}/${ACHIEVEMENTS.length}</strong></div>
+              </div>
+              <div class="mini-chart">
+                <div class="bar-line"><span>Average</span><div class="bar-track"><div class="bar-fill" style="width:${averagePct}%"></div></div><strong>${metrics.average}</strong></div>
+                <div class="bar-line"><span>Best</span><div class="bar-track"><div class="bar-fill" style="width:${bestPct}%"></div></div><strong>${safeBest}</strong></div>
+                <div class="bar-line"><span>Progress</span><div class="bar-track"><div class="bar-fill" style="width:${unlockedPct}%"></div></div><strong>${unlocked}/${ACHIEVEMENTS.length}</strong></div>
+              </div>
+              <div class="chip-note">Remember: Bowling numbers still have the final word.</div>
+            </div>
+          </section>
+
+          <section class="stats-row">
+            ${renderKpiCard("Total Games", metrics.totalVisible, "Visible session count", "◎")}
+            ${renderKpiCard("Average Score", metrics.average, "Across all stored sessions", "◉")}
+            ${renderKpiCard("Highest Score", metrics.best, "Peak logged performance", "◆")}
+            ${renderKpiCard("Estimated Strikes", metrics.strikes, "Rough conversion based on score total", "◈")}
+          </section>
+
+          <section class="split">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Recent Activity</div>
+                  <h3 class="panel-title">Latest Score Logs</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToLogsBtn">Open Logs</button>
+              </div>
+              ${recent.length ? `
+                <div class="list-stack">
+                  ${recent.map(log => renderRecentLine(log)).join("")}
+                </div>
+              ` : renderEmptyInline("No logs yet!", "Drop your first session and the dashboard stops looking like an abandoned control room.")}
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Hot Spots</div>
+                  <h3 class="panel-title">Most Used Locations</h3>
+                </div>
+              </div>
+              ${locationStats.length ? `
+                <div class="mini-chart">
+                  ${locationStats.map(([name, count]) => {
+                    const width = Math.max(10, Math.round((count / Math.max(...locationStats.map(item => item[1]), 1)) * 100));
+                    return `<div class="bar-line"><span>${escapeHtml(name)}</span><div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div><strong>${count}</strong></div>`;
+                  }).join("")}
+                </div>
+              ` : `<p class="panel-note">Locations will stack up here once the logs do.</p>`}
+            </div>
+          </section>
+
+          <section class="split">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Top End</div>
+                  <h3 class="panel-title">Best Sessions On Record</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToBoardBtn">Leaderboard</button>
+              </div>
+              ${top.length ? `
+                <div class="list-stack">
+                  ${top.map((log, index) => `
+                    <div class="list-line">
+                      <div class="leader-rank">${index + 1}</div>
+                      <div>
+                        <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+                        <small>${formatDate(log.date)} · ${escapeHtml(log.ball || "unknown")} ball</small>
+                      </div>
+                      <span class="score-pill">${escapeHtml(log.score)} pts</span>
+                    </div>
+                  `).join("")}
+                </div>
+              ` : renderEmptyInline("No ranking yet!", "Once scores exist, the top runs will line up here.")}
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Cold Storage</div>
+                  <h3 class="panel-title">Archive Preview</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToArchiveBtn">Open Archive</button>
+              </div>
+              ${archivePreview.length ? `
+                <div class="list-stack">
+                  ${archivePreview.map(log => renderArchiveLine(log)).join("")}
+                </div>
+              ` : `<p class="panel-note">Nothing archived right now! Every session is still live.</p>`}
+            </div>
+          </section>
+        </div>
+      `;
+
+      $("#heroNewLogBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      $("#heroSettingsBtn")?.addEventListener("click", () => openDrawer("settingsDrawer"));
+      $("#heroViewLogsBtn")?.addEventListener("click", () => showPage("logs"));
+      $("#jumpToLogsBtn")?.addEventListener("click", () => showPage("logs"));
+      $("#jumpToBoardBtn")?.addEventListener("click", () => showPage("leaderboard"));
+      $("#jumpToArchiveBtn")?.addEventListener("click", () => showPage("archive"));
+    }
+
+    function renderLogsPage() {
+      const root = $("#page-logs");
+      const rows = getFilteredLogs(false);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Score Logs</Div>
+                <h2 class="section-title">Session Table</H2>
+                <p class="section-subtitle">Filter by ball type, sort the score history, and move old sessions into archive when the main board gets too crowded.</P>
+              </div>
+              <button class="primary-btn" id="logsPageAddBtn">+ New Log</button>
+            </div>
+
+            <div class="toolbar">
+              <div class="table-actions">
+                <button class="filter-btn ${state.filters.ball === "all" ? "active" : ""}" data-ball-filter="all">All Balls</button>
+                <button class="filter-btn ${state.filters.ball === "light" ? "active" : ""}" data-ball-filter="light">Light</button>
+                <button class="filter-btn ${state.filters.ball === "medium" ? "active" : ""}" data-ball-filter="medium">Medium</button>
+                <button class="filter-btn ${state.filters.ball === "heavy" ? "active" : ""}" data-ball-filter="heavy">Heavy</button>
+              </div>
+              <div class="table-actions">
+                <select id="sortSelect" class="ghost-btn" style="padding-right:38px">
+                  <option value="newest" ${state.filters.sort === "newest" ? "selected" : ""}>Newest First</option>
+                  <option value="oldest" ${state.filters.sort === "oldest" ? "selected" : ""}>Oldest First</option>
+                  <option value="highest" ${state.filters.sort === "highest" ? "selected" : ""}>Highest Score</option>
+                  <option value="lowest" ${state.filters.sort === "lowest" ? "selected" : ""}>Lowest Score</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <div class="table-scroll">
+                ${rows.length ? `
+                  <table>
+                    <thead>
+                      <tr>
+                        <th >Date</th>
+                        <th >Location</th>
+                        <th >Score</th>
+                        <th>ball</th>
+                        <th >Notes</th>
+                        <th style="width:1%">actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map((log, index) => renderTableRow(log, index, false)).join("")}
+                    </tbody>
+                  </table>
+                ` : `<div class="table-empty">${renderEmptyInline("Nothing Matched!", "Try a different search phrase or start by logging a session.")}</div>`}
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+
+      $("#logsPageAddBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      root.querySelectorAll("[data-ball-filter]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.filters.ball = button.dataset.ballFilter;
+          renderAllPages();
+        });
+      });
+      $("#sortSelect")?.addEventListener("change", event => {
+        state.filters.sort = event.target.value;
+        renderAllPages();
+      });
+      bindRowActionButtons(root);
+    }
+
+    function renderLeaderboardPage() {
+      const root = $("#page-leaderboard");
+      const topLogs = [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => Number(b.score) - Number(a.score));
+
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Leaderboard</div>
+                <h2 class="section-title">Top Score Ladder</h2>
+                <p class="section-subtitle">Raw ranking, no fluff, just who did the damage.</p>
+              </div>
+            </div>
+            ${topLogs.length ? `
+              <div class="leaderboard-grid">
+                ${topLogs.slice(0, 9).map((log, index) => `
+                  <article class="leader-card">
+                    <div class="leader-top">
+                      <div class="leader-rank">${index + 1}</div>
+                      <span class="status-pill ${index === 0 ? "good" : index < 3 ? "warn" : ""}">${index === 0 ? "Top Run" : index < 3 ? "Podium" : "ranked"}</span>
+                    </div>
+                    <div>
+                      <div class="leader-score">${escapeHtml(log.score)}</div>
+                      <div class="leader-sub">${escapeHtml(log.location || "unknown lane")}</div>
+                    </div>
+                    <div class="leader-meta">
+                      <span class="tag">${formatDate(log.date)}</span>
+                      <span class="tag">${escapeHtml(log.ball || "unknown")}</span>
+                    </div>
+                    <div class="panel-note">${escapeHtml(log.notes || "no note attached.")}</div>
+                  </article>
+                `).join("")}
+              </div>
+            ` : renderEmptyInline("nothing to rank yet", "score logs will automatically build this page once you have entries.")}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderArchivePage() {
+      const root = $("#page-archive");
+      const rows = getFilteredLogs(true);
+      const archivedOnly = rows.filter(log => log.archived);
+      const preview = getArchivePreview(3);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="archive-grid">
+            ${preview.length ? preview.map(log => `
+              <div class="archive-pill">
+                <span>stored</span>
+                <strong>${escapeHtml(log.score)} pts</strong>
+                <span>${escapeHtml(log.location || "unknown lane")}</span>
+                <small class="muted">${formatDate(log.date)}</small>
+              </div>
+            `).join("") : `
+              <div class="archive-pill"><span>archive</span><strong>0 items</strong><span>nothing stored yet</span></div>
+              <div class="archive-pill"><span>status</span><strong>clean board</strong><span>everything remains live</span></div>
+              <div class="archive-pill"><span>hint</span><strong>use row actions</strong><span>send older runs here from the logs page</span></div>
+            `}
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Archive</div>
+                <h2 class="section-title">Cold Storage Table</h2>
+                <p class="section-subtitle">Old sessions stay saved here instead of cluttering your active board.</P>
+              </div>
+            </div>
+            <div class="table-shell">
+              <div class="table-scroll">
+                ${archivedOnly.length ? `
+                  <table>
+                    <thead>
+                      <tr>
+                        <th >Date</th>
+                        <th >Location</th>
+                        <th >Score</th>
+                        <th>ball</th>
+                        <th >Notes</th>
+                        <th style="width:1%">actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${archivedOnly.map((log, index) => renderTableRow(log, index, true)).join("")}
+                    </tbody>
+                  </table>
+                ` : `<div class="table-empty">${renderEmptyInline("Archive is empty!", "Nothing has been moved out of the main board yet.")}</div>`}
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+      bindRowActionButtons(root);
+    }
+
+    function renderAchievementsPage() {
+      const root = $("#page-achievements");
+      const status = getAchievementStatus();
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Achievements</div>
+                <h2 class="section-title">Progress Board</h2>
+                <p class="section-subtitle">Every badge is tied to actual logged performance, not fake prestige dust.</p>
+              </div>
+              <span class="status-pill good">${status.filter(item => item.done).length}/${status.length} unlocked</span>
+            </div>
+            <div class="achievements-grid">
+              ${status.map(item => `
+                <article class="achievement-card">
+                  <div class="achievement-icon">${item.icon}</div>
+                  <div class="achievement-copy">
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <p>${escapeHtml(item.description)}</p>
+                    <span class="status-pill ${item.done ? "good" : "bad"}">${item.done ? "unlocked" : "locked"}</span>
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderStatisticsPage() {
+      const root = $("#page-statistics");
+      const metrics = calcMetrics();
+      const buckets = scoreBuckets(state.logs);
+      const locations = locationFrequency(state.logs);
+      const ballStats = ballFrequency(state.logs);
+      const totalBallEntries = Math.max(1, ballStats.light + ballStats.medium + ballStats.heavy);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="stats-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Score Distribution</Div>
+                  <h2 class="section-title">Where the sessions land</h2>
+                </div>
+              </div>
+              <div class="mini-chart">
+                ${buckets.map(bucket => {
+                  const width = Math.max(8, Math.round((bucket.count / Math.max(...buckets.map(item => item.count), 1)) * 100));
+                  return `<div class="bar-line"><span>${bucket.label}</span><div class="bar-track"><div class="bar-fill" style="width:${bucket.count ? width : 0}%"></div></div><strong>${bucket.count}</strong></div>`;
+                }).join("")}
+              </div>
+              <div class="stats-meta" style="margin-top:14px">quick view of low, mid, and strong sessions across all stored data.</div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Core Metrics</div>
+                  <h2 class="section-title">Numbers that matter</h2>
+                </div>
+              </div>
+              <div class="metrics-list">
+                <div class="metric-row"><div><div class="metric-label">Best Streak over 200</div><div class="metric-note">consecutive logged sessions</div></div><div class="metric-value">${bestStreak(state.logs)}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Worst Score</div><div class="metric-note">Every control room needs the ugly truth</div></div><div class="metric-value">${metrics.worst}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Unique Lanes</div><div class="metric-note">Different locations with at least one log</div></div><div class="metric-value">${metrics.uniqueLocations}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Archive Count</div><div class="metric-note">Sessions currently stored away</div></div><div class="metric-value">${state.logs.filter(log => log.archived).length}</div></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="split">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Ball Usage</div>
+                  <h2 class="section-title">Equipment preference split</h2>
+                </div>
+              </div>
+              <div class="mini-chart">
+                ${["light", "medium", "heavy"].map(key => {
+                  const count = ballStats[key];
+                  const width = Math.max(8, Math.round((count / totalBallEntries) * 100));
+                  return `<div class="bar-line"><span>${key}</span><div class="bar-track"><div class="bar-fill" style="width:${count ? width : 0}%"></div></div><strong>${count}</strong></div>`;
+                }).join("")}
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Lane Frequency</div>
+                  <h2 class="section-title">Most logged locations</h2>
+                </div>
+              </div>
+              ${locations.length ? `
+                <div class="list-stack">
+                  ${locations.map(([name, count]) => `
+                    <div class="list-line">
+                      <div class="list-icon">◉</div>
+                      <div>
+                        <strong>${escapeHtml(name)}</strong>
+                        <small>${count} stored session${count === 1 ? "" : "s"}</small>
+                      </div>
+                      <span class="score-pill">${count}</span>
+                    </div>
+                  `).join("")}
+                </div>
+              ` : `<p class="panel-note">Lane frequency will appear once locations start repeating.</p>`}
+            </article>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderCoachPage() {
+      const root = $("#page-coach");
+      const lines = getCoachLines();
+      const top = getTopLogs(1)[0];
+      const metrics = calcMetrics();
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="coach-grid">
+            <article class="coach-card">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">AI coach</div>
+                  <h2 class="section-title">Session Readout</H2>
+                  <p class="section-subtitle">This is the part where the robot acts slightly judgmental about your bowling numbers.</p>
+                </div>
+                <button class="primary-btn" id="refreshCoachBtn">Reroll Advice</button>
+              </div>
+              <div class="coach-console" id="coachConsole">
+                ${lines.map(line => `
+                  <div class="coach-line">
+                    <span class="coach-dot"></span>
+                    <div>
+                      <strong>coach</strong>
+                      <span>${escapeHtml(line)}</span>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </article>
+
+            <article class="coach-card">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Quick Read</Div>
+                  <h2 class="section-title">Current Situation</H2>
+                </div>
+              </div>
+              <div class="coach-console">
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Average</strong><span>${metrics.average} points across stored sessions.</span></div></div>
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Best Run</strong><span>${top ? `${top.score} at ${escapeHtml(top.location || "Unknown Lane")}` : "No best run yet!"}.</span></div></div>
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Archive pressure</strong><span>${state.logs.filter(log => log.archived).length} sessions are stored away.</span></div></div>
+              </div>
+              <div class="coach-actions">
+                <button class="ghost-btn" id="coachAddLogBtn">Log a Session</Button>
+                <button class="ghost-btn" id="coachOpenStatsBtn">Open Statistics</button>
+              </div>
+            </article>
+          </section>
+        </div>
+      `;
+
+      $("#refreshCoachBtn")?.addEventListener("click", () => renderCoachPage());
+      $("#coachAddLogBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      $("#coachOpenStatsBtn")?.addEventListener("click", () => showPage("statistics"));
+    }
+
+    function renderKpiCard(label, value, note, icon) {
+      const metrics = calcMetrics();
+      const trendNote = metrics.total ? `${metrics.total} total stored` : "waiting for data";
+      return `
+        <article class="kpi-card">
+          <div class="kpi-head">
+            <div>
+              <div class="kpi-label">${escapeHtml(label)}</div>
+            </div>
+            <div class="kpi-icon">${icon}</div>
+          </div>
+          <div class="kpi-value">${escapeHtml(value)}</div>
+          <div class="kpi-foot">
+            <div class="kpi-note">${escapeHtml(note)}</div>
+            <span class="kpi-trend">${escapeHtml(trendNote)}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderRecentLine(log) {
+      return `
+        <div class="list-line">
+          <div class="list-icon">◎</div>
+          <div>
+            <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+            <small>${formatDate(log.date)} · ${escapeHtml(log.ball || "unknown")} ball · ${escapeHtml(log.notes || "no note")}</small>
+          </div>
+          <span class="score-pill">${escapeHtml(log.score)} pts</span>
+        </div>
+      `;
+    }
+
+    function renderArchiveLine(log) {
+      return `
+        <div class="list-line">
+          <div class="list-icon">▣</div>
+          <div>
+            <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+            <small>${formatDate(log.date)} · Archived Session</small>
+          </div>
+          <span class="score-pill">${escapeHtml(log.score)} pts</span>
+        </div>
+      `;
+    }
+
+    function renderEmptyInline(title, copy) {
+      return `
+        <div class="empty-state">
+          <strong>${escapeHtml(title)}</strong>
+          <p>${escapeHtml(copy)}</p>
+        </div>
+      `;
+    }
+
+    function renderTableRow(log, index, archived) {
+      const realIndex = state.logs.findIndex(item => item === log);
+      return `
+        <tr>
+          <td>
+            <div>${formatCompactDate(log.date)}</div>
+            <div class="table-meta">${formatDate(log.date)}</div>
+          </td>
+          <td>${escapeHtml(log.location || "unknown lane")}</td>
+          <td><span class="score-pill">${escapeHtml(log.score)}</span></td>
+          <td><span class="tag">${escapeHtml(log.ball || "unknown")}</span></td>
+          <td>${escapeHtml(log.notes || "-")}</td>
+          <td>
+            <div class="table-actions">
+              <button class="table-link" data-action="toggle-archive" data-index="${realIndex}">${archived ? "Restore" : "Archive"}</button>
+              <button class="table-link" data-action="delete" data-index="${realIndex}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+  (function () {
+    const toast = document.getElementById("beToast");
+    const closeBtn = document.getElementById("beToastClose");
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+        toast.classList.add("hide");
+      }, 4000);
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => {
+        toast.classList.remove("show");
+        toast.classList.add("hide");
+      });
+    }
+
+    // hook into your existing save logic
+    const originalSave = window.saveLog;
+
+    window.saveLog = function (...args) {
+      if (originalSave) originalSave.apply(this, args);
+    };
+  })();
+	
+    function bindRowActionButtons(scope) {
+      scope.querySelectorAll("[data-action='toggle-archive']").forEach(button => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.index);
+          if (Number.isNaN(index) || !state.logs[index]) return;
+          state.logs[index].archived = !state.logs[index].archived;
+          persistLogs();
+          renderAllPages();
+        });
+      });
+
+      scope.querySelectorAll("[data-action='delete']").forEach(button => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.index);
+          if (Number.isNaN(index) || !state.logs[index]) return;
+          const confirmed = confirm("Delete this stored log permanently?");
+          if (!confirmed) return;
+          state.logs.splice(index, 1);
+          persistLogs();
+          renderAllPages();
+        });
+      });
+    }
+
+    function renderAllPages() {
+      renderSidebar($("#sidebar"));
+      renderSidebar($("#mobileSidebar"), true);
+      renderOverviewPage();
+      renderLogsPage();
+      renderLeaderboardPage();
+      renderArchivePage();
+      renderAchievementsPage();
+      renderStatisticsPage();
+      renderCoachPage();
+      applyTheme();
+      updatePageVisibility();
+      syncSearchInputs();
+      syncSettingsFields();
+    }
+
+    function updatePageVisibility() {
+      NAV_ITEMS.forEach(item => {
+        const page = $(`#page-${item.id}`);
+        if (!page) return;
+        page.classList.toggle("active", state.currentPage === item.id);
+      });
+      const current = NAV_ITEMS.find(item => item.id === state.currentPage);
+      $("#pageTitle").textContent = current ? current.label : "Overview";
+    }
+
+    function showPage(id) {
+      state.currentPage = id;
+      renderAllPages();
+    }
+
+    function openDrawer(id) {
+      state.activeDrawer = id;
+      $("#overlay").classList.add("active");
+      $(`#${id}`).classList.add("active");
+      $(`#${id}`).setAttribute("aria-hidden", "false");
+      if (id === "logDrawer") prepareLogForm();
+      if (id === "settingsDrawer") syncSettingsFields();
+    }
+
+    function closeDrawer(id) {
+      const drawer = $(`#${id}`);
+      if (!drawer) return;
+      drawer.classList.remove("active");
+      drawer.setAttribute("aria-hidden", "true");
+      if (state.activeDrawer === id) state.activeDrawer = null;
+      if (!$(".drawer.active")) {
+        $("#overlay").classList.remove("active");
+      }
+    }
+
+    function closeAllDrawers() {
+      $$(".drawer.active").forEach(drawer => closeDrawer(drawer.id));
+      $("#overlay").classList.remove("active");
+      state.activeDrawer = null;
+    }
+
+    function toggleMobileMenu(force) {
+      const next = typeof force === "boolean" ? force : !state.mobileMenuOpen;
+      state.mobileMenuOpen = next;
+      $("#mobileSidebar").classList.toggle("active", next);
+      $("#overlay").classList.toggle("active", next || Boolean($(".drawer.active")));
+    }
+
+    function applyTheme() {
+      document.body.classList.toggle("light", state.settings.theme === "light");
+    }
+
+    function syncSearchInputs() {
+      $("#globalSearch").value = state.filters.query;
+    }
+
+    function setSegmentActive(container, value) {
+      container.querySelectorAll("button[data-ball]").forEach(button => {
+        button.classList.toggle("active", button.dataset.ball === value);
+      });
+    }
+
+    function prepareLogForm() {
+      $("#logDate").value = todayISO();
+      $("#logLocation").value = state.settings.defaultLocation || "";
+      $("#logScore").value = "";
+      $("#logNotes").value = "";
+      $("#logArchiveToggle").checked = false;
+      state.activeBallDraft = state.settings.defaultBall || "light";
+      setSegmentActive($("#ballSegment"), state.activeBallDraft);
+    }
+
+    function syncSettingsFields() {
+      $("#setUsername").value = state.settings.username || "";
+      $("#setDefaultLocation").value = state.settings.defaultLocation || "";
+      $("#setTheme").value = state.settings.theme || "dark";
+      $("#setPublic").checked = Boolean(state.settings.showScore);
+      $("#setPrivacy").checked = Boolean(state.settings.privacy);
+      $("#setEmail").checked = Boolean(state.settings.email);
+      $("#setSound").checked = Boolean(state.settings.sound);
+      $("#set2FA").checked = Boolean(state.settings.enable2FA);
+      $("#setPhone").value = state.settings.phone || "";
+      state.activeBallDefault = state.settings.defaultBall || "light";
+      setSegmentActive($("#defaultBallSegment"), state.activeBallDefault);
+      $("#phoneField").classList.toggle("hide", !state.settings.enable2FA && !$("#set2FA").checked);
+    }
+
+    function saveLog() {
+      const date = $("#logDate").value;
+      const location = $("#logLocation").value.trim();
+      const score = Number($("#logScore").value);
+      const notes = $("#logNotes").value.trim();
+      const archived = $("#logArchiveToggle").checked;
+
+      if (!date || !location || !Number.isFinite(score)) {
+        alert("Fill date, location, and score first.");
+        return;
+      }
+
+      const cleanScore = Math.max(0, Math.min(300, Math.round(score)));
+
+      state.logs.push({
+        date,
+        location,
+        score: cleanScore,
+        ball: state.activeBallDraft,
+        notes,
+        archived
+      });
+
+      persistLogs();
+      closeDrawer("logDrawer");
+      renderAllPages();
+      showPage("logs");
+	  showDashboardToast("Log Created", "Your score log has been added to the modern dashboard.");
+    }
+
+    function saveSettings() {
+      state.settings = {
+        username: $("#setUsername").value.trim() || "lane operator",
+        defaultLocation: $("#setDefaultLocation").value.trim(),
+        theme: $("#setTheme").value,
+        defaultBall: state.activeBallDefault,
+        showScore: $("#setPublic").checked,
+        privacy: $("#setPrivacy").checked,
+        email: $("#setEmail").checked,
+        sound: $("#setSound").checked,
+        enable2FA: $("#set2FA").checked,
+        phone: $("#setPhone").value.trim()
+      };
+
+      persistSettings();
+      closeDrawer("settingsDrawer");
+      renderAllPages();
+    }
+
+    function wipeAllData() {
+      const confirmed = confirm("Wipe every stored log and setting for this local dashboard?");
+      if (!confirmed) return;
+      localStorage.removeItem(LOGS_KEY);
+      localStorage.removeItem(SETTINGS_KEY);
+      localStorage.removeItem(LEGACY_LOGS_KEY);
+      localStorage.removeItem(LEGACY_SETTINGS_KEY);
+      hydrateState();
+      renderAllPages();
+      closeDrawer("settingsDrawer");
+      showPage("overview");
+    }
+
+    function bindGlobalEvents() {
+      $("#openLogBtn").addEventListener("click", () => openDrawer("logDrawer"));
+      $("#openSettingsBtn").addEventListener("click", () => openDrawer("settingsDrawer"));
+      $("#fabButton").addEventListener("click", () => openDrawer("logDrawer"));
+      $("#mobileMenuBtn").addEventListener("click", () => toggleMobileMenu(true));
+      $("#overlay").addEventListener("click", () => {
+        toggleMobileMenu(false);
+        closeAllDrawers();
+      });
+      $$("[data-close]").forEach(button => {
+        button.addEventListener("click", () => closeDrawer(button.dataset.close));
+      });
+      $("#saveLogBtn").addEventListener("click", saveLog);
+      $("#saveSettingsBtn").addEventListener("click", saveSettings);
+      $("#wipeDataBtn").addEventListener("click", wipeAllData);
+      $("#globalSearch").addEventListener("input", event => {
+        state.filters.query = event.target.value;
+        renderAllPages();
+      });
+
+      $("#ballSegment").querySelectorAll("button[data-ball]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.activeBallDraft = button.dataset.ball;
+          setSegmentActive($("#ballSegment"), state.activeBallDraft);
+        });
+      });
+
+      $("#defaultBallSegment").querySelectorAll("button[data-ball]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.activeBallDefault = button.dataset.ball;
+          setSegmentActive($("#defaultBallSegment"), state.activeBallDefault);
+        });
+      });
+
+      $("#set2FA").addEventListener("change", event => {
+        $("#phoneField").classList.toggle("hide", !event.target.checked);
+      });
+
+      $("#setTheme").addEventListener("change", event => {
+        document.body.classList.toggle("light", event.target.value === "light");
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if (state.mobileMenuOpen) toggleMobileMenu(false);
+          if (state.activeDrawer) closeAllDrawers();
+        }
+      });
+    }
+
+    function init() {
+      hydrateState();
+      bindGlobalEvents();
+      renderAllPages();
+      prepareLogForm();
+    }
+
+    init();
+  </script>
+</body>
+</html>
