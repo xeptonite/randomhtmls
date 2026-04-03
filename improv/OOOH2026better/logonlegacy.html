@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in to BowlingExpress</title>
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI",system-ui,sans-serif
+}
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #13151a;
+    overflow: hidden;
+    margin: 0;
+}
+.login-container {
+    background-color: #20222c;
+    width: 350px;
+    padding: 32px 30px 28px 30px;
+    border-radius: 18px;
+    box-shadow: 0px 10px 42px #000c, 0 2px 14px #0af1;
+    text-align: center;
+    animation: fadeIn 1s cubic-bezier(.6,1.8,.35,1);
+    border: 1.7px solid #23282f;
+}
+.logo {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 58px;
+    height: 58px;
+    background-image: url('whiteLogo.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    animation: bounceLogo 2s ease-in-out infinite;
+    box-shadow: 0 0 10px #166cfeb0;
+    border: 1.4px solid #2440aa52;
+    z-index: 2;
+    overflow: hidden;
+}
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #e3e9fa;
+    letter-spacing: -1px;
+    animation: fadeIn 1.5s cubic-bezier(.6,1.8,.35,1);
+}
+.input-field {
+    width: 100%;
+    padding: 12px;
+    margin: 11px 0;
+    border: 1.3px solid #23282f;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #252834;
+    color: #f6f8ff;
+    transition: 0.23s cubic-bezier(.67,1.6,.48,.91);
+}
+.input-field:focus {
+    border-color: #3c67e7;
+    box-shadow: 0 0 8px #287fff55;
+    background: #23253a;
+    outline: none;
+}
+.input-field::placeholder {
+    color: #a4b4d1;
+    opacity: 1;
+}
+.button, .create-btn, .close-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #3172ff 0%, #2a34fd 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 22px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    transition: filter 0.18s, box-shadow 0.21s;
+    box-shadow: 0 2px 12px #0af2,0 1px 7px #0af1;
+}
+.button:hover, .create-btn:hover, .close-btn:hover {
+    filter: brightness(1.12) drop-shadow(0 0 6px #3172ff88);
+}
+.forgot-password {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #8ac7ff;
+    text-decoration: none;
+    display: inline-block;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+.forgot-password:hover {
+    text-decoration: underline;
+    color: #f6f8ff;
+}
+.notification {
+    visibility: hidden;
+    opacity: 0;
+    background-color: #23ae5d;
+    color: white;
+    padding: 10px;
+    margin-top: 18px;
+    border-radius: 7px;
+    font-weight: 600;
+    box-shadow: 0 1px 10px #1118;
+    transition: visibility 0.3s, opacity 0.3s cubic-bezier(.6,1.8,.35,1);
+}
+.notification.show {
+    visibility: visible;
+    opacity: 1;
+}
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: scale(.96);}
+    100% { opacity: 1; transform: scale(1);}
+}
+@keyframes bounceLogo {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+    100% { transform: translateY(0); }
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Logo in Top-left corner -->
+    <div class="logo"><img src="Logo.png" alt="BowlingExpress Logo"></div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <h2>Login to BowlingExpress</h2>
+        <form id="loginForm">
+            <input type="email" id="email" class="input-field" placeholder="Email" required>
+            <input type="password" id="password" class="input-field" placeholder="Password" required>
+            <button type="submit" class="button">Login</button>
+        </form>
+        <a href="#" class="forgot-password">Forgot password?</a>
+        <div class="notification" id="notification">Login Successful!</div>
+    </div>
+
+    <script>
+        // Add form submission handling with animation and notifications
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent page refresh
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Simple validation (for demo purposes)
+            if (email && password) {
+                // Show the success notification
+                document.getElementById('notification').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('notification').classList.remove('show');
+                }, 3000);
+
+                // Here you can add backend logic for authentication
+                console.log("Login successful!");
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+    </script>
+</body>
+</html>

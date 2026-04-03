@@ -1,0 +1,4600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BowlingExpress · Control Center</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta name="color-scheme" content="dark light" />
+  <style>
+  body {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+}
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+	@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-regular.woff2') format('woff2');
+			font-weight: normal;
+			font-style: normal;
+		}
+		
+		@font-face {
+			font-family: 'Bowlings';
+			src: url('poppins-v24-latin-700.woff2') format('woff2');
+			font-weight: bold;
+		}
+    :root {
+      --bg: #090b10;
+      --panel: #10141c;
+      --panel-2: #151b25;
+      --panel-3: #1b2331;
+      --panel-4: #0d1118;
+      --line: #243041;
+      --line-2: #30415b;
+      --text: #ecf3ff;
+      --text-soft: #9bb0d1;
+      --text-dim: #7487a4;
+      --accent: #3a78ff;
+      --accent-strong: #1f5fe6;
+      --accent-soft: rgba(58, 120, 255, 0.14);
+      --success: #26b36d;
+      --warning: #d7a72b;
+      --danger: #da4c4c;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --sidebar-width: 284px;
+      --header-height: 74px;
+      --speed: 180ms;
+      font-family: Bowlings, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body.light {
+      --bg: #eef2f8;
+      --panel: #ffffff;
+      --panel-2: #f7f9fd;
+      --panel-3: #edf2fa;
+      --panel-4: #f3f6fb;
+      --line: #d7deeb;
+      --line-2: #bec9de;
+      --text: #162236;
+      --text-soft: #425672;
+      --text-dim: #6c7d98;
+      --accent-soft: rgba(58, 120, 255, 0.10);
+      --shadow: 0 18px 34px rgba(18, 33, 58, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      overflow-x: hidden;
+	  overflow-y: auto;
+      transition: background var(--speed), color var(--speed);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100dvh;
+      min-height: 100dvh;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--panel-4);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+      transition: width var(--speed), padding var(--speed);
+      overflow: hidden;
+	  overflow-x: hidden;
+	overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 94px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 56px;
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line-2);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      flex-shrink: 0;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-logo {
+      padding: 0;
+      overflow: hidden;
+      background: var(--panel-2);
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--line-2);
+      background: var(--panel-2);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .user-avatar svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .user-avatar circle,
+    .user-avatar path {
+      stroke: currentColor;
+    }
+
+    .user-avatar .avatar-dot {
+      fill: currentColor;
+      stroke: none;
+      opacity: 0.95;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-sub {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .collapse-toggle,
+    .mobile-menu-btn,
+    .icon-btn,
+    .ghost-btn,
+    .primary-btn,
+    .danger-btn,
+    .segmented button,
+    .chip,
+    .fab,
+    .drawer-close,
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 12px;
+      transition: background var(--speed), border-color var(--speed), transform var(--speed), color var(--speed);
+    }
+
+    .collapse-toggle {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .collapse-toggle:hover,
+    .mobile-menu-btn:hover,
+    .icon-btn:hover,
+    .ghost-btn:hover,
+    .segmented button:hover,
+    .chip:hover,
+    .drawer-close:hover,
+    .filter-btn:hover {
+      background: var(--panel-3);
+      border-color: var(--line-2);
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      border-color: var(--accent-strong);
+      color: white;
+      font-weight: 700;
+    }
+
+    .primary-btn:hover,
+    .danger-btn:hover,
+    .fab:hover {
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(58, 120, 255, 0.35);
+      color: var(--text);
+    }
+
+    .danger-btn {
+      background: rgba(218, 76, 76, 0.16);
+      border-color: rgba(218, 76, 76, 0.4);
+      color: #ffd0d0;
+    }
+
+    .sidebar-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-label {
+      color: var(--text-dim);
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      color: var(--text-soft);
+      position: relative;
+      min-height: 48px;
+    }
+
+    .nav-item .nav-icon {
+      width: 24px;
+      text-align: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active {
+      background: var(--accent-soft);
+      color: var(--text);
+      border: 1px solid rgba(58, 120, 255, 0.35);
+    }
+
+    .nav-item.active::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .nav-title,
+    .brand-copy,
+    .sidebar-footer-copy,
+    .sidebar-chip-copy {
+      transition: opacity var(--speed), width var(--speed);
+    }
+
+    .sidebar-footer-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .sidebar-chip strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-chip small {
+      display: block;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar.collapsed .brand-copy,
+    .sidebar.collapsed .nav-title,
+    .sidebar.collapsed .sidebar-footer-copy,
+    .sidebar.collapsed .sidebar-chip-copy,
+    .sidebar.collapsed .sidebar-label {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+	  overflow-x: hidden;
+		overflow-y: auto;
+      pointer-events: none;
+    }
+
+    .sidebar.collapsed .nav-item,
+    .sidebar.collapsed .sidebar-chip {
+      justify-content: center;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .sidebar.collapsed .nav-item.active::after {
+      right: 8px;
+    }
+
+    .main {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background: var(--bg);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9, 11, 16, 0.78);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 8;
+    }
+
+    body.light .topbar {
+      background: rgba(238, 242, 248, 0.84);
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .topbar-left {
+      flex: 1 1 auto;
+    }
+
+    .topbar-right {
+      flex: 0 1 auto;
+    }
+
+    .mobile-menu-btn {
+      width: 44px;
+      height: 44px;
+      display: none;
+      place-items: center;
+    }
+
+    .crumb-wrap {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .page-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .search-shell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0 14px;
+      min-width: min(440px, 44vw);
+      height: 48px;
+    }
+
+    .search-shell input {
+      flex: 1;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .search-shell input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .icon-btn,
+    .ghost-btn,
+    .primary-btn,
+    .danger-btn,
+    .filter-btn {
+      height: 46px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      width: 46px;
+      padding: 0;
+    }
+
+    .content {
+      min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 24px;
+      padding-bottom: 96px;
+    }
+
+    .page {
+      display: none;
+      animation: pageIn 220ms ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+      gap: 18px;
+    }
+
+    .hero-copy h1,
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.15rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-copy p,
+    .section-subtitle,
+    .panel-note,
+    .metric-note,
+    .empty-state p,
+    .leader-sub,
+    .achievement-copy p,
+    .coach-copy p,
+    .stats-meta,
+    .list-line small,
+    .chip-note {
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    .hero-copy p {
+      max-width: 62ch;
+      margin: 14px 0 20px;
+    }
+
+    .inline-actions,
+    .chip-row,
+    .toolbar,
+    .settings-grid,
+    .modal-actions,
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+
+    .hero-panel {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tiny-stat {
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .tiny-stat strong,
+    .metric-value,
+    .kpi-value,
+    .archive-pill strong,
+    .coach-line strong {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .tiny-stat span,
+    .metric-label,
+    .kpi-label,
+    .archive-pill span,
+    .field label,
+    .field-help,
+    .switch-line span,
+    .table-meta,
+    .coach-line span {
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card,
+    .panel,
+    .coach-card,
+    .achievement-card,
+    .leader-card,
+    .archive-pill {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card {
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: auto auto 0 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .kpi-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      border: 1px solid rgba(58, 120, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .kpi-value {
+      font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+      margin-bottom: 6px;
+    }
+
+    .kpi-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .kpi-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--text-soft);
+      font-size: 0.84rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.95fr);
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .panel-kicker {
+      color: var(--text-dim);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .list-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .list-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .list-line strong {
+      display: block;
+      font-size: 0.98rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .score-pill,
+    .status-pill,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-pill.good { color: #9be2ba; border-color: rgba(38, 179, 109, 0.35); background: rgba(38, 179, 109, 0.12); }
+    .status-pill.warn { color: #ffe29a; border-color: rgba(215, 167, 43, 0.35); background: rgba(215, 167, 43, 0.12); }
+    .status-pill.bad { color: #ffb3b3; border-color: rgba(218, 76, 76, 0.35); background: rgba(218, 76, 76, 0.12); }
+
+    .mini-chart {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-line {
+  display: grid;
+  grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.bar-line > span:first-child {
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .bar-line {
+    grid-template-columns: minmax(0, 110px) minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+}
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      min-width: 8px;
+      width: 0;
+      transition: width 260ms ease;
+    }
+
+    .toolbar {
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .table-shell {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .table-scroll {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    thead {
+      background: var(--panel-2);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 700;
+    }
+
+    tbody tr {
+      background: transparent;
+      transition: background var(--speed);
+    }
+
+    tbody tr:hover {
+      background: var(--panel-2);
+    }
+
+    .table-actions {
+      justify-content: flex-end;
+    }
+
+    .table-link {
+      color: var(--text-soft);
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .table-link:hover {
+      color: var(--text);
+    }
+
+    .table-empty,
+    .empty-state {
+      padding: 38px 20px;
+      text-align: center;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line-2);
+      border-radius: 22px;
+      background: var(--panel);
+    }
+
+    .empty-state strong {
+      display: block;
+      font-size: 1.06rem;
+      margin-bottom: 8px;
+    }
+
+    .leaderboard-grid,
+    .achievements-grid,
+    .coach-grid,
+    .stats-grid,
+    .archive-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .leaderboard-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .leader-card {
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .leader-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .leader-rank {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .leader-score {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .leader-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .archive-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .archive-pill {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .achievements-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .achievement-card {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .achievement-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      border: 1px solid rgba(58,120,255,0.3);
+      font-size: 1.2rem;
+    }
+
+    .achievement-copy h3,
+    .coach-copy h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    }
+
+    .metrics-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .coach-grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    }
+
+    .coach-card {
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .coach-console {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      min-height: 180px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .coach-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .coach-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .coach-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--accent);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .coach-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      transition: border-color var(--speed), background var(--speed);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .search-shell:focus-within {
+      border-color: var(--accent);
+    }
+
+    .segmented {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .segmented button {
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .segmented button.active {
+      background: var(--accent-soft);
+      border-color: rgba(58,120,255,0.35);
+      color: var(--text);
+    }
+
+    .switch-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--panel-3);
+      border: 1px solid var(--line);
+      transition: background var(--speed), border-color var(--speed);
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 2px;
+      top: 2px;
+      border-radius: 999px;
+      background: #fff;
+      transition: transform var(--speed);
+    }
+
+    .switch input:checked + .slider {
+      background: var(--accent);
+      border-color: var(--accent-strong);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--speed), visibility var(--speed);
+      z-index: 25;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      bottom: 18px;
+      width: min(560px, calc(100vw - 24px));
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      transform: translateX(calc(100% + 28px));
+      transition: transform 220ms ease;
+      z-index: 30;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
+
+    .drawer.active {
+      transform: translateX(0);
+    }
+
+    .drawer-head,
+    .drawer-foot {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .drawer-foot {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .drawer-body {
+      overflow: auto;
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .drawer-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .drawer-close {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+    }
+
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: min(90vw, 340px);
+      transform: translateX(-100%);
+      transition: transform 220ms ease;
+      z-index: 40;
+      background: var(--panel-4);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      overflow: auto;
+      display: none;
+    }
+
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+
+    .mobile-sidebar .sidebar-block,
+    .mobile-sidebar .sidebar-footer {
+      margin-bottom: 16px;
+    }
+
+    .fab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      height: 58px;
+      padding: 0 18px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      border-color: var(--accent-strong);
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      z-index: 18;
+    }
+
+    .muted {
+      color: var(--text-dim);
+    }
+
+    .hide { display: none !important; }
+
+    @media (max-width: 1220px) {
+      .hero,
+      .split,
+      .stats-grid,
+      .coach-grid,
+      .leaderboard-grid,
+      .archive-grid,
+      .achievements-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .search-shell {
+        min-width: 280px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      html,
+      body {
+        height: auto;
+      }
+
+      body {
+        overflow: auto;
+        overflow-x: hidden;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        min-height: 100dvh;
+        height: 100dvh;
+      }
+
+      .main {
+        min-height: 0;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-sidebar,
+      .mobile-menu-btn,
+      .fab {
+        display: grid;
+      }
+
+      .mobile-menu-btn {
+        place-items: center;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        height: auto;
+        padding: 14px 18px;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        width: 100%;
+      }
+
+      .topbar-left {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .crumb-wrap {
+        min-width: 0;
+      }
+
+      .page-title {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.1;
+      }
+
+      .topbar-right .ghost-btn:not(.compact-keep),
+      .topbar-right .icon-btn:not(.compact-keep) {
+        display: none;
+      }
+
+      .topbar-right {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .topbar-right > * {
+        min-width: 0;
+      }
+
+      .search-shell {
+        min-width: 0;
+        width: 100%;
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .field-grid,
+      .hero-strip,
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        padding: 16px;
+        padding-bottom: 110px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .toolbar > * {
+        width: 100%;
+      }
+
+      .inline-actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .fab {
+        display: inline-flex;
+      }
+
+      .drawer {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        width: auto;
+      }
+    }
+  
+/* desktop: hide collapse + mobile controls */
+@media (min-width: 980px) {
+  .collapse-toggle,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+/* remove theme toggle globally */
+.theme-toggle {
+  display: none !important;
+}
+
+/* mobile: hide topbar new log */
+@media (max-width: 980px) {
+  .topbar .primary-btn {
+    display: none !important;
+  }
+}
+
+  .be-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: min(360px, calc(100vw - 32px));
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(20, 26, 36, 0.96);
+    border: 1px solid rgba(88, 117, 168, 0.34);
+    color: #eef4ff;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+    font-family: "Segoe UI", Bowlings, system-ui, sans-serif;
+  }
+
+  .be-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .be-toast.hide {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  .be-toast-inner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .be-toast-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(58, 120, 255, 0.12);
+    border: 1px solid rgba(58, 120, 255, 0.24);
+  }
+
+  .be-toast-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #8fb6ff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .be-toast-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #ffffff;
+  }
+
+  .be-toast-text {
+    font-size: 13px;
+    color: #b7c7e6;
+  }
+
+  .be-toast-close {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #9fb2d6;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .be-toast-close:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+  }
+
+  @media (max-width: 640px) {
+    .be-toast {
+      top: 12px;
+      right: 12px;
+      width: calc(100vw - 24px);
+    }
+  }
+  
+.ui-dialog-layer {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.ui-dialog-layer.show {
+  display: flex;
+}
+
+.ui-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ui-dialog-box {
+  position: relative;
+  width: min(440px, calc(100vw - 28px));
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  z-index: 1;
+}
+
+.ui-dialog-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.ui-dialog-text {
+  color: var(--text-soft);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.ui-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .ui-dialog-box {
+    width: calc(100vw - 20px);
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .ui-dialog-actions {
+    flex-direction: column;
+  }
+
+  .ui-dialog-actions > button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.inline-edit {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 6px 8px;
+  font: inherit;
+  line-height: 1.25;
+}
+
+td .inline-edit[type="number"] {
+  width: 90px;
+}
+
+td {
+  min-width: 0;
+}
+
+td .table-meta {
+  word-break: break-word;
+}
+
+.table-shell {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow: auto;
+  max-width: 100%;
+}
+
+.inline-edit:hover,
+.inline-edit:focus {
+  background: var(--panel-2);
+  border-color: var(--line);
+  outline: none;
+}
+.media-upload-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.media-file-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 10px 56px 10px 12px;
+  min-height: 50px;
+}
+
+.media-file-input::file-selector-button {
+  margin-right: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-3);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.media-camera-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  background: var(--panel-3);
+  color: var(--text-soft);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.media-camera-btn:hover {
+  background: var(--accent-soft);
+  border-color: rgba(58, 120, 255, 0.35);
+  color: var(--text);
+}
+
+.media-camera-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+}
+
+.social-connections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.social-icon-btn {
+  width: 50px;
+  height: 50px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: background var(--speed), border-color var(--speed), transform var(--speed), color var(--speed);
+}
+
+.social-icon-btn:hover,
+.social-icon-btn:focus-visible {
+  background: var(--accent-soft);
+  border-color: rgba(58, 120, 255, 0.35);
+  color: var(--text);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.social-icon-btn.connected {
+  background: var(--accent-soft);
+  border-color: rgba(58, 120, 255, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(58, 120, 255, 0.18);
+}
+
+.social-icon-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.social-icon-btn[data-provider="eKool"] svg {
+  width: 24px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor
+}
+
+.social-legend {
+  margin-top: 10px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.nav-item.hidden {
+  display: none !important;
+}
+
+.nav-item.hidden {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+</style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay"><div class="be-toast" id="beToast">
+  <div class="be-toast-inner">
+    <div class="be-toast-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 5v14"></path>
+        <path d="M5 12h14"></path>
+      </svg>
+    </div>
+
+    <div style="min-width:0">
+      <div class="be-toast-title">Log Created</div>
+      <div class="be-toast-text">Your score log has been saved successfully.</div>
+    </div>
+
+    <button class="be-toast-close" id="beToastClose">✕</button>
+  </div>
+</div></div>
+
+  <aside class="mobile-sidebar" id="mobileSidebar"></aside>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+          <div class="crumb-wrap">
+            <div class="eyebrow">Control Center</div>
+            <div class="page-title" id="pageTitle">Overview</div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <label class="search-shell" aria-label="Search logs">
+            <span>⌕</span>
+            <input id="globalSearch" type="search" placeholder="Search Location, Notes, Date, Score" />
+          </label>
+          <button class="ghost-btn" id="openSettingsBtn">Settings</button>
+          <button class="primary-btn compact-keep" id="openLogBtn">+ New Log</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="page active" id="page-overview"></section>
+        <section class="page" id="page-logs"></section>
+        <section class="page" id="page-leaderboard"></section>
+        <section class="page" id="page-archive"></section>
+        <section class="page" id="page-achievements"></section>
+        <section class="page" id="page-statistics"></section>
+        <section class="page" id="page-coach"></section>
+      </div>
+    </main>
+  </div>
+
+  <button class="fab" id="fabButton">+ New Log</button>
+
+  <aside class="drawer" id="logDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="panel-kicker">New Entry</div>
+        <h2 class="drawer-title">Add a New Score Log</h2>
+      </div>
+      <button class="drawer-close" data-close="logDrawer" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field-grid">
+        <div class="field">
+          <label for="logDate" >Date</label>
+          <input id="logDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="logScore" >Score</label>
+          <input id="logScore" type="number" min="0" max="300" placeholder="e.g. 214" />
+        </div>
+        <div class="field full">
+          <label for="logLocation" >Location</label>
+          <input id="logLocation" type="text" placeholder="e.g. City Bowl" />
+        </div>
+		<div class="field">
+  <label for="logGameType">Game Type</label>
+  <select id="logGameType">
+    <option value="practice">Practice</option>
+    <option value="league">League</option>
+    <option value="tournament">Tournament</option>
+    <option value="casual">Casual</option>
+  </select>
+</div>
+
+<div class="field">
+  <label for="logLane">Lane</label>
+  <input id="logLane" type="number" min="1" max="99" placeholder="e.g. 7" />
+</div>
+
+<div class="field">
+  <label for="logOpponent">Opponent / Group</label>
+  <input id="logOpponent" type="text" placeholder="Solo, Friends, Team Name..." />
+</div>
+
+<div class="field">
+  <label for="logDuration">Duration (min)</label>
+  <input id="logDuration" type="number" min="1" max="600" placeholder="e.g. 58" />
+</div>
+        <div class="field full">
+          <label >Ball Weight</label>
+          <div class="segmented" id="ballSegment">
+            <button type="button" data-ball="light">Light</button>
+            <button type="button" data-ball="medium">Medium</button>
+            <button type="button" data-ball="heavy">Heavy</button>
+          </div>
+        </div>
+		<div class="field full">
+  <label>Frame Stats</label>
+  <div class="field-grid">
+    <div class="field">
+      <label for="logStrikes">Strikes</label>
+      <input id="logStrikes" type="number" min="0" max="12" value="0" />
+    </div>
+
+    <div class="field">
+      <label for="logSpares">Spares</label>
+      <input id="logSpares" type="number" min="0" max="12" value="0" />
+    </div>
+
+    <div class="field">
+      <label for="logOpenFrames">Open Frames</label>
+      <input id="logOpenFrames" type="number" min="0" max="10" value="0" />
+    </div>
+
+    <div class="field">
+      <label for="logSplitConversions">Split Conversions</label>
+      <input id="logSplitConversions" type="number" min="0" max="10" value="0" />
+    </div>
+  </div>
+</div>
+
+<div class="field full">
+  <label>Session Flags</label>
+  <div class="settings-grid">
+    <label class="switch-line" for="logCleanGame">
+      <span>Clean Game</span>
+      <span class="switch">
+        <input id="logCleanGame" type="checkbox" />
+        <span class="slider"></span>
+      </span>
+    </label>
+
+    <label class="switch-line" for="logPersonalBest">
+      <span>Personal Best</span>
+      <span class="switch">
+        <input id="logPersonalBest" type="checkbox" />
+        <span class="slider"></span>
+      </span>
+    </label>
+
+    <label class="switch-line" for="logFouls">
+      <span>Any Fouls</span>
+      <span class="switch">
+        <input id="logFouls" type="checkbox" />
+        <span class="slider"></span>
+      </span>
+    </label>
+
+    <label class="switch-line" for="logLeftHanded">
+      <span>Left-Handed Session</span>
+      <span class="switch">
+        <input id="logLeftHanded" type="checkbox" />
+        <span class="slider"></span>
+      </span>
+    </label>
+  </div>
+</div>
+
+<div class="field full">
+  <label for="logConditions">Oil Pattern / Conditions</label>
+  <input id="logConditions" type="text" placeholder="House shot, dry lane, medium oil..." />
+</div>
+
+<div class="field full">
+  <label for="logTags">Tags</label>
+  <input id="logTags" type="text" placeholder="league night, experimental grip, comeback" />
+</div>
+
+<div class="field full">
+  <label for="logMedia">Photo / Clip URL</label>
+  <input id="logMedia" type="url" placeholder="https://example.com/clip" />
+</div>
+
+<div class="field full">
+  <label for="logMediaFile">Upload Photo / Clip</label>
+
+  <div class="media-upload-shell">
+    <input id="logMediaFile" type="file" accept="image/*,video/*" class="media-file-input" />
+    
+    <button type="button" class="media-camera-btn" id="openCameraBtn" aria-label="Use camera">
+      <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8 4C8 3.44772 8.41328 3 8.92308 3H15.0769C15.5867 3 16 3.44772 16 4C16 4.55228 15.5867 5 15.0769 5H8.92308C8.41328 5 8 4.55228 8 4Z" fill="#FFFFFF"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M9.77778 21H14.2222C17.3433 21 18.9038 21 20.0248 20.2777C20.51 19.965 20.9267 19.5632 21.251 19.0953C22 18.0143 22 16.5095 22 13.4999C22 10.4903 21.9998 8.9857 21.2508 7.90473C20.9266 7.43676 20.5099 7.03497 20.0246 6.72228C18.9036 6 17.3431 6 14.2221 6H9.77761C6.65659 6 5.09607 6 3.97508 6.72228C3.48979 7.03497 3.07312 7.43676 2.74886 7.90473C2 8.98547 2 10.4896 2 13.4979L2 13.4999C2 16.5095 2 18.0143 2.74902 19.0953C3.07328 19.5632 3.48995 19.965 3.97524 20.2777C5.09624 21 6.65675 21 9.77778 21ZM7.83333 13.4999C7.83333 11.2808 9.69881 9.48196 12 9.48196C14.3012 9.48196 16.1667 11.2808 16.1667 13.4999C16.1667 15.7189 14.3012 17.5178 12 17.5178C9.69881 17.5178 7.83333 15.7189 7.83333 13.4999ZM9.5 13.4999C9.5 12.1685 10.6193 11.0891 12 11.0891C13.3807 11.0891 14.5 12.1685 14.5 13.4999C14.5 14.8313 13.3807 15.9106 12 15.9106C10.6193 15.9106 9.5 14.8313 9.5 13.4999ZM18.1111 9.48196C17.6509 9.48196 17.2778 9.84174 17.2778 10.2855C17.2778 10.7294 17.6509 11.0891 18.1111 11.0891H18.6667C19.1269 11.0891 19.5 10.7294 19.5 10.2855C19.5 9.84174 19.1269 9.48196 18.6667 9.48196H18.1111Z" fill="#1C274C"/>
+</svg>
+      </svg>
+    </button>
+
+    <input id="logMediaCamera" type="file" accept="image/*,video/*" capture="environment" class="hide" />
+  </div>
+
+  <div class="field-help">Supports most common image and video files from your device.</div>
+</div>
+        <div class="field full">
+          <label for="logNotes" >Notes</label>
+          <textarea id="logNotes" rows="5" placeholder="Lane felt smooth, release stayed clean, split at frame 7, etc."></textarea>
+        </div>
+        <div class="field full">
+          <label class="switch-line" for="logArchiveToggle">
+            <span >Send Straight to Archive</span>
+            <span class="switch">
+              <input id="logArchiveToggle" type="checkbox" />
+              <span class="slider"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-foot modal-actions">
+      <button class="ghost-btn" data-close="logDrawer">Cancel</button>
+      <button class="primary-btn" id="saveLogBtn">Save Log</button>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="settingsDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="panel-kicker">Settings</div>
+        <h2 class="drawer-title">Dashboard Settings</h2>
+      </div>
+      <button class="drawer-close" data-close="settingsDrawer" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field-grid">
+        <div class="field full">
+          <label for="setUsername" >Username</label>
+          <input id="setUsername" type="text" placeholder="bowler name" />
+          <div class="field-help" >Used in headings and Leaderboard labels</div>
+        </div>
+
+        <div class="field">
+          <label for="setDefaultLocation" >Default Location</label>
+          <input id="setDefaultLocation" type="text" placeholder="City Bowl" />
+        </div>
+
+        <div class="field">
+          <label for="setTheme">Theme</label>
+          <select id="setTheme">
+            <option value="dark">Dark (recommended)</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Default ball</label>
+          <div class="segmented" id="defaultBallSegment">
+            <button type="button" data-ball="light">Light</button>
+            <button type="button" data-ball="medium">Medium</button>
+            <button type="button" data-ball="heavy">Heavy</button>
+          </div>
+        </div>
+
+        <div class="field full settings-grid">
+          <label class="switch-line" for="setPublic">
+            <span>Show scores publicly</span>
+            <span class="switch"><input id="setPublic" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setPrivacy">
+            <span>Privacy Mode</span>
+            <span class="switch"><input id="setPrivacy" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setEmail">
+            <span>Email Notifications</span>
+            <span class="switch"><input id="setEmail" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="setSound">
+            <span>Sound Effects</span>
+            <span class="switch"><input id="setSound" type="checkbox" /><span class="slider"></span></span>
+          </label>
+          <label class="switch-line" for="set2FA">
+            <span>Legacy 2FA</span>
+            <span class="switch"><input id="set2FA" type="checkbox" /><span class="slider"></span></span>
+          </label>
+        </div>
+
+        <div class="field full" id="phoneField">
+          <label for="setPhone">Phone number</label>
+          <input id="setPhone" type="text" placeholder="Only used if legacy 2FA is on" />
+        </div>
+		
+		<a class="nav-item" href="legacydash.html">
+  <span class="nav-icon">↗</span>
+  <span class="nav-title">Legacy Control Center</span>
+</a>
+		
+		<div class="field full">
+  <label>Connected Accounts</label>
+  <div class="field-help">
+    Link external accounts for quicker sign-in, future sync features, and identity-based integrations.
+  </div>
+
+  <div class="social-connections" id="socialConnections">
+    <button type="button" class="social-icon-btn" data-provider="Google" aria-label="Connect Google" title="Connect Google">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-300.000000, -7399.000000)" fill="currentColor">
+          <g transform="translate(56.000000, 160.000000)">
+            <path d="M263.821537,7247.00386 L254.211298,7247.00386 C254.211298,7248.0033 254.211298,7250.00218 254.205172,7251.00161 L259.774046,7251.00161 C259.560644,7252.00105 258.804036,7253.40026 257.734984,7254.10487 C257.733963,7254.10387 257.732942,7254.11086 257.7309,7254.10986 C256.309581,7255.04834 254.43389,7255.26122 253.041161,7254.98137 C250.85813,7254.54762 249.130492,7252.96451 248.429023,7250.95364 C248.433107,7250.95064 248.43617,7250.92266 248.439233,7250.92066 C248.000176,7249.67336 248.000176,7248.0033 248.439233,7247.00386 L248.438212,7247.00386 C249.003881,7245.1669 250.783592,7243.49084 252.969687,7243.0321 C254.727956,7242.65931 256.71188,7243.06308 258.170978,7244.42831 C258.36498,7244.23842 260.856372,7241.80579 261.043226,7241.6079 C256.0584,7237.09344 248.076756,7238.68155 245.090149,7244.51127 L245.089128,7244.51127 C245.089128,7244.51127 245.090149,7244.51127 245.084023,7244.52226 L245.084023,7244.52226 C243.606545,7247.38565 243.667809,7250.75975 245.094233,7253.48622 C245.090149,7253.48921 245.087086,7253.49121 245.084023,7253.49421 C246.376687,7256.0028 248.729215,7257.92672 251.563684,7258.6593 C254.574796,7259.44886 258.406843,7258.90916 260.973794,7256.58747 C260.974815,7256.58847 260.975836,7256.58947 260.976857,7256.59047 C263.15172,7254.63157 264.505648,7251.29445 263.821537,7247.00386"></path>
+          </g>
+        </g>
+      </g></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="Apple" aria-label="Connect Apple" title="Connect Apple">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-102.000000, -7439.000000)" fill="currentColor">
+          <g transform="translate(56.000000, 160.000000)">
+            <path d="M57.5708873,7282.19296 C58.2999598,7281.34797 58.7914012,7280.17098 58.6569121,7279 C57.6062792,7279.04 56.3352055,7279.67099 55.5818643,7280.51498 C54.905374,7281.26397 54.3148354,7282.46095 54.4735932,7283.60894 C55.6455696,7283.69593 56.8418148,7283.03894 57.5708873,7282.19296 M60.1989864,7289.62485 C60.2283111,7292.65181 62.9696641,7293.65879 63,7293.67179 C62.9777537,7293.74279 62.562152,7295.10677 61.5560117,7296.51675 C60.6853718,7297.73474 59.7823735,7298.94772 58.3596204,7298.97372 C56.9621472,7298.99872 56.5121648,7298.17973 54.9134635,7298.17973 C53.3157735,7298.17973 52.8162425,7298.94772 51.4935978,7298.99872 C50.1203933,7299.04772 49.0738052,7297.68074 48.197098,7296.46676 C46.4032359,7293.98379 45.0330649,7289.44985 46.8734421,7286.3899 C47.7875635,7284.87092 49.4206455,7283.90793 51.1942837,7283.88393 C52.5422083,7283.85893 53.8153044,7284.75292 54.6394294,7284.75292 C55.4635543,7284.75292 57.0106846,7283.67793 58.6366882,7283.83593 C59.3172232,7283.86293 61.2283842,7284.09893 62.4549652,7285.8199 C62.355868,7285.8789 60.1747177,7287.09489 60.1989864,7289.62485"></path>
+          </g>
+        </g>
+      </g></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="Discord" aria-label="Connect Discord" title="Connect Discord">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.4921C18.7873 3.80147 17.147 3.29265 15.4319 3.00122C15.4007 2.9956 15.3695 3.00965 15.3534 3.03777C15.1424 3.40697 14.9087 3.88862 14.7451 4.26719C12.9004 3.99545 11.0652 3.99545 9.25832 4.26719C9.09465 3.8802 8.85248 3.40697 8.64057 3.03777C8.62449 3.01059 8.59328 2.99654 8.56205 3.00122C6.84791 3.29172 5.20756 3.80054 3.67693 4.4921C3.66368 4.49772 3.65233 4.5071 3.64479 4.51928C0.533392 9.09311 -0.31895 13.5545 0.0991801 17.9606C0.101072 17.9822 0.11337 18.0028 0.130398 18.0159C2.18321 19.4993 4.17171 20.3998 6.12328 20.9967C6.15451 21.0061 6.18761 20.9949 6.20748 20.9695C6.66913 20.3492 7.08064 19.6952 7.43348 19.0073C7.4543 18.967 7.43442 18.9192 7.39186 18.9033C6.73913 18.6597 6.1176 18.3626 5.51973 18.0253C5.47244 17.9981 5.46865 17.9316 5.51216 17.8997C5.63797 17.8069 5.76382 17.7104 5.88396 17.613C5.90569 17.5952 5.93598 17.5914 5.96153 17.6026C9.88928 19.3672 14.1415 19.3672 18.023 17.6026C18.0485 17.5905 18.0788 17.5942 18.1015 17.612C18.2216 17.7095 18.3475 17.8069 18.4742 17.8997C18.5177 17.9316 18.5149 17.9981 18.4676 18.0253C17.8697 18.3692 17.2482 18.6597 16.5945 18.9024C16.552 18.9183 16.533 18.967 16.5538 19.0073C16.9143 19.6942 17.3258 20.3483 17.7789 20.9686C17.7978 20.9949 17.8319 21.0061 17.8631 20.9967C19.8241 20.3998 21.8126 19.4993 23.8654 18.0159C23.8834 18.0028 23.8948 17.9831 23.8967 17.9616C24.3971 12.8676 23.0585 8.4428 20.3482 4.52021C20.3416 4.5071 20.3303 4.49772 20.317 4.4921Z" fill="currentColor"/></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="Weights" aria-label="Connect Weights" title="Connect Weights">
+      <svg viewBox="0 0 102 86" aria-hidden="true"><path d="M13.8937.547363c7.6732 0 13.8936 6.164377 13.8936 13.768437v10.3264c0 2.5347 2.0735 4.5895 4.6312 4.5895 2.5578 0 4.6312-2.0548 4.6312-4.5895v-10.3264c0-7.60406 6.2204-13.768437 13.8937-13.768437 7.6732 0 13.8934 6.164377 13.8934 13.768437v10.3264c0 2.5347 2.074 4.5895 4.6313 4.5895 2.5579 0 4.6313-2.0548 4.6313-4.5895v-10.3264c0-7.60406 6.2202-13.768437 13.894-13.768437 7.6732 0 13.8936 6.164377 13.8936 13.768437v43.6001c0 15.2083-12.4411 27.5371-27.7876 27.5371h-46.3121c-15.3465 0-27.7873-12.3288-27.7873-27.5371v-43.6001c0-7.60406 6.22036-13.768437 13.8937-13.768437zm37.0497 32.126537c.6761 0 1.2655.456 1.4296 1.1061l1.9178 7.6025c.3994 1.5826.5338 2.0411.7627 2.3954.2298.3561.5348.6583.894.8859.3577.227.8204.3605 2.4178.7562l7.6709 1.9002c.6561.1625 1.1163.7466 1.1163 1.4168s-.4602 1.2543-1.1163 1.4168l-7.6709 1.9007c-1.5974.3957-2.0601.5287-2.4178.7557-.3592.2275-.6642.5298-.894.8858-.2289.3544-.3633.8129-.7627 2.3961l-1.9178 7.6019c-.1641.6504-.7534 1.1066-1.4296 1.1066-.6761 0-1.2655-.4562-1.4296-1.1066l-1.9178-7.6019c-.3994-1.5832-.5338-2.0417-.7627-2.3961-.2298-.356-.5348-.6583-.894-.8858-.3577-.227-.8203-.36-2.4176-.7557l-7.6714-1.9007c-.656-.1625-1.1162-.7466-1.1162-1.4168s.4602-1.2543 1.1162-1.4168l7.6714-1.9002c1.5973-.3957 2.0599-.5292 2.4176-.7562.3592-.2276.6642-.5298.894-.8859.2289-.3543.3633-.8128.7627-2.3954l1.9178-7.6025c.1641-.6501.7534-1.1061 1.4296-1.1061z" fill="currentColor" fill-rule="evenodd"/></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="Microsoft" aria-label="Connect Microsoft" title="Connect Microsoft">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.742 16.742v14.253h14.253v-14.253zM1.004 16.742v14.253h14.256v-14.253zM16.742 1.004v14.256h14.253v-14.256zM1.004 1.004v14.256h14.256v-14.256z" fill="currentColor"/></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="OpenAI" aria-label="Connect OpenAI" title="Connect OpenAI">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="currentColor"/></svg>
+    </button>
+
+    <button type="button" class="social-icon-btn" data-provider="eKool" aria-label="Connect eKool" title="Connect eKool">
+      <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 193 193" style="enable-background:new 0 0 193 193;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#161718;}
+	.st1{fill:#FFFFFF;}
+</style>
+<g>
+	<g>
+		<path class="st0" d="M96.5,184.09c-44.258,0-80.848-32.824-86.756-75.457c-1.045-7.545-1.256-15.18-2.378-22.715
+			c-0.563-3.788-1.361-7.551-2.599-11.181c-1.225-3.59-3.113-6.873-4.428-10.425c-0.673-1.816,1.066-3.65,2.92-3.091
+			c1.964,0.593,3.986,1.043,6.035,1.418C4.858,51.147,2.576,39.014,2.502,26.86c-0.017-2.696,2.178-4.899,4.873-4.882
+			c11.635,0.071,23.252,2.16,34.306,6.227C56.69,16.144,75.746,8.91,96.5,8.91s39.81,7.234,54.818,19.297
+			c11.054-4.067,22.673-6.157,34.306-6.227c2.696-0.016,4.89,2.186,4.873,4.882c-0.075,12.154-2.356,24.287-6.792,35.78
+			c2.048-0.375,4.071-0.825,6.035-1.418c1.854-0.559,3.593,1.273,2.92,3.091c-1.315,3.552-3.204,6.835-4.428,10.425
+			c-1.238,3.63-2.034,7.392-2.599,11.181c-1.122,7.535-1.332,15.17-2.378,22.715C177.348,151.266,140.758,184.09,96.5,184.09z"/>
+		<g>
+			<path class="st1" d="M96.5,116.748c-2.64,5.36-6.305,10.118-10.714,14.061l8.391,11.983c1.13,1.613,3.518,1.613,4.647,0
+				l8.391-11.982C102.805,126.866,99.14,122.107,96.5,116.748z"/>
+		</g>
+		<g>
+			<g>
+				<g>
+					<g>
+						<circle class="st1" cx="55.069" cy="96.5" r="36.593"/>
+					</g>
+				</g>
+				<path class="st0" d="M67.104,92.03c-4.177,0-7.564-3.386-7.564-7.564c0-1.476,0.44-2.843,1.172-4.007
+					c-1.768-0.622-3.661-0.977-5.642-0.977c-9.399,0-17.019,7.619-17.019,17.019c0,9.399,7.619,17.019,17.019,17.019
+					c9.399,0,17.019-7.619,17.019-17.019c0-1.981-0.355-3.874-0.977-5.642C69.946,91.59,68.58,92.03,67.104,92.03z"/>
+			</g>
+			<g>
+				<g>
+					<g>
+						<circle class="st1" cx="137.931" cy="96.5" r="36.593"/>
+					</g>
+				</g>
+				<path class="st0" d="M149.965,92.03c-4.177,0-7.564-3.386-7.564-7.564c0-1.476,0.44-2.843,1.172-4.007
+					c-1.768-0.622-3.661-0.977-5.642-0.977c-9.399,0-17.019,7.619-17.019,17.019c0,9.399,7.619,17.019,17.019,17.019
+					c9.399,0,17.019-7.619,17.019-17.019c0-1.981-0.355-3.874-0.977-5.642C152.808,91.59,151.442,92.03,149.965,92.03z"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>
+    </button>
+  </div>
+
+  <div class="social-legend" id="socialLegend">Select an icon to connect an account.</div>
+</div>
+
+<div class="field full">
+  <label>Account Settings</label>
+
+  <div class="settings-grid">
+    <div class="field full">
+      <label for="setEmailAddress">Email Address</label>
+      <input id="setEmailAddress" type="email" placeholder="name@example.com" />
+      <div class="field-help">Used for account identity and future recovery options.</div>
+    </div>
+
+    <div class="field">
+      <label for="setCurrentPassword">Current Password</label>
+      <input id="setCurrentPassword" type="password" placeholder="Current password" />
+    </div>
+
+    <div class="field">
+      <label for="setNewPassword">New Password</label>
+      <input id="setNewPassword" type="password" placeholder="New password" />
+    </div>
+
+    <div class="field full">
+      <label for="setConfirmPassword">Confirm New Password</label>
+      <input id="setConfirmPassword" type="password" placeholder="Repeat new password" />
+    </div>
+
+    <div class="field full">
+      <div class="table-actions">
+        <button type="button" class="ghost-btn" id="changeEmailBtn">Update Email</button>
+        <button type="button" class="primary-btn" id="changePasswordBtn">Change Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="field full">
+  <label>Restore Snapshots</label>
+  <div id="snapshotList">
+    <!-- snapshots render here -->
+  </div>
+</div>
+
+<div class="field full">
+  <label>Legacy / System Tools</label>
+  <div class="table-actions">
+    <button type="button" class="ghost-btn" id="createSnapshotBtn">Create Snapshot</button>
+    <button type="button" class="ghost-btn" id="exportModernBtn">Export Modern Data</button>
+  </div>
+</div>
+      </div>
+    </div>
+    <div class="drawer-foot modal-actions">
+      <label class="ghost-btn" for="legacyImportFile" style="position:relative;overflow:hidden;">
+  Import .lbed File
+  <input id="legacyImportFile" type="file" accept=".lbed" style="position:absolute;inset:0;opacity:0;cursor:pointer;" />
+</label>
+	  <button class="danger-btn" id="wipeDataBtn">Log Out & Wipe</button>
+      <div class="modal-actions">
+        <button class="ghost-btn" data-close="settingsDrawer">Close</button>
+        <button class="primary-btn" id="saveSettingsBtn">Save settings</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    const LEGACY_LOGS_KEY = "be-logs";
+    const LEGACY_SETTINGS_KEY = "be-settings";
+    const LOGS_KEY = "bowlingexpress-rehaul-logs";
+    const SETTINGS_KEY = "bowlingexpress-rehaul-settings";
+	const SNAPSHOTS_KEY = "bowlingexpress-snapshots";
+const EVENTS_KEY = "bowlingexpress-events";
+
+    const NAV_ITEMS = [
+      { id: "overview", label: "Overview", icon: "◫" },
+      { id: "logs", label: "Score Logs", icon: "🎳" },
+      { id: "leaderboard", label: "Leaderboard", icon: "📊" },
+      { id: "archive", label: "Archive", icon: "🗃️" },
+      { id: "achievements", label: "Achievements", icon: "🥇" },
+      { id: "statistics", label: "Statistics", icon: "📈" },
+      { id: "coach", label: "AI Coach", icon: "🤖" }
+    ];
+
+    const ACHIEVEMENTS = [
+      {
+        id: "first-log",
+        title: "First Blood on the Lane",
+        icon: "◎",
+        description: "Log your first session into the system.",
+        unlocked: logs => logs.length >= 1
+      },
+      {
+        id: "three-stack",
+        title: "Triple Stack",
+        icon: "◌",
+        description: "Reach at least three logged sessions.",
+        unlocked: logs => logs.length >= 3
+      },
+      {
+        id: "two-hundred-club",
+        title: "200 Club",
+        icon: "◆",
+        description: "Score 200 or more in any single entry.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 200)
+      },
+      {
+        id: "two-fifty-club",
+        title: "250 Menace",
+        icon: "◈",
+        description: "Score 250 or more in any single entry.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 250)
+      },
+      {
+        id: "perfect-run",
+        title: "Perfect Game",
+        icon: "✦",
+        description: "Hit a full 300 and flex forever.",
+        unlocked: logs => logs.some(log => Number(log.score) >= 300)
+      },
+      {
+        id: "road-demon",
+        title: "Road Demon",
+        icon: "▣",
+        description: "Log scores from at least three different locations.",
+        unlocked: logs => new Set(logs.map(log => normalizeText(log.location))).size >= 3
+      }
+    ];
+
+    const COACH_OPENERS = [
+      "Lane control looks decent. The real suspect is consistency.",
+      "This dashboard says you have score spikes. That usually means timing is either excellent or actively plotting against you.",
+      "You are not lacking peak moments. You are lacking repeatable brutality.",
+      "Your higher scores keep proving the ceiling exists. Now the floor needs to stop collapsing."
+    ];
+
+    const COACH_TIPS = [
+      "Keep your approach speed boringly stable. Dramatic hero runs look cool and ruin accuracy.",
+      "Pick one visual target and commit. Staring at the pins like they owe you money is not a lane strategy.",
+      "If your notes mention splits a lot, your entry angle is probably snitching on you.",
+      "When a session starts ugly, slow down before you start inventing seventeen new techniques in real time.",
+      "Your best scores probably came from fewer corrections, not more panic stacked on panic."
+    ];
+
+    const SEED_LOGS = [];
+
+    const state = {
+      logs: [],
+      settings: {},
+      currentPage: "overview",
+      activeDrawer: null,
+      filters: {
+        query: "",
+        ball: "all",
+        sort: "newest"
+      },
+      mobileMenuOpen: false,
+      activeBallDraft: "light",
+      activeBallDefault: "light"
+    };
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+	
+	function showModal({ title = "", text = "", confirm = false }) {
+  return new Promise(resolve => {
+    const modal = document.getElementById("uiModal");
+    const titleEl = modal.querySelector(".ui-modal-title");
+    const textEl = modal.querySelector(".ui-modal-text");
+    const okBtn = document.getElementById("uiModalOk");
+    const cancelBtn = document.getElementById("uiModalCancel");
+
+    titleEl.textContent = title;
+    textEl.textContent = text;
+
+    cancelBtn.style.display = confirm ? "inline-flex" : "none";
+
+    function close(result) {
+      modal.classList.remove("show");
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      resolve(result);
+    }
+
+    okBtn.onclick = () => close(true);
+    cancelBtn.onclick = () => close(false);
+
+    modal.classList.add("show");
+  });
+}
+
+    function getStoredJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        console.error(`failed reading ${key}`, error);
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function migrateLegacyData() {
+      const existingLogs = getStoredJson(LOGS_KEY, null);
+      const existingSettings = getStoredJson(SETTINGS_KEY, null);
+
+      if (!existingLogs) {
+        const legacyLogs = getStoredJson(LEGACY_LOGS_KEY, null);
+        if (Array.isArray(legacyLogs) && legacyLogs.length) {
+          saveJson(LOGS_KEY, legacyLogs.map(log => ({
+            ...log,
+            archived: Boolean(log.archived)
+          })));
+        }
+      }
+
+      if (!existingSettings) {
+        const legacySettings = getStoredJson(LEGACY_SETTINGS_KEY, null);
+        if (legacySettings && typeof legacySettings === "object") {
+          saveJson(SETTINGS_KEY, legacySettings);
+        }
+      }
+    }
+
+    function buildDefaultSettings() {
+      return {
+        username: "Lane Operator",
+        theme: "dark",
+        defaultLocation: "",
+        defaultBall: "light",
+		emailAddress: "",
+		accountPassword: "",
+		connectedProviders: [],
+        showScore: true,
+        privacy: false,
+        email: true,
+        sound: false,
+        enable2FA: false,
+        phone: ""
+      };
+    }
+	
+	function getStoredArray(key) {
+  const value = getStoredJson(key, []);
+  return Array.isArray(value) ? value : [];
+}
+
+function persistSnapshots(list) {
+  saveJson(SNAPSHOTS_KEY, list);
+}
+
+function persistEvents(list) {
+  saveJson(EVENTS_KEY, list);
+}
+
+function logEvent(type, text, extra = {}) {
+  const events = getStoredArray(EVENTS_KEY);
+  events.unshift({
+    id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    type,
+    text,
+    createdAt: new Date().toISOString(),
+    ...extra
+  });
+  persistEvents(events.slice(0, 200));
+}
+
+function createSnapshot(label = "") {
+  const snapshots = getStoredArray(SNAPSHOTS_KEY);
+  snapshots.unshift({
+    id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    label: label || `Snapshot ${new Date().toLocaleString()}`,
+    logs: JSON.parse(JSON.stringify(state.logs)),
+    settings: JSON.parse(JSON.stringify(state.settings)),
+    createdAt: new Date().toISOString()
+  });
+  persistSnapshots(snapshots.slice(0, 20));
+  logEvent("snapshot_created", "Created a restore snapshot.");
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Snapshot Created", "A restore point was saved.");
+  }
+}
+
+function restoreSnapshot(snapshotId) {
+  const snapshots = getStoredArray(SNAPSHOTS_KEY);
+  const found = snapshots.find(item => item.id === snapshotId);
+  if (!found) return;
+
+  state.logs = Array.isArray(found.logs) ? JSON.parse(JSON.stringify(found.logs)) : [];
+  state.settings = found.settings && typeof found.settings === "object"
+    ? { ...buildDefaultSettings(), ...JSON.parse(JSON.stringify(found.settings)) }
+    : buildDefaultSettings();
+
+  persistLogs();
+  persistSettings();
+  logEvent("snapshot_restored", "Restored a saved snapshot.", { snapshotId });
+  renderAllPages();
+  closeDrawer("settingsDrawer");
+  showPage("overview");
+
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Snapshot Restored", "The dashboard state was rolled back.");
+  }
+}
+
+function deleteSnapshot(snapshotId) {
+  const snapshots = getStoredArray(SNAPSHOTS_KEY).filter(item => item.id !== snapshotId);
+  persistSnapshots(snapshots);
+  renderAllPages();
+}
+
+function getStorageFootprint() {
+  try {
+    const logsRaw = localStorage.getItem(LOGS_KEY) || "";
+    const settingsRaw = localStorage.getItem(SETTINGS_KEY) || "";
+    const snapshotsRaw = localStorage.getItem(SNAPSHOTS_KEY) || "";
+    const eventsRaw = localStorage.getItem(EVENTS_KEY) || "";
+    return logsRaw.length + settingsRaw.length + snapshotsRaw.length + eventsRaw.length;
+  } catch {
+    return 0;
+  }
+}
+
+function getSystemLoad() {
+  return Math.min(100, Math.round((state.logs.length * 3) + (getStoredArray(EVENTS_KEY).length * 0.2)));
+}
+
+function scoreBar(score) {
+  const safe = Math.max(0, Math.min(300, Number(score) || 0));
+  const blocks = Math.max(1, Math.round((safe / 300) * 20));
+  return `${"■".repeat(blocks)}${"□".repeat(20 - blocks)} ${safe}`;
+}
+
+function getSessionId() {
+  let id = sessionStorage.getItem("be-session-id");
+  if (!id) {
+    id = String(Date.now());
+    sessionStorage.setItem("be-session-id", id);
+  }
+  return id;
+}
+
+function getSessionLabel() {
+  let label = sessionStorage.getItem("be-session-label");
+  if (!label) {
+    label = new Date().toLocaleString();
+    sessionStorage.setItem("be-session-label", label);
+  }
+  return label;
+}
+
+function getSnapshotsMarkup() {
+  const snapshots = getStoredArray(SNAPSHOTS_KEY);
+  if (!snapshots.length) {
+    return `<div class="panel-note">No snapshots yet.</div>`;
+  }
+
+  return `
+    <div class="list-stack">
+      ${snapshots.map(item => `
+        <div class="list-line">
+          <div class="list-icon">⟲</div>
+          <div>
+            <strong>${escapeHtml(item.label)}</strong>
+            <small>${escapeHtml(new Date(item.createdAt).toLocaleString())} · ${Array.isArray(item.logs) ? item.logs.length : 0} logs</small>
+          </div>
+          <div class="table-actions">
+            <button class="table-link" data-action="restore-snapshot" data-snapshot-id="${item.id}">Restore</button>
+            <button class="table-link" data-action="delete-snapshot" data-snapshot-id="${item.id}">Delete</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function getActivityTimelineMarkup(limit = 12) {
+  const events = getStoredArray(EVENTS_KEY).slice(0, limit);
+  if (!events.length) {
+    return renderEmptyInline("No activity yet!", "Actions like imports, snapshots, edits, and log creation show up here.");
+  }
+
+  return `
+    <div class="list-stack">
+      ${events.map(item => `
+        <div class="list-line">
+          <div class="list-icon">◉</div>
+          <div>
+            <strong>${escapeHtml(item.text || item.type || "event")}</strong>
+            <small>${escapeHtml(new Date(item.createdAt).toLocaleString())}</small>
+          </div>
+          <span class="tag">${escapeHtml(item.type || "event")}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+    function hydrateState() {
+      migrateLegacyData();
+      const storedLogs = getStoredJson(LOGS_KEY, null);
+      const storedSettings = getStoredJson(SETTINGS_KEY, null);
+      state.logs = Array.isArray(storedLogs) ? storedLogs : [...SEED_LOGS];
+      state.settings = { ...buildDefaultSettings(), ...(storedSettings || {}) };
+      state.activeBallDraft = state.settings.defaultBall || "light";
+      state.activeBallDefault = state.settings.defaultBall || "light";
+	  getStoredArray(SNAPSHOTS_KEY);
+getStoredArray(EVENTS_KEY);
+    }
+
+    function persistLogs() {
+      saveJson(LOGS_KEY, state.logs);
+    }
+
+    function persistSettings() {
+      saveJson(SETTINGS_KEY, state.settings);
+    }
+
+    function formatDate(value) {
+      if (!value) return "unknown date";
+      const date = new Date(`${value}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function formatCompactDate(value) {
+      if (!value) return "n/a";
+      const date = new Date(`${value}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function calcMetrics(sourceLogs = state.logs) {
+      const scores = sourceLogs.map(log => Number(log.score)).filter(score => Number.isFinite(score));
+      const total = sourceLogs.length;
+      const totalVisible = sourceLogs.filter(log => !log.archived).length;
+      const average = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
+      const best = scores.length ? Math.max(...scores) : 0;
+      const worst = scores.length ? Math.min(...scores) : 0;
+      const strikes = sourceLogs.reduce((sum, log) => sum + (Number(log.strikes) || 0), 0);
+      const uniqueLocations = new Set(sourceLogs.map(log => normalizeText(log.location)).filter(Boolean)).size;
+      return { total, totalVisible, average, best, worst, strikes, uniqueLocations };
+    }
+
+    function getFilteredLogs(includeArchived = false) {
+      const query = normalizeText(state.filters.query);
+      let rows = state.logs.filter(log => includeArchived ? log.archived : !log.archived);
+
+      if (query) {
+        rows = rows.filter(log => {
+          const bag = [
+  log.date,
+  log.location,
+  log.notes,
+  log.ball,
+  log.score,
+  log.gameType,
+  log.lane,
+  log.opponent,
+  log.duration,
+  log.strikes,
+  log.spares,
+  log.openFrames,
+  log.splitConversions,
+  log.conditions,
+  Array.isArray(log.tags) ? log.tags.join(" ") : "",
+  log.media
+].map(normalizeText).join(" ");
+          return bag.includes(query);
+        });
+      }
+
+      if (state.filters.ball !== "all") {
+        rows = rows.filter(log => normalizeText(log.ball) === state.filters.ball);
+      }
+
+      const sorters = {
+        newest: (a, b) => String(b.date).localeCompare(String(a.date)),
+        oldest: (a, b) => String(a.date).localeCompare(String(b.date)),
+        highest: (a, b) => Number(b.score) - Number(a.score),
+        lowest: (a, b) => Number(a.score) - Number(b.score)
+      };
+
+      rows.sort(sorters[state.filters.sort] || sorters.newest);
+      return rows;
+    }
+
+    function getTopLogs(limit = 3) {
+      return [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => Number(b.score) - Number(a.score))
+        .slice(0, limit);
+    }
+
+    function getRecentLogs(limit = 5) {
+      return [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, limit);
+    }
+
+    function getArchivePreview(limit = 3) {
+      return [...state.logs]
+        .filter(log => log.archived)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, limit);
+    }
+
+    function getAchievementStatus() {
+      return ACHIEVEMENTS.map(item => ({
+        ...item,
+        done: item.unlocked(state.logs)
+      }));
+    }
+
+    function locationFrequency(logs) {
+      const counts = {};
+      logs.forEach(log => {
+        const label = (log.location || "unknown").trim() || "unknown";
+        counts[label] = (counts[label] || 0) + 1;
+      });
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+    }
+
+    function ballFrequency(logs) {
+      const counts = { light: 0, medium: 0, heavy: 0 };
+      logs.forEach(log => {
+        const key = normalizeText(log.ball);
+        if (counts[key] !== undefined) counts[key] += 1;
+      });
+      return counts;
+    }
+
+    function scoreBuckets(logs) {
+      const ranges = [
+        { label: "0-99", min: 0, max: 99 },
+        { label: "100-149", min: 100, max: 149 },
+        { label: "150-199", min: 150, max: 199 },
+        { label: "200-249", min: 200, max: 249 },
+        { label: "250+", min: 250, max: 999 }
+      ];
+      return ranges.map(range => ({
+        label: range.label,
+        count: logs.filter(log => {
+          const score = Number(log.score);
+          return score >= range.min && score <= range.max;
+        }).length
+      }));
+    }
+
+    function bestStreak(logs) {
+      const sorted = [...logs].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      let longest = 0;
+      let current = 0;
+      sorted.forEach(log => {
+        if (Number(log.score) >= 200) {
+          current += 1;
+          longest = Math.max(longest, current);
+        } else {
+          current = 0;
+        }
+      });
+      return longest;
+    }
+
+    function getCoachLines() {
+      const metrics = calcMetrics();
+      const top = getTopLogs(1)[0];
+      const lines = [];
+      lines.push(COACH_OPENERS[Math.floor(Math.random() * COACH_OPENERS.length)]);
+
+      if (!state.logs.length) {
+        lines.push("Nothing is logged yet, so the ai coach is basically staring into a bowling void right now.");
+        lines.push("Start with one real session and this page becomes ten times more useful.");
+        return lines;
+      }
+
+      if (metrics.average >= 180) {
+        lines.push("Average is looking sharp. This is not random good luck anymore.");
+      } else if (metrics.average >= 130) {
+        lines.push("Average is decent, but there is still room to squeeze more repeatability out of your release.");
+      } else {
+        lines.push("The numbers say fundamentals first. The lane does not negotiate with panic adjustments.");
+      }
+
+      if (top) {
+        lines.push(`Top session so far: ${top.score} at ${top.location || "unknown lane"} on ${formatDate(top.date)}.`);
+      }
+
+      lines.push(COACH_TIPS[Math.floor(Math.random() * COACH_TIPS.length)]);
+      return lines;
+    }
+
+    function renderSidebar(target, mobile = false) {
+      const metrics = calcMetrics();
+      const username = state.settings.username || "Lane Operator";
+
+      target.innerHTML = `
+        <div class="brand-row">
+          <div class="brand-badge brand-logo"><img src="logo.png" alt="BowlingExpress logo"></div>
+          <div class="brand-copy">
+            <div class="brand-title">BowlingExpress</div>
+            <div class="brand-sub">Your personal bowling logger</div>
+          </div>
+          ${mobile ? `<button class="collapse-toggle" id="mobileCloseBtn">✕</button>` : `<button class="collapse-toggle" id="collapseBtn">❮</button>`}
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">navigation</div>
+          <nav class="nav-list">
+            ${NAV_ITEMS.map(item => `
+              <a class="nav-item ${state.currentPage === item.id ? "active" : ""}" href="#" data-page="${item.id}">
+                <span class="nav-icon">${item.icon}</span>
+                <span class="nav-title">${item.label}</span>
+              </a>
+            `).join("")}
+          </nav>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">Operator</div>
+          <div class="sidebar-chip">
+            <div class="user-avatar" aria-hidden="true">
+              <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+            </div>
+            <div class="sidebar-chip-copy">
+              <strong>${escapeHtml(username)}</strong>
+              <small>${escapeHtml(state.settings.emailAddress || `${metrics.totalVisible} active logs · ${metrics.uniqueLocations} locations`)}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-chip">
+            <div class="list-icon">◎</div>
+            <div class="sidebar-footer-copy">
+              <strong>${metrics.best || 0}</strong>
+              <small>Best score currently stored</small>
+            </div>
+          </div>
+          <div class="sidebar-chip">
+            <div class="list-icon">◉</div>
+            <div class="sidebar-footer-copy">
+              <strong>${metrics.average || 0}</strong>
+              <small>Session average</small>
+            </div>
+          </div>
+        </div>
+      `;
+
+      target.querySelectorAll("[data-page]").forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          showPage(link.dataset.page);
+          if (mobile) toggleMobileMenu(false);
+        });
+      });
+
+      if (mobile) {
+        target.querySelector("#mobileCloseBtn")?.addEventListener("click", () => toggleMobileMenu(false));
+      } else {
+        target.querySelector("#collapseBtn")?.addEventListener("click", () => {
+          $("#sidebar").classList.toggle("collapsed");
+        });
+      }
+    }
+
+    function renderOverviewPage() {
+      const root = $("#page-overview");
+      const metrics = calcMetrics();
+      const recent = getRecentLogs(5);
+      const top = getTopLogs(3);
+      const archivePreview = getArchivePreview(3);
+      const unlocked = getAchievementStatus().filter(item => item.done).length;
+      const locationStats = locationFrequency(state.logs);
+      const safeBest = metrics.best || 0;
+      const averagePct = Math.max(8, Math.min(100, Math.round((metrics.average / 300) * 100)));
+      const bestPct = Math.max(8, Math.min(100, Math.round((safeBest / 300) * 100)));
+      const unlockedPct = Math.max(8, Math.min(100, Math.round((unlocked / ACHIEVEMENTS.length) * 100)));
+
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="hero">
+            <div class="hero-copy">
+              <div class="panel-kicker">overview</div>
+              <h1>Keep the lane history tidy!</h1>
+              <p>BowlingExpress gives you nearly unlimited features for managing logs related to bowling, if you could not tell, of course. Click either button listed here for quick actions:</p>
+              <div class="inline-actions">
+                <button class="primary-btn" id="heroNewLogBtn">+ New Log</button>
+                <button class="ghost-btn" id="heroSettingsBtn">Tune Settings</button>
+                <button class="ghost-btn" id="heroViewLogsBtn">View All Logs</button>
+              </div>
+              <div class="chip-row" style="margin-top:16px">
+                <span class="chip">${metrics.totalVisible} Active Logs</span>
+                <span class="chip">${metrics.uniqueLocations} Locations Tracked</span>
+                <span class="chip">${archivePreview.length} Archived</span>
+              </div>
+            </div>
+            <div class="hero-panel">
+              <div class="panel-head" style="margin-bottom:2px">
+                <div>
+                  <div class="panel-kicker">Live Glance</div>
+                  <h3 class="panel-title">System Snapshot</h3>
+                </div>
+              </div>
+              <div class="hero-strip">
+                <div class="tiny-stat"><span>Best Score</span><strong>${safeBest}</strong></div>
+                <div class="tiny-stat"><span>Average</span><strong>${metrics.average}</strong></div>
+                <div class="tiny-stat"><span>Unlocked</span><strong>${unlocked}/${ACHIEVEMENTS.length}</strong></div>
+              </div>
+              <div class="mini-chart">
+                <div class="bar-line"><span>Average</span><div class="bar-track"><div class="bar-fill" style="width:${averagePct}%"></div></div><strong>${metrics.average}</strong></div>
+                <div class="bar-line"><span>Best</span><div class="bar-track"><div class="bar-fill" style="width:${bestPct}%"></div></div><strong>${safeBest}</strong></div>
+                <div class="bar-line"><span>Progress</span><div class="bar-track"><div class="bar-fill" style="width:${unlockedPct}%"></div></div><strong>${unlocked}/${ACHIEVEMENTS.length}</strong></div>
+              </div>
+              <div class="chip-note">Remember: Bowling numbers still have the final word.</div>
+            </div>
+          </section>
+
+          <section class="stats-row">
+            ${renderKpiCard("Total Games", metrics.totalVisible, "Visible session count", "◎")}
+            ${renderKpiCard("Average Score", metrics.average, "Across all stored sessions", "◉")}
+            ${renderKpiCard("Highest Score", metrics.best, "Peak logged performance", "◆")}
+            ${renderKpiCard("Estimated Strikes", metrics.strikes, "Rough conversion based on score total", "◈")}
+          </section>
+
+          <section class="split">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Recent Activity</div>
+                  <h3 class="panel-title">Latest Score Logs</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToLogsBtn">Open Logs</button>
+              </div>
+              ${recent.length ? `
+                <div class="list-stack">
+                  ${recent.map(log => renderRecentLine(log)).join("")}
+                </div>
+              ` : renderEmptyInline("No logs yet!", "Drop your first session and the dashboard stops looking like an abandoned control room.")}
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Hot Spots</div>
+                  <h3 class="panel-title">Most Used Locations</h3>
+                </div>
+              </div>
+              ${locationStats.length ? `
+                <div class="mini-chart">
+                  ${locationStats.map(([name, count]) => {
+                    const width = Math.max(10, Math.round((count / Math.max(...locationStats.map(item => item[1]), 1)) * 100));
+                    return `<div class="bar-line"><span>${escapeHtml(name)}</span><div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div><strong>${count}</strong></div>`;
+                  }).join("")}
+                </div>
+              ` : `<p class="panel-note">Locations will stack up here once the logs do.</p>`}
+            </div>
+          </section>
+
+          <section class="split">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Top End</div>
+                  <h3 class="panel-title">Best Sessions On Record</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToBoardBtn">Leaderboard</button>
+              </div>
+              ${top.length ? `
+                <div class="list-stack">
+                  ${top.map((log, index) => `
+                    <div class="list-line">
+                      <div class="leader-rank">${index + 1}</div>
+                      <div>
+                        <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+                        <small>${formatDate(log.date)} · ${escapeHtml(log.ball || "unknown")} ball</small>
+                      </div>
+                      <span class="score-pill">${escapeHtml(log.score)} pts</span>
+                    </div>
+                  `).join("")}
+                </div>
+              ` : renderEmptyInline("No ranking yet!", "Once scores exist, the top runs will line up here.")}
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Cold Storage</div>
+                  <h3 class="panel-title">Archive Preview</h3>
+                </div>
+                <button class="ghost-btn" id="jumpToArchiveBtn">Open Archive</button>
+              </div>
+              ${archivePreview.length ? `
+                <div class="list-stack">
+                  ${archivePreview.map(log => renderArchiveLine(log)).join("")}
+                </div>
+              ` : `<p class="panel-note">Nothing archived right now! Every session is still live.</p>`}
+            </div>
+          </section>
+		  			<section class="split">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">Activity</div>
+        <h3 class="panel-title">System Timeline</h3>
+      </div>
+    </div>
+    ${getActivityTimelineMarkup(8)}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">Diagnostics</div>
+        <h3 class="panel-title">Control Center Status</h3>
+      </div>
+    </div>
+    <div class="metrics-list">
+      <div class="metric-row">
+        <div>
+          <div class="metric-label">Current Session</div>
+          <div class="metric-note">${escapeHtml(getSessionLabel())}</div>
+        </div>
+        <div class="metric-value">${escapeHtml(getSessionId().slice(-6))}</div>
+      </div>
+      <div class="metric-row">
+        <div>
+          <div class="metric-label">Storage Footprint</div>
+          <div class="metric-note">Approx. characters in local storage payloads</div>
+        </div>
+        <div class="metric-value">${getStorageFootprint()}</div>
+      </div>
+      <div class="metric-row">
+        <div>
+          <div class="metric-label">System Load</div>
+          <div class="metric-note">Aesthetic meter based on dashboard activity</div>
+        </div>
+        <div class="metric-value">${getSystemLoad()}%</div>
+      </div>
+      <div class="metric-row">
+        <div>
+          <div class="metric-label">Snapshots</div>
+          <div class="metric-note">Manual restore points available</div>
+        </div>
+        <div class="metric-value">${getStoredArray(SNAPSHOTS_KEY).length}</div>
+      </div>
+    </div>
+  </div>
+</section>
+        </div>
+      `;
+
+      $("#heroNewLogBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      $("#heroSettingsBtn")?.addEventListener("click", () => openDrawer("settingsDrawer"));
+      $("#heroViewLogsBtn")?.addEventListener("click", () => showPage("logs"));
+      $("#jumpToLogsBtn")?.addEventListener("click", () => showPage("logs"));
+      $("#jumpToBoardBtn")?.addEventListener("click", () => showPage("leaderboard"));
+      $("#jumpToArchiveBtn")?.addEventListener("click", () => showPage("archive"));
+    }
+
+    function renderLogsPage() {
+      const root = $("#page-logs");
+      const rows = getFilteredLogs(false);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Score Logs</Div>
+                <h2 class="section-title">Session Table</H2>
+                <p class="section-subtitle">Filter by ball type, sort the score history, and move old sessions into archive when the main board gets too crowded.</P>
+              </div>
+              <button class="primary-btn" id="logsPageAddBtn">+ New Log</button>
+            </div>
+
+            <div class="toolbar">
+              <div class="table-actions">
+                <button class="filter-btn ${state.filters.ball === "all" ? "active" : ""}" data-ball-filter="all">All Balls</button>
+                <button class="filter-btn ${state.filters.ball === "light" ? "active" : ""}" data-ball-filter="light">Light</button>
+                <button class="filter-btn ${state.filters.ball === "medium" ? "active" : ""}" data-ball-filter="medium">Medium</button>
+                <button class="filter-btn ${state.filters.ball === "heavy" ? "active" : ""}" data-ball-filter="heavy">Heavy</button>
+              </div>
+              <div class="table-actions">
+                <select id="sortSelect" class="ghost-btn" style="padding-right:38px">
+                  <option value="newest" ${state.filters.sort === "newest" ? "selected" : ""}>Newest First</option>
+                  <option value="oldest" ${state.filters.sort === "oldest" ? "selected" : ""}>Oldest First</option>
+                  <option value="highest" ${state.filters.sort === "highest" ? "selected" : ""}>Highest Score</option>
+                  <option value="lowest" ${state.filters.sort === "lowest" ? "selected" : ""}>Lowest Score</option>
+                </select>
+              </div>
+			  <div class="table-actions" style="margin-bottom:16px">
+  <button class="ghost-btn" id="bulkArchiveBtn">Archive Selected</button>
+  <button class="ghost-btn" id="bulkDeleteBtn">Delete Selected</button>
+  <button class="ghost-btn" id="exportSelectedBtn">Export Selected</button>
+</div>
+            </div>
+
+            <div class="table-shell">
+              <div class="table-scroll">
+                ${rows.length ? `
+                  <table>
+                    <thead>
+  <tr>
+    <th style="width:1%"><input type="checkbox" id="selectAllRows"></th>
+    <th>Date</th>
+    <th>Location</th>
+    <th>Score</th>
+    <th>Ball</th>
+    <th>Notes</th>
+    <th style="width:1%">Actions</th>
+  </tr>
+</thead>
+                    <tbody>
+                      ${rows.map((log, index) => renderTableRow(log, index, false)).join("")}
+                    </tbody>
+                  </table>
+                ` : `<div class="table-empty">${renderEmptyInline("Nothing Matched!", "Try a different search phrase or start by logging a session.")}</div>`}
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+
+      $("#logsPageAddBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      root.querySelectorAll("[data-ball-filter]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.filters.ball = button.dataset.ballFilter;
+          renderAllPages();
+        });
+      });
+      $("#sortSelect")?.addEventListener("change", event => {
+        state.filters.sort = event.target.value;
+        renderAllPages();
+      });
+      bindRowActionButtons(root);
+    }
+
+    function renderLeaderboardPage() {
+      const root = $("#page-leaderboard");
+      const topLogs = [...state.logs]
+        .filter(log => !log.archived)
+        .sort((a, b) => Number(b.score) - Number(a.score));
+
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Leaderboard</div>
+                <h2 class="section-title">Top Score Ladder</h2>
+                <p class="section-subtitle">Raw ranking, no fluff, just who did the damage.</p>
+              </div>
+            </div>
+            ${topLogs.length ? `
+              <div class="leaderboard-grid">
+                ${topLogs.slice(0, 9).map((log, index) => `
+                  <article class="leader-card">
+                    <div class="leader-top">
+                      <div class="leader-rank">${index + 1}</div>
+                      <span class="status-pill ${index === 0 ? "good" : index < 3 ? "warn" : ""}">${index === 0 ? "Top Run" : index < 3 ? "Podium" : "ranked"}</span>
+                    </div>
+                    <div>
+                      <div class="leader-score">${escapeHtml(log.score)}</div>
+                      <div class="leader-sub">${escapeHtml(log.location || "unknown lane")}</div>
+                    </div>
+                    <div class="leader-meta">
+                      <span class="tag">${formatDate(log.date)}</span>
+                      <span class="tag">${escapeHtml(log.ball || "unknown")}</span>
+                    </div>
+                    <div class="panel-note">${escapeHtml(log.notes || "no note attached.")}</div>
+                  </article>
+                `).join("")}
+              </div>
+            ` : renderEmptyInline("nothing to rank yet", "score logs will automatically build this page once you have entries.")}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderArchivePage() {
+      const root = $("#page-archive");
+      const rows = getFilteredLogs(true);
+      const archivedOnly = rows.filter(log => log.archived);
+      const preview = getArchivePreview(3);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="archive-grid">
+            ${preview.length ? preview.map(log => `
+              <div class="archive-pill">
+                <span>Stored</span>
+                <strong>${escapeHtml(log.score)} pts</strong>
+                <span>${escapeHtml(log.location || "unknown lane")}</span>
+                <small class="muted">${formatDate(log.date)}</small>
+              </div>
+            `).join("") : `
+              <div class="archive-pill"><span>Archive</span><strong>0 items</strong><span>Nothing stored yet!</span></div>
+              <div class="archive-pill"><span>Status</span><strong>Clean Board</strong><span>Everything remains live</span></div>
+              <div class="archive-pill"><span>Hint</span><strong>Use row actions</strong><span>Send older runs here from the logs page</span></div>
+            `}
+          </section>
+
+          <section class="panel">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">Archive</div>
+      <h2 class="section-title">Cold Storage Table</h2>
+      <p class="section-subtitle">Old sessions stay saved here instead of cluttering your active board.</p>
+    </div>
+  </div>
+
+  <div class="table-actions" style="margin-bottom:16px">
+    <button class="ghost-btn" id="bulkRestoreBtn">Restore Selected</button>
+    <button class="ghost-btn" id="bulkDeleteArchiveBtn">Delete Selected</button>
+    <button class="ghost-btn" id="exportArchivedSelectedBtn">Export Selected</button>
+  </div>
+
+  <div class="table-shell">
+              <div class="table-scroll">
+                ${archivedOnly.length ? `
+                  <table>
+                    <thead>
+  <tr>
+    <th style="width:1%"><input type="checkbox" id="selectAllRows"></th>
+    <th>Date</th>
+    <th>Location</th>
+    <th>Score</th>
+    <th>Ball</th>
+    <th>Notes</th>
+    <th style="width:1%">Actions</th>
+  </tr>
+</thead>
+                    <tbody>
+                      ${archivedOnly.map((log, index) => renderTableRow(log, index, true)).join("")}
+                    </tbody>
+                  </table>
+                ` : `<div class="table-empty">${renderEmptyInline("Archive is empty!", "Nothing has been moved out of the main board yet.")}</div>`}
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+      bindRowActionButtons(root);
+    }
+
+    function renderAchievementsPage() {
+      const root = $("#page-achievements");
+      const status = getAchievementStatus();
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-kicker">Achievements</div>
+                <h2 class="section-title">Progress Board</h2>
+                <p class="section-subtitle">Every badge is tied to actual logged performance, not fake prestige dust.</p>
+              </div>
+              <span class="status-pill good">${status.filter(item => item.done).length}/${status.length} unlocked</span>
+            </div>
+            <div class="achievements-grid">
+              ${status.map(item => `
+                <article class="achievement-card">
+                  <div class="achievement-icon">${item.icon}</div>
+                  <div class="achievement-copy">
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <p>${escapeHtml(item.description)}</p>
+                    <span class="status-pill ${item.done ? "good" : "bad"}">${item.done ? "Unlocked" : "locked"}</span>
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderStatisticsPage() {
+      const root = $("#page-statistics");
+      const metrics = calcMetrics();
+      const buckets = scoreBuckets(state.logs);
+      const locations = locationFrequency(state.logs);
+      const ballStats = ballFrequency(state.logs);
+      const totalBallEntries = Math.max(1, ballStats.light + ballStats.medium + ballStats.heavy);
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="stats-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Score Distribution</Div>
+                  <h2 class="section-title">Where the sessions land</h2>
+                </div>
+              </div>
+              <div class="mini-chart">
+                ${buckets.map(bucket => {
+                  const width = Math.max(8, Math.round((bucket.count / Math.max(...buckets.map(item => item.count), 1)) * 100));
+                  return `<div class="bar-line"><span>${bucket.label}</span><div class="bar-track"><div class="bar-fill" style="width:${bucket.count ? width : 0}%"></div></div><strong>${bucket.count}</strong></div>`;
+                }).join("")}
+              </div>
+              <div class="stats-meta" style="margin-top:14px">Quick view of low, mid, and strong sessions across all stored data.</div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Core Metrics</div>
+                  <h2 class="section-title">Numbers that matter</h2>
+                </div>
+              </div>
+              <div class="metrics-list">
+                <div class="metric-row"><div><div class="metric-label">Best Streak over 200</div><div class="metric-note">Consecutive logged sessions</div></div><div class="metric-value">${bestStreak(state.logs)}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Worst Score</div><div class="metric-note">Every control room needs the ugly truth</div></div><div class="metric-value">${metrics.worst}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Unique Lanes</div><div class="metric-note">Different locations with at least one log</div></div><div class="metric-value">${metrics.uniqueLocations}</div></div>
+                <div class="metric-row"><div><div class="metric-label">Archive Count</div><div class="metric-note">Sessions currently stored away</div></div><div class="metric-value">${state.logs.filter(log => log.archived).length}</div></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="split">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Ball Usage</div>
+                  <h2 class="section-title">Equipment preference split</h2>
+                </div>
+              </div>
+              <div class="mini-chart">
+                ${["light", "medium", "heavy"].map(key => {
+                  const count = ballStats[key];
+                  const width = Math.max(8, Math.round((count / totalBallEntries) * 100));
+                  return `<div class="bar-line"><span>${key}</span><div class="bar-track"><div class="bar-fill" style="width:${count ? width : 0}%"></div></div><strong>${count}</strong></div>`;
+                }).join("")}
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Lane Frequency</div>
+                  <h2 class="section-title">Most logged locations</h2>
+                </div>
+              </div>
+              ${locations.length ? `
+                <div class="list-stack">
+                  ${locations.map(([name, count]) => `
+                    <div class="list-line">
+                      <div class="list-icon">◉</div>
+                      <div>
+                        <strong>${escapeHtml(name)}</strong>
+                        <small>${count} stored session${count === 1 ? "" : "s"}</small>
+                      </div>
+                      <span class="score-pill">${count}</span>
+                    </div>
+                  `).join("")}
+                </div>
+              ` : `<p class="panel-note">Lane frequency will appear once locations start repeating.</p>`}
+            </article>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderCoachPage() {
+      const root = $("#page-coach");
+      const lines = getCoachLines();
+      const top = getTopLogs(1)[0];
+      const metrics = calcMetrics();
+      root.innerHTML = `
+        <div class="page-grid">
+          <section class="coach-grid">
+            <article class="coach-card">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">AI Coach</div>
+                  <h2 class="section-title">Session Readout</H2>
+                  <p class="section-subtitle">This is the part where the robot acts slightly judgmental about your bowling numbers.</p>
+                </div>
+                <button class="primary-btn" id="refreshCoachBtn">Reroll Advice</button>
+              </div>
+              <div class="coach-console" id="coachConsole">
+                ${lines.map(line => `
+                  <div class="coach-line">
+                    <span class="coach-dot"></span>
+                    <div>
+                      <strong>Coach</strong>
+                      <span>${escapeHtml(line)}</span>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </article>
+
+            <article class="coach-card">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-kicker">Quick Read</Div>
+                  <h2 class="section-title">Current Situation</H2>
+                </div>
+              </div>
+              <div class="coach-console">
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Average</strong><span>${metrics.average} points across stored sessions.</span></div></div>
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Best Run</strong><span>${top ? `${top.score} at ${escapeHtml(top.location || "Unknown Lane")}` : "No best run yet!"}.</span></div></div>
+                <div class="coach-line"><span class="coach-dot"></span><div><strong>Archive pressure</strong><span>${state.logs.filter(log => log.archived).length} sessions are stored away.</span></div></div>
+              </div>
+              <div class="coach-actions">
+                <button class="ghost-btn" id="coachAddLogBtn">Log a Session</Button>
+                <button class="ghost-btn" id="coachOpenStatsBtn">Open Statistics</button>
+              </div>
+            </article>
+          </section>
+        </div>
+      `;
+
+      $("#refreshCoachBtn")?.addEventListener("click", () => renderCoachPage());
+      $("#coachAddLogBtn")?.addEventListener("click", () => openDrawer("logDrawer"));
+      $("#coachOpenStatsBtn")?.addEventListener("click", () => showPage("statistics"));
+    }
+
+    function renderKpiCard(label, value, note, icon) {
+      const metrics = calcMetrics();
+      const trendNote = metrics.total ? `${metrics.total} total stored` : "Waiting for data";
+      return `
+        <article class="kpi-card">
+          <div class="kpi-head">
+            <div>
+              <div class="kpi-label">${escapeHtml(label)}</div>
+            </div>
+            <div class="kpi-icon">${icon}</div>
+          </div>
+          <div class="kpi-value">${escapeHtml(value)}</div>
+          <div class="kpi-foot">
+            <div class="kpi-note">${escapeHtml(note)}</div>
+            <span class="kpi-trend">${escapeHtml(trendNote)}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderRecentLine(log) {
+      return `
+        <div class="list-line">
+          <div class="list-icon">◎</div>
+          <div>
+            <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+            <small>${formatDate(log.date)} · ${escapeHtml(log.ball || "unknown")} ball · ${escapeHtml(log.notes || "no note")}</small>
+          </div>
+          <span class="score-pill">${escapeHtml(log.score)} pts</span>
+        </div>
+      `;
+    }
+
+    function renderArchiveLine(log) {
+      return `
+        <div class="list-line">
+          <div class="list-icon">▣</div>
+          <div>
+            <strong>${escapeHtml(log.location || "unknown lane")}</strong>
+            <small>${formatDate(log.date)} · Archived Session</small>
+          </div>
+          <span class="score-pill">${escapeHtml(log.score)} pts</span>
+        </div>
+      `;
+    }
+
+    function renderEmptyInline(title, copy) {
+      return `
+        <div class="empty-state">
+          <strong>${escapeHtml(title)}</strong>
+          <p>${escapeHtml(copy)}</p>
+        </div>
+      `;
+    }
+
+    function renderTableRow(log, index, archived) {
+  const realIndex = state.logs.findIndex(item => item === log);
+
+  return `
+    <tr>
+      <td>
+        <input type="checkbox" class="row-select" data-index="${realIndex}">
+      </td>
+
+      <td>
+        <div>${formatCompactDate(log.date)}</div>
+        <div class="table-meta">${formatDate(log.date)}</div>
+      </td>
+
+      <td>
+        <input
+          class="inline-edit"
+          data-index="${realIndex}"
+          data-field="location"
+          value="${escapeHtml(log.location || "unknown lane")}"
+        />
+      </td>
+
+      <td>
+        <input
+          class="inline-edit"
+          data-index="${realIndex}"
+          data-field="score"
+          type="number"
+          min="0"
+          max="300"
+          value="${escapeHtml(log.score)}"
+          style="width:90px"
+        />
+        <div class="table-meta">${escapeHtml(scoreBar(log.score))}</div>
+      </td>
+
+      <td>
+        <span class="tag">${escapeHtml(log.ball || "unknown")}</span>
+      </td>
+
+      <td>
+        <div>${escapeHtml(log.notes || "-")}</div>
+
+        <div class="table-meta">
+          ${escapeHtml(log.gameType || "practice")}
+          ${log.lane ? ` · lane ${escapeHtml(log.lane)}` : ""}
+          ${log.opponent ? ` · ${escapeHtml(log.opponent)}` : ""}
+          ${log.duration ? ` · ${escapeHtml(log.duration)} min` : ""}
+        </div>
+
+        <div class="table-meta">
+          ${typeof log.strikes === "number" ? `strikes ${escapeHtml(log.strikes)}` : ""}
+          ${typeof log.spares === "number" ? ` · spares ${escapeHtml(log.spares)}` : ""}
+          ${typeof log.openFrames === "number" ? ` · opens ${escapeHtml(log.openFrames)}` : ""}
+          ${typeof log.splitConversions === "number" ? ` · splits ${escapeHtml(log.splitConversions)}` : ""}
+        </div>
+
+        <div class="table-meta">
+          ${log.cleanGame ? "clean game · " : ""}
+          ${log.personalBest ? "personal best · " : ""}
+          ${log.fouls ? "fouls · " : ""}
+          ${log.leftHanded ? "left-handed · " : ""}
+          ${escapeHtml(log.conditions || "")}
+        </div>
+
+        ${
+          log.tags && log.tags.length
+            ? `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">${log.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
+            : ""
+        }
+
+        ${
+          log.media
+            ? `<div class="table-meta" style="margin-top:6px;">
+                <a href="${escapeHtml(log.media)}" target="_blank" rel="noopener noreferrer">
+                  ${log.mediaType && log.mediaType !== "url" ? `attached file: ${escapeHtml(log.mediaName || "media")}` : "media link"}
+                </a>
+              </div>`
+            : ""
+        }
+      </td>
+
+      <td>
+        <div class="table-actions">
+          <button class="table-link" data-action="toggle-archive" data-index="${realIndex}">
+            ${archived ? "Restore" : "Archive"}
+          </button>
+          <button class="table-link" data-action="delete" data-index="${realIndex}">
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+  (function () {
+    const toast = document.getElementById("beToast");
+    const closeBtn = document.getElementById("beToastClose");
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+        toast.classList.add("hide");
+      }, 4000);
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => {
+        toast.classList.remove("show");
+        toast.classList.add("hide");
+      });
+    }
+
+    // hook into your existing save logic
+    const originalSave = window.saveLog;
+
+    window.saveLog = function (...args) {
+      if (originalSave) originalSave.apply(this, args);
+    };
+  })();
+	function getSelectedRowIndexes(scope = document) {
+  return Array.from(scope.querySelectorAll(".row-select:checked"))
+    .map(input => Number(input.dataset.index))
+    .filter(index => !Number.isNaN(index) && state.logs[index]);
+}
+
+function exportLogsBundle(logsToExport, fileNamePrefix = "bowlingexpress-export") {
+  const payload = {
+    format: "BEB-1",
+    exportedAt: new Date().toISOString(),
+    logs: logsToExport
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const fileName = `${fileNamePrefix}-${new Date().toISOString().slice(0, 10)}.json`;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportModernDashboardData() {
+  exportLogsBundle(state.logs, "bowlingexpress-modern");
+  logEvent("modern_export", "Exported modern dashboard data.");
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Export Complete", "Modern dashboard data was downloaded.");
+  }
+}
+
+function bindRowActionButtons(scope) {
+  scope.querySelectorAll("[data-action='toggle-archive']").forEach(button => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.index);
+      if (Number.isNaN(index) || !state.logs[index]) return;
+      state.logs[index].archived = !state.logs[index].archived;
+      persistLogs();
+      logEvent("archive_toggle", state.logs[index].archived ? "Archived a log." : "Restored a log.", { index });
+      renderAllPages();
+    });
+  });
+
+  scope.querySelectorAll("[data-action='delete']").forEach(button => {
+    button.addEventListener("click", async () => {
+      const index = Number(button.dataset.index);
+      if (Number.isNaN(index) || !state.logs[index]) return;
+      const confirmed = await window.confirm("Delete this stored log permanently?");
+      if (!confirmed) return;
+      state.logs.splice(index, 1);
+      persistLogs();
+      logEvent("log_deleted", "Deleted a stored log.", { index });
+      renderAllPages();
+    });
+  });
+
+  scope.querySelectorAll(".inline-edit").forEach(input => {
+    input.addEventListener("change", () => {
+      const index = Number(input.dataset.index);
+      const field = input.dataset.field;
+      if (Number.isNaN(index) || !field || !state.logs[index]) return;
+
+      if (field === "score") {
+        state.logs[index][field] = Math.max(0, Math.min(300, Math.round(Number(input.value) || 0)));
+      } else {
+        state.logs[index][field] = input.value.trim();
+      }
+
+      persistLogs();
+      logEvent("log_edited", `Edited ${field} on a log.`, { index, field });
+      renderAllPages();
+    });
+  });
+
+  scope.querySelector("#selectAllRows")?.addEventListener("change", event => {
+    scope.querySelectorAll(".row-select").forEach(box => {
+      box.checked = event.target.checked;
+    });
+  });
+
+  scope.querySelector("#bulkArchiveBtn")?.addEventListener("click", () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    indexes.forEach(index => {
+      if (state.logs[index]) state.logs[index].archived = true;
+    });
+    persistLogs();
+    logEvent("bulk_archive", `Archived ${indexes.length} selected logs.`);
+    renderAllPages();
+  });
+
+  scope.querySelector("#bulkDeleteBtn")?.addEventListener("click", async () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    const confirmed = await window.confirm(`Delete ${indexes.length} selected log${indexes.length === 1 ? "" : "s"}?`);
+    if (!confirmed) return;
+    state.logs = state.logs.filter((_, index) => !indexes.includes(index));
+    persistLogs();
+    logEvent("bulk_delete", `Deleted ${indexes.length} selected logs.`);
+    renderAllPages();
+  });
+
+  scope.querySelector("#exportSelectedBtn")?.addEventListener("click", () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    exportLogsBundle(indexes.map(index => state.logs[index]).filter(Boolean), "bowlingexpress-selected");
+    logEvent("selected_export", `Exported ${indexes.length} selected logs.`);
+  });
+
+  scope.querySelector("#bulkRestoreBtn")?.addEventListener("click", () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    indexes.forEach(index => {
+      if (state.logs[index]) state.logs[index].archived = false;
+    });
+    persistLogs();
+    logEvent("bulk_restore", `Restored ${indexes.length} archived logs.`);
+    renderAllPages();
+  });
+
+  scope.querySelector("#bulkDeleteArchiveBtn")?.addEventListener("click", async () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    const confirmed = await window.confirm(`Delete ${indexes.length} archived log${indexes.length === 1 ? "" : "s"}?`);
+    if (!confirmed) return;
+    state.logs = state.logs.filter((_, index) => !indexes.includes(index));
+    persistLogs();
+    logEvent("bulk_archive_delete", `Deleted ${indexes.length} archived logs.`);
+    renderAllPages();
+  });
+
+  scope.querySelector("#exportArchivedSelectedBtn")?.addEventListener("click", () => {
+    const indexes = getSelectedRowIndexes(scope);
+    if (!indexes.length) return;
+    exportLogsBundle(indexes.map(index => state.logs[index]).filter(Boolean), "bowlingexpress-archived-selected");
+    logEvent("archived_selected_export", `Exported ${indexes.length} archived logs.`);
+  });
+
+  scope.querySelectorAll("[data-action='restore-snapshot']").forEach(button => {
+    button.addEventListener("click", () => {
+      restoreSnapshot(button.dataset.snapshotId);
+    });
+  });
+
+  scope.querySelectorAll("[data-action='delete-snapshot']").forEach(button => {
+    button.addEventListener("click", () => {
+      deleteSnapshot(button.dataset.snapshotId);
+    });
+  });
+}
+
+    function renderAllPages() {
+      renderSidebar($("#sidebar"));
+      renderSidebar($("#mobileSidebar"), true);
+      renderOverviewPage();
+      renderLogsPage();
+      renderLeaderboardPage();
+      renderArchivePage();
+      renderAchievementsPage();
+      renderStatisticsPage();
+      renderCoachPage();
+      applyTheme();
+      updatePageVisibility();
+      syncSearchInputs();
+      syncSettingsFields();
+    }
+
+    function updatePageVisibility() {
+      NAV_ITEMS.forEach(item => {
+        const page = $(`#page-${item.id}`);
+        if (!page) return;
+        page.classList.toggle("active", state.currentPage === item.id);
+      });
+      const current = NAV_ITEMS.find(item => item.id === state.currentPage);
+      $("#pageTitle").textContent = current ? current.label : "Overview";
+    }
+
+    function showPage(id) {
+      state.currentPage = id;
+      renderAllPages();
+    }
+
+    function openDrawer(id) {
+      state.activeDrawer = id;
+      $("#overlay").classList.add("active");
+      $(`#${id}`).classList.add("active");
+      $(`#${id}`).setAttribute("aria-hidden", "false");
+      if (id === "logDrawer") prepareLogForm();
+      if (id === "settingsDrawer") syncSettingsFields();
+    }
+
+    function closeDrawer(id) {
+      const drawer = $(`#${id}`);
+      if (!drawer) return;
+      drawer.classList.remove("active");
+      drawer.setAttribute("aria-hidden", "true");
+      if (state.activeDrawer === id) state.activeDrawer = null;
+      if (!$(".drawer.active")) {
+        $("#overlay").classList.remove("active");
+      }
+    }
+
+    function closeAllDrawers() {
+      $$(".drawer.active").forEach(drawer => closeDrawer(drawer.id));
+      $("#overlay").classList.remove("active");
+      state.activeDrawer = null;
+    }
+
+    function toggleMobileMenu(force) {
+      const next = typeof force === "boolean" ? force : !state.mobileMenuOpen;
+      state.mobileMenuOpen = next;
+      $("#mobileSidebar").classList.toggle("active", next);
+      $("#overlay").classList.toggle("active", next || Boolean($(".drawer.active")));
+    }
+
+    function applyTheme() {
+      document.body.classList.toggle("light", state.settings.theme === "light");
+    }
+
+    function syncSearchInputs() {
+      $("#globalSearch").value = state.filters.query;
+    }
+
+    function setSegmentActive(container, value) {
+      container.querySelectorAll("button[data-ball]").forEach(button => {
+        button.classList.toggle("active", button.dataset.ball === value);
+      });
+    }
+
+    function prepareLogForm() {
+      $("#logDate").value = todayISO();
+      $("#logLocation").value = state.settings.defaultLocation || "";
+      $("#logScore").value = "";
+      $("#logNotes").value = "";
+      $("#logArchiveToggle").checked = false;
+      state.activeBallDraft = state.settings.defaultBall || "light";
+	  $("#logGameType").value = "practice";
+	  $("#logMediaFile").value = "";
+$("#logLane").value = "";
+$("#logOpponent").value = "";
+$("#logDuration").value = "";
+$("#logStrikes").value = 0;
+$("#logSpares").value = 0;
+$("#logOpenFrames").value = 0;
+$("#logSplitConversions").value = 0;
+$("#logCleanGame").checked = false;
+$("#logPersonalBest").checked = false;
+$("#logFouls").checked = false;
+$("#logLeftHanded").checked = false;
+$("#logConditions").value = "";
+$("#logTags").value = "";
+$("#logMedia").value = "";
+      setSegmentActive($("#ballSegment"), state.activeBallDraft);
+    }
+
+function toggleConnectedProvider(provider) {
+  const current = Array.isArray(state.settings.connectedProviders)
+    ? [...state.settings.connectedProviders]
+    : [];
+
+  const index = current.indexOf(provider);
+
+  if (index >= 0) {
+    current.splice(index, 1);
+    state.settings.connectedProviders = current;
+    persistSettings();
+    renderAllPages();
+
+    if (typeof showDashboardToast === "function") {
+      showDashboardToast("Account Disconnected", `${provider} was removed from connected accounts.`);
+    }
+    return;
+  }
+
+  current.push(provider);
+  state.settings.connectedProviders = current;
+  persistSettings();
+  renderAllPages();
+
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Account Connected", `${provider} is now linked to this control center.`);
+  }
+}
+
+function bindSocialConnectionButtons() {
+  const buttons = Array.from(document.querySelectorAll(".social-icon-btn"));
+  const legend = document.getElementById("socialLegend");
+  const connected = Array.isArray(state.settings.connectedProviders)
+    ? state.settings.connectedProviders
+    : [];
+
+  buttons.forEach(button => {
+    const provider = button.dataset.provider || "";
+    button.classList.toggle("connected", connected.includes(provider));
+
+    button.addEventListener("mouseenter", () => {
+      if (legend) {
+        legend.textContent = connected.includes(provider)
+          ? `${provider} is connected. Click to disconnect it from the control center.`
+          : `Connect ${provider} for quicker sign-in, account linking, and future sync features.`;
+      }
+    });
+
+    button.addEventListener("focus", () => {
+      if (legend) {
+        legend.textContent = connected.includes(provider)
+          ? `${provider} is connected. Press to disconnect it from the control center.`
+          : `Connect ${provider} for quicker sign-in, account linking, and future sync features.`;
+      }
+    });
+
+    button.addEventListener("mouseleave", () => {
+      if (legend) {
+        legend.textContent = "Select an icon to connect an account.";
+      }
+    });
+
+    button.addEventListener("blur", () => {
+      if (legend) {
+        legend.textContent = "Select an icon to connect an account.";
+      }
+    });
+
+    button.addEventListener("click", () => {
+      toggleConnectedProvider(provider);
+    });
+  });
+}
+
+    function syncSettingsFields() {
+      $("#setUsername").value = state.settings.username || "";
+      $("#setDefaultLocation").value = state.settings.defaultLocation || "";
+      $("#setTheme").value = state.settings.theme || "dark";
+      $("#setPublic").checked = Boolean(state.settings.showScore);
+      $("#setPrivacy").checked = Boolean(state.settings.privacy);
+      $("#setEmail").checked = Boolean(state.settings.email);
+      $("#setSound").checked = Boolean(state.settings.sound);
+      $("#set2FA").checked = Boolean(state.settings.enable2FA);
+      $("#setPhone").value = state.settings.phone || "";
+      state.activeBallDefault = state.settings.defaultBall || "light";
+	  $("#setEmailAddress").value = state.settings.emailAddress || "";
+$("#setCurrentPassword").value = "";
+$("#setNewPassword").value = "";
+$("#setConfirmPassword").value = "";
+      setSegmentActive($("#defaultBallSegment"), state.activeBallDefault);
+      $("#phoneField").classList.toggle("hide", !state.settings.enable2FA && !$("#set2FA").checked);
+	  $("#snapshotList").innerHTML = getSnapshotsMarkup();
+	  bindSocialConnectionButtons();
+    }
+	
+	function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("file read failed"));
+
+    reader.readAsDataURL(file);
+  });
+}
+
+    async function saveLog() {
+      const date = $("#logDate").value;
+      const location = $("#logLocation").value.trim();
+      const score = Number($("#logScore").value);
+      const notes = $("#logNotes").value.trim();
+      const archived = $("#logArchiveToggle").checked;
+	  const gameType = $("#logGameType").value;
+const lane = $("#logLane").value.trim();
+const opponent = $("#logOpponent").value.trim();
+const duration = $("#logDuration").value.trim();
+const strikes = Number($("#logStrikes").value || 0);
+const spares = Number($("#logSpares").value || 0);
+const openFrames = Number($("#logOpenFrames").value || 0);
+const splitConversions = Number($("#logSplitConversions").value || 0);
+const cleanGame = $("#logCleanGame").checked;
+const personalBest = $("#logPersonalBest").checked;
+const fouls = $("#logFouls").checked;
+const leftHanded = $("#logLeftHanded").checked;
+const conditions = $("#logConditions").value.trim();
+const tags = $("#logTags").value
+  .split(",")
+  .map(tag => tag.trim())
+  .filter(Boolean);
+const media = $("#logMedia").value.trim();
+const mediaFile = $("#logMediaFile").files[0] || $("#logMediaCamera").files[0] || null;
+
+      if (!date || !location || !Number.isFinite(score)) {
+        alert("Fill date, location, and score first.");
+        return;
+      }
+
+      const cleanScore = Math.max(0, Math.min(300, Math.round(score)));
+	  if (strikes > 12 || spares > 12 || openFrames > 10 || splitConversions > 10) {
+  alert("Some frame stats are outside normal limits.");
+  return;
+}
+
+if (cleanGame && openFrames > 0) {
+  alert("A clean game cannot have open frames.");
+  return;
+}
+
+const duplicateExists = state.logs.some(log =>
+  log.date === date &&
+  normalizeText(log.location) === normalizeText(location) &&
+  Number(log.score) === cleanScore
+);
+
+if (duplicateExists) {
+  const confirmedDuplicate = await window.confirm("A very similar log already exists. Save another one anyway?");
+  if (!confirmedDuplicate) return;
+}
+
+      const uploadedMedia = mediaFile ? await fileToDataUrl(mediaFile) : "";
+
+state.logs.push({
+sessionId: getSessionId(),
+sessionLabel: getSessionLabel(),
+  id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+  date,
+  location,
+  score: cleanScore,
+  ball: state.activeBallDraft,
+  notes,
+  archived,
+  gameType,
+  lane: lane ? Number(lane) : null,
+  opponent,
+  duration: duration ? Number(duration) : null,
+  strikes,
+  spares,
+  openFrames,
+  splitConversions,
+  cleanGame,
+  personalBest,
+  fouls,
+  leftHanded,
+  conditions,
+  tags,
+  media: media || uploadedMedia,
+  mediaType: mediaFile ? mediaFile.type : (media ? "url" : ""),
+  mediaName: mediaFile ? mediaFile.name : "",
+  createdAt: new Date().toISOString()
+});
+
+      persistLogs();
+	  logEvent("log_created", "Created a new score log.", { score: cleanScore, location });
+      closeDrawer("logDrawer");
+      renderAllPages();
+      showPage("logs");
+	  showDashboardToast("Log Created", "Your score log has been added to the modern dashboard.");
+    }
+
+    function saveSettings() {
+      state.settings = {
+        username: $("#setUsername").value.trim() || "lane operator",
+        defaultLocation: $("#setDefaultLocation").value.trim(),
+        theme: $("#setTheme").value,
+        defaultBall: state.activeBallDefault,
+		emailAddress: $("#setEmailAddress").value.trim(),
+accountPassword: state.settings.accountPassword || "",
+        showScore: $("#setPublic").checked,
+        privacy: $("#setPrivacy").checked,
+        email: $("#setEmail").checked,
+        sound: $("#setSound").checked,
+        enable2FA: $("#set2FA").checked,
+        phone: $("#setPhone").value.trim()
+      };
+
+      persistSettings();
+      closeDrawer("settingsDrawer");
+      renderAllPages();
+    }
+
+async function wipeAllData() {
+  const confirmed = await window.confirm(
+    "Wipe every stored log and setting for this local dashboard?"
+  );
+
+  if (!confirmed) return;
+
+  localStorage.removeItem(LOGS_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
+
+  if (typeof LEGACY_LOGS_KEY !== "undefined") {
+    localStorage.removeItem(LEGACY_LOGS_KEY);
+  }
+
+  if (typeof LEGACY_SETTINGS_KEY !== "undefined") {
+    localStorage.removeItem(LEGACY_SETTINGS_KEY);
+  }
+
+  if (typeof LEGACY_DASH_LOGS_KEY !== "undefined") {
+    localStorage.removeItem(LEGACY_DASH_LOGS_KEY);
+  }
+
+  if (typeof LEGACY_DASH_SETTINGS_KEY !== "undefined") {
+    localStorage.removeItem(LEGACY_DASH_SETTINGS_KEY);
+  }
+
+  state.logs = [];
+  state.settings = buildDefaultSettings();
+  state.currentPage = "overview";
+  state.filters.query = "";
+  state.filters.ball = "all";
+  state.filters.sort = "newest";
+  state.activeBallDraft = state.settings.defaultBall || "light";
+  state.activeBallDefault = state.settings.defaultBall || "light";
+
+  persistLogs();
+  persistSettings();
+
+  closeDrawer("settingsDrawer");
+  renderAllPages();
+  showPage("overview");
+
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Dashboard Reset", "All local dashboard data has been wiped.");
+  }
+}
+	
+	function showSystemModal({ text = "", title = "", confirm = false } = {}) {
+  return new Promise(resolve => {
+    const layer = document.getElementById("uiDialogLayer");
+    const titleEl = document.getElementById("uiDialogTitle");
+    const textEl = document.getElementById("uiDialogText");
+    const okBtn = document.getElementById("uiDialogOk");
+    const cancelBtn = document.getElementById("uiDialogCancel");
+
+    if (!layer || !titleEl || !textEl || !okBtn || !cancelBtn) {
+      resolve(confirm ? false : undefined);
+      return;
+    }
+
+    titleEl.textContent = title || (confirm ? "Confirm Action" : "Notice");
+    textEl.textContent = String(text ?? "");
+    cancelBtn.style.display = confirm ? "inline-flex" : "none";
+
+    layer.classList.add("show");
+    layer.setAttribute("aria-hidden", "false");
+
+    function close(result) {
+      layer.classList.remove("show");
+      layer.setAttribute("aria-hidden", "true");
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      resolve(result);
+    }
+
+    okBtn.onclick = () => close(confirm ? true : undefined);
+    cancelBtn.onclick = () => close(false);
+  });
+}
+
+window.alert = function (text) {
+  return showSystemModal({ text });
+};
+
+window.confirm = function (text) {
+  return showSystemModal({ text, confirm: true });
+};
+
+	function mapLegacyLogToModern(log, fallbackUsername) {
+  return {
+    id: log.id || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+    date: log.date || todayISO(),
+    location: log.location || "",
+    score: Number.isFinite(Number(log.score)) ? Math.max(0, Math.min(300, Math.round(Number(log.score)))) : 0,
+    ball: normalizeText(log.ball || "light"),
+    notes: log.notes || "",
+    archived: Boolean(log.archived),
+    gameType: log.gameType || "practice",
+    lane: log.lane ? Number(log.lane) : null,
+    opponent: log.opponent || "",
+    duration: log.duration ? Number(log.duration) : null,
+    strikes: Number(log.strikes || 0),
+    spares: Number(log.spares || 0),
+    openFrames: Number(log.openFrames || 0),
+    splitConversions: Number(log.splitConversions || 0),
+    cleanGame: Boolean(log.cleanGame),
+    personalBest: Boolean(log.personalBest),
+    fouls: Boolean(log.fouls),
+    leftHanded: Boolean(log.leftHanded),
+    conditions: log.conditions || "",
+    tags: Array.isArray(log.tags) ? log.tags : [],
+    media: log.media || "",
+    mediaType: log.mediaType || "",
+    mediaName: log.mediaName || "",
+    player: log.player || fallbackUsername || "Lane Operator",
+    createdAt: log.createdAt || new Date().toISOString()
+  };
+}
+
+function fingerprintLog(log) {
+  return JSON.stringify([
+    log.date || "",
+    log.location || "",
+    Number(log.score) || 0,
+    normalizeText(log.ball || ""),
+    log.notes || ""
+  ]);
+}
+
+function importLegacyBundleFile(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+
+      if (!parsed || parsed.format !== "LBED-1" || !Array.isArray(parsed.logs)) {
+        alert("That file is not a valid legacy export.");
+        return;
+      }
+
+      const fallbackUsername =
+        parsed.settings && typeof parsed.settings === "object"
+          ? parsed.settings.username || "Lane Operator"
+          : "Lane Operator";
+
+      const mappedLogs = parsed.logs.map(log => mapLegacyLogToModern(log, fallbackUsername));
+
+      const existing = new Set(state.logs.map(fingerprintLog));
+      const uniqueMappedLogs = mappedLogs.filter(log => {
+        const key = fingerprintLog(log);
+        if (existing.has(key)) return false;
+        existing.add(key);
+        return true;
+      });
+
+      if (!uniqueMappedLogs.length) {
+        alert("That export does not contain any new logs to import.");
+        return;
+      }
+
+      state.logs.push(...uniqueMappedLogs);
+
+      if (parsed.settings && typeof parsed.settings === "object") {
+        if (!state.settings.username || state.settings.username === "Lane Operator") {
+          state.settings.username = parsed.settings.username || state.settings.username;
+        }
+
+        state.settings.theme =
+          parsed.settings.theme === "light" ? "light" : state.settings.theme || "dark";
+
+        state.settings.showScore =
+          parsed.settings.showScore ?? parsed.settings.showScore ?? state.settings.showScore;
+
+        state.settings.privacy =
+          parsed.settings.privacy ?? parsed.settings.privacyMode ?? state.settings.privacy;
+
+        state.settings.email =
+          parsed.settings.email ?? parsed.settings.emailNotifications ?? state.settings.email;
+
+        state.settings.sound =
+          parsed.settings.sound ?? parsed.settings.soundEffects ?? state.settings.sound;
+      }
+
+      persistLogs();
+      persistSettings();
+      renderAllPages();
+      closeDrawer("settingsDrawer");
+      showPage("logs");
+
+      if (typeof showDashboardToast === "function") {
+        showDashboardToast(
+          "Legacy Import Complete",
+          `${uniqueMappedLogs.length} legacy log${uniqueMappedLogs.length === 1 ? "" : "s"} imported.`
+        );
+      }
+    } catch (error) {
+      alert("The selected file could not be read.");
+      console.error(error);
+    }
+  };
+
+  reader.onerror = () => {
+    alert("Failed to read the selected file.");
+  };
+
+  reader.readAsText(file);
+}
+
+function installDialogConverter() {
+  const layer = document.getElementById("uiDialogLayer");
+  const titleEl = document.getElementById("uiDialogTitle");
+  const textEl = document.getElementById("uiDialogText");
+  const okBtn = document.getElementById("uiDialogOk");
+  const cancelBtn = document.getElementById("uiDialogCancel");
+
+  if (!layer || !titleEl || !textEl || !okBtn || !cancelBtn) return;
+
+  const nativeAlert = window.alert.bind(window);
+  const nativeConfirm = window.confirm.bind(window);
+
+  let activeResolver = null;
+  let activeType = "alert";
+  let lastFocused = null;
+
+  function cleanup(result) {
+    layer.classList.remove("show");
+    layer.setAttribute("aria-hidden", "true");
+
+    okBtn.onclick = null;
+    cancelBtn.onclick = null;
+    document.removeEventListener("keydown", onKeydown, true);
+
+    const resolver = activeResolver;
+    activeResolver = null;
+
+    if (lastFocused && typeof lastFocused.focus === "function") {
+      setTimeout(() => lastFocused.focus(), 0);
+    }
+
+    if (resolver) resolver(result);
+  }
+
+  function onKeydown(event) {
+    if (!layer.classList.contains("show")) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cleanup(activeType === "confirm" ? false : true);
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      cleanup(true);
+    }
+  }
+
+  function openDialog(type, message) {
+    return new Promise(resolve => {
+      activeType = type;
+      activeResolver = resolve;
+      lastFocused = document.activeElement;
+
+      titleEl.textContent = type === "confirm" ? "Confirm Action" : "Notice";
+      textEl.textContent = String(message ?? "");
+      cancelBtn.style.display = type === "confirm" ? "inline-flex" : "none";
+
+      okBtn.onclick = () => cleanup(true);
+      cancelBtn.onclick = () => cleanup(false);
+
+      layer.classList.add("show");
+      layer.setAttribute("aria-hidden", "false");
+      document.addEventListener("keydown", onKeydown, true);
+
+      setTimeout(() => {
+        if (type === "confirm") {
+          cancelBtn.focus();
+        } else {
+          okBtn.focus();
+        }
+      }, 0);
+    });
+  }
+
+  window.alertAsync = function (message) {
+    return openDialog("alert", message);
+  };
+
+  window.confirmAsync = function (message) {
+    return openDialog("confirm", message);
+  };
+
+  window.alert = function (message) {
+    openDialog("alert", message);
+  };
+
+  window.confirm = function (message) {
+    nativeConfirm(message);
+    openDialog("confirm", message);
+    return false;
+  };
+
+  window.__nativeAlert = nativeAlert;
+  window.__nativeConfirm = nativeConfirm;
+}
+
+async function updateEmailAddress() {
+  const email = $("#setEmailAddress").value.trim();
+
+  if (!email) {
+    await window.alert("Enter an email address first.");
+    return;
+  }
+
+  const emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+  if (!emailOk) {
+    await window.alert("That email address does not look valid.");
+    return;
+  }
+
+  state.settings.emailAddress = email;
+  persistSettings();
+  logEvent("account_email_changed", "Updated the account email address.");
+
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Email Updated", "The account email address has been saved.");
+  }
+}
+
+async function changeAccountPassword() {
+  const currentPassword = $("#setCurrentPassword").value;
+  const newPassword = $("#setNewPassword").value;
+  const confirmPassword = $("#setConfirmPassword").value;
+
+  if (!newPassword || !confirmPassword) {
+    await window.alert("Enter the new password in both fields.");
+    return;
+  }
+
+  if ((state.settings.accountPassword || "") && currentPassword !== (state.settings.accountPassword || "")) {
+    await window.alert("The current password is incorrect.");
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    await window.alert("Use at least 6 characters for the new password.");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    await window.alert("The new password fields do not match.");
+    return;
+  }
+
+  state.settings.accountPassword = newPassword;
+  persistSettings();
+
+  $("#setCurrentPassword").value = "";
+  $("#setNewPassword").value = "";
+  $("#setConfirmPassword").value = "";
+
+  logEvent("account_password_changed", "Changed the account password.");
+
+  if (typeof showDashboardToast === "function") {
+    showDashboardToast("Password Changed", "The account password was updated.");
+  }
+}
+
+    function bindGlobalEvents() {
+      $("#openLogBtn").addEventListener("click", () => openDrawer("logDrawer"));
+      $("#openSettingsBtn").addEventListener("click", () => openDrawer("settingsDrawer"));
+      $("#fabButton").addEventListener("click", () => openDrawer("logDrawer"));
+      $("#mobileMenuBtn").addEventListener("click", () => toggleMobileMenu(true));
+      $("#overlay").addEventListener("click", () => {
+        toggleMobileMenu(false);
+        closeAllDrawers();
+      });
+	  $("#changeEmailBtn")?.addEventListener("click", updateEmailAddress);
+$("#changePasswordBtn")?.addEventListener("click", changeAccountPassword);
+	  $("#openCameraBtn")?.addEventListener("click", () => {
+  $("#logMediaCamera")?.click();
+});
+	  $("#legacyImportFile")?.addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  importLegacyBundleFile(file);
+  event.target.value = "";
+  $("#createSnapshotBtn")?.addEventListener("click", () => createSnapshot());
+$("#exportModernBtn")?.addEventListener("click", exportModernDashboardData);
+
+document.addEventListener("keydown", event => {
+  if (event.target && /input|textarea|select/i.test(event.target.tagName)) return;
+
+  if (event.key === "n" || event.key === "N") {
+    event.preventDefault();
+    openDrawer("logDrawer");
+  }
+
+  if (event.key === "f" || event.key === "F") {
+    event.preventDefault();
+    $("#globalSearch")?.focus();
+  }
+});
+});
+      $$("[data-close]").forEach(button => {
+        button.addEventListener("click", () => closeDrawer(button.dataset.close));
+      });
+      $("#saveLogBtn").addEventListener("click", saveLog);
+      $("#saveSettingsBtn").addEventListener("click", saveSettings);
+      $("#wipeDataBtn").addEventListener("click", wipeAllData);
+      $("#globalSearch").addEventListener("input", event => {
+        state.filters.query = event.target.value;
+		installDialogConverter();
+        renderAllPages();
+      });
+
+      $("#ballSegment").querySelectorAll("button[data-ball]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.activeBallDraft = button.dataset.ball;
+          setSegmentActive($("#ballSegment"), state.activeBallDraft);
+        });
+      });
+
+      $("#defaultBallSegment").querySelectorAll("button[data-ball]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.activeBallDefault = button.dataset.ball;
+          setSegmentActive($("#defaultBallSegment"), state.activeBallDefault);
+        });
+      });
+
+      $("#set2FA").addEventListener("change", event => {
+        $("#phoneField").classList.toggle("hide", !event.target.checked);
+      });
+
+      $("#setTheme").addEventListener("change", event => {
+        document.body.classList.toggle("light", event.target.value === "light");
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if (state.mobileMenuOpen) toggleMobileMenu(false);
+          if (state.activeDrawer) closeAllDrawers();
+        }
+      });
+    }
+
+    function init() {
+      hydrateState();
+      bindGlobalEvents();
+      renderAllPages();
+      prepareLogForm();
+	  updateLegacyNavVisibility();
+    }
+
+    init();
+  </script>
+  
+<div id="uiDialogLayer" class="ui-dialog-layer" aria-hidden="true">
+  <div class="ui-dialog-backdrop"></div>
+  <div class="ui-dialog-box" role="dialog" aria-modal="true" aria-labelledby="uiDialogTitle">
+    <div class="ui-dialog-title" id="uiDialogTitle"></div>
+    <div class="ui-dialog-text" id="uiDialogText"></div>
+    <div class="ui-dialog-actions">
+      <button type="button" class="ghost-btn" id="uiDialogCancel">Cancel</button>
+      <button type="button" class="primary-btn" id="uiDialogOk">OK</button>
+    </div>
+  </div>
+</div>
+  
+</body>
+</html>
