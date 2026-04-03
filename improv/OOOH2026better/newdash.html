@@ -64,19 +64,50 @@ html, body {
     }
 
     body.light {
-      --bg: #eef2f8;
-      --panel: #ffffff;
-      --panel-2: #f7f9fd;
-      --panel-3: #edf2fa;
-      --panel-4: #f3f6fb;
-      --line: #d7deeb;
-      --line-2: #bec9de;
-      --text: #162236;
-      --text-soft: #425672;
-      --text-dim: #6c7d98;
-      --accent-soft: rgba(58, 120, 255, 0.10);
-      --shadow: 0 18px 34px rgba(18, 33, 58, 0.10);
-    }
+  --bg: #eef2f8;
+  --panel: #ffffff;
+  --panel-2: #f7f9fd;
+  --panel-3: #edf2fa;
+  --panel-4: #f3f6fb;
+  --line: #d7deeb;
+  --line-2: #bec9de;
+  --text: #162236;
+  --text-soft: #425672;
+  --text-dim: #6c7d98;
+  --shadow: 0 18px 34px rgba(18, 33, 58, 0.10);
+}
+
+body.ultra-dark {
+  --bg: #000000;
+  --panel: #050505;
+  --panel-2: #0a0a0a;
+  --panel-3: #111111;
+  --panel-4: #000000;
+  --line: #181818;
+  --line-2: #262626;
+  --text: #f3f6ff;
+  --text-soft: #b6c0d8;
+  --text-dim: #7a859e;
+  --shadow: 0 20px 52px rgba(0, 0, 0, 0.62);
+}
+
+body.accent-blue {
+  --accent: #3a78ff;
+  --accent-strong: #1f5fe6;
+  --accent-soft: rgba(58, 120, 255, 0.14);
+}
+
+body.accent-purple {
+  --accent: #8b5cf6;
+  --accent-strong: #7346dd;
+  --accent-soft: rgba(139, 92, 246, 0.16);
+}
+
+body.accent-green {
+  --accent: #22c55e;
+  --accent-strong: #16a34a;
+  --accent-soft: rgba(34, 197, 94, 0.16);
+}
 
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -2082,12 +2113,22 @@ td .table-meta {
         </div>
 
         <div class="field">
-          <label for="setTheme">Theme</label>
-          <select id="setTheme">
-            <option value="dark">Dark (recommended)</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
+  <label for="setTheme">Theme</label>
+  <select id="setTheme">
+    <option value="dark">Dark (default)</option>
+    <option value="light">Light</option>
+    <option value="ultra-dark">Ultra-dark</option>
+  </select>
+</div>
+
+<div class="field">
+  <label for="setAccent">Accent Color</label>
+  <select id="setAccent">
+    <option value="blue">Blue</option>
+    <option value="purple">Purple</option>
+    <option value="green">Green</option>
+  </select>
+</div>
 
         <div class="field full">
           <label>Default ball</label>
@@ -2466,6 +2507,7 @@ const EVENTS_KEY = "bowlingexpress-events";
       return {
         username: "Lane Operator",
         theme: "dark",
+		accent: "blue",
         defaultLocation: "",
         defaultBall: "light",
 		emailAddress: "",
@@ -3867,8 +3909,25 @@ function bindRowActionButtons(scope) {
     }
 
     function applyTheme() {
-      document.body.classList.toggle("light", state.settings.theme === "light");
-    }
+  document.body.classList.remove(
+    "light",
+    "ultra-dark",
+    "accent-blue",
+    "accent-purple",
+    "accent-green"
+  );
+
+  const theme = state.settings.theme || "dark";
+  const accent = state.settings.accent || "blue";
+
+  if (theme === "light") {
+    document.body.classList.add("light");
+  } else if (theme === "ultra-dark") {
+    document.body.classList.add("ultra-dark");
+  }
+
+  document.body.classList.add(`accent-${accent}`);
+}
 
     function syncSearchInputs() {
       $("#globalSearch").value = state.filters.query;
@@ -3984,6 +4043,9 @@ function bindSocialConnectionButtons() {
       $("#setUsername").value = state.settings.username || "";
       $("#setDefaultLocation").value = state.settings.defaultLocation || "";
       $("#setTheme").value = state.settings.theme || "dark";
+  if ($("#setAccent")) {
+    $("#setAccent").value = state.settings.accent || "blue";
+  }
       $("#setPublic").checked = Boolean(state.settings.showScore);
       $("#setPrivacy").checked = Boolean(state.settings.privacy);
       $("#setEmail").checked = Boolean(state.settings.email);
@@ -4110,6 +4172,7 @@ sessionLabel: getSessionLabel(),
         username: $("#setUsername").value.trim() || "lane operator",
         defaultLocation: $("#setDefaultLocation").value.trim(),
         theme: $("#setTheme").value,
+		accent: $("#setAccent") ? $("#setAccent").value : (state.settings.accent || "blue"),
         defaultBall: state.activeBallDefault,
 		emailAddress: $("#setEmailAddress").value.trim(),
 accountPassword: state.settings.accountPassword || "",
