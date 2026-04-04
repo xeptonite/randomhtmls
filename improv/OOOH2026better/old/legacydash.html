@@ -438,7 +438,6 @@ body.dark .notification {
         <button data-target="aiassist">🤖 AI Assist</button>
         <button data-target="statistics">📈 Statistics</button>
         <button data-target="recent">📜 Recent Activities</button>
-        <button data-target="rankings">🌍 Social Rankings</button>
 		<button data-target="transfer">💾 Export Legacy Data</button>
 		<button a href="/newdash.html">Go to the New Control Center</button>
     </div>
@@ -452,7 +451,6 @@ body.dark .notification {
             </div>
             <div class="tabs">
                 <a data-target="scorelogs" class="activeLink">🎳 Main Score Logs</a>
-                <a data-target="leaderboard">🌍 Global Leaderboard</a>
                 <a data-target="comparison">❔ Comparison</a>
                 <a data-target="salutations">🏆 Salutations</a>
             </div>
@@ -481,15 +479,6 @@ body.dark .notification {
             </table>
         </div>
 
-        <!-- Leaderboard -->
-        <div id="leaderboard" class="page">
-		<div class="legacy-banner">
-  ⚠️ Global Leaderboard in the Legacy Control Center will be deprecated on April 10, 2026.  
-  Please switch to the modern Control Center to continue accessing leaderboard features.
-</div>
-            <h1>Global Leaderboard</h1>
-            <ol id="leaderboardList"></ol>
-        </div>
 
         <!-- Comparison -->
         <div id="comparison" class="page">
@@ -536,12 +525,6 @@ body.dark .notification {
         </div>
 
         <div id="rankings" class="page">
-				<div class="legacy-banner">
-  ⚠️ Global Leaderboard in the Legacy Control Center will be deprecated on April 10, 2026.  
-  Please switch to the modern Control Center to continue accessing leaderboard features.
-</div>
-            <h1>Social Rankings (beta)</h1>
-            <p>Feature coming soon: share and rank with friends. 🌍</p>
         </div>
 		<div id="transfer" class="page">
   <h1>Export Legacy Data</h1>
@@ -565,7 +548,6 @@ body.dark .notification {
             <label><input type="radio" name="ballWeight" value="Heavy"> 🏋 Heavy</label>
         </fieldset>
         <textarea class="input-field" id="notes" placeholder="Notes about the game..." rows="4"></textarea>
-        <label><input type="checkbox" id="horns"> Post to Global Leaderboard</label>
         <button class="create-btn" id="createPost">Create</button>
         <button class="close-btn" id="closePostModal">Close</button>
         <div class="notification" id="postNotification">Saved!</div>
@@ -585,7 +567,6 @@ body.dark .notification {
         </select>
         <fieldset>
             <legend>Bowling Log Settings:</legend>
-            <label><input type="checkbox" id="showScore" checked> Show Scores on Global Leaderboard</label><br>
             <label><input type="checkbox" id="privacyMode"> Enable Privacy Mode</label>
         </fieldset>
         <fieldset>
@@ -636,7 +617,6 @@ body.dark .notification {
             qsa(`[data-target="${id}"]`).forEach(el => el.classList.add('activeLink'));
             // Whenever page switches, refresh dynamic views
             if (id === 'scorelogs') renderLogs();
-            if (id === 'leaderboard') renderLeaderboard();
             if (id === 'statistics') renderStatistics();
             if (id === 'recent') renderRecent();
             if (id === 'achievements') renderAchievements();
@@ -660,20 +640,6 @@ body.dark .notification {
                     <td>${log.ball}</td>
                     <td>${log.notes}</td>`;
                 tbody.appendChild(tr);
-            });
-        }
-
-        // —— Leaderboard Rendering ——
-        function renderLeaderboard() {
-            const list = qs('#leaderboardList');
-            list.innerHTML = '';
-            const top = [...logs]
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 10);
-            top.forEach((log, i) => {
-                const li = document.createElement('li');
-                li.textContent = `${i + 1}. ${log.player || 'Lane Operator'} — ${log.score} pts (${log.date})`;
-                list.appendChild(li);
             });
         }
 
@@ -788,7 +754,6 @@ body.dark .notification {
             logs.push({ date, location, score, ball, notes, player });
             saveLogs();
             renderLogs();
-            renderLeaderboard();
             renderStatistics();
             renderRecent();
             renderAchievements();
@@ -898,7 +863,6 @@ body.dark .notification {
         // —— Initialisation ——
         const init = () => {
             renderLogs();
-            renderLeaderboard();
             renderStatistics();
             renderRecent();
             renderAchievements();
