@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TokTik - Rebuilt Clone</title>
+<style>
+  :root {
+    --void: #08090b;
+    --phone: #101116;
+    --panel: #171920;
+    --panel-soft: #20232c;
+    --text: #f6f1df;
+    --muted: #a9a28c;
+    --line: rgba(246, 241, 223, 0.14);
+    --lime: #b8ff5c;
+    --violet: #9d7cff;
+    --amber: #f2b84b;
+    --danger: #ff6b5f;
+    --black: #050608;
+    --glass: rgba(16, 17, 22, 0.78);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--void);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+
+  body.locked { overflow: hidden; }
+
+  button { font: inherit; }
+
+  .stage {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background-color: var(--void);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .phone {
+    width: min(100%, 430px);
+    height: min(920px, calc(100vh - 36px));
+    min-height: 680px;
+    background: var(--phone);
+    border: 1px solid var(--line);
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 26px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #050608;
+    z-index: 20;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 42px 16px 10px;
+    background: rgba(8,9,11,0.84);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: -1.3px;
+  }
+
+  .brand span:first-child { color: var(--text); }
+  .brand span:last-child {
+    color: var(--lime);
+    text-shadow: 2px 1px 0 var(--violet);
+  }
+
+  .pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pill {
+    border: 1px solid var(--line);
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding-top: 13px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .tab {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .tab.active { color: var(--text); }
+
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 28px;
+    height: 3px;
+    transform: translateX(-50%);
+    border-radius: 99px;
+    background: var(--lime);
+  }
+
+  .feed {
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    background: var(--black);
+  }
+
+  .feed::-webkit-scrollbar { display: none; }
+
+  .clip {
+    height: 100%;
+    min-height: 680px;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+    background: var(--black);
+    isolation: isolate;
+  }
+
+  .clip-art {
+    position: absolute;
+    inset: 0;
+    background-color: #12141b;
+  }
+
+  .clip:nth-child(1) .clip-art {
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.68), rgba(0,0,0,0.06) 38%, rgba(0,0,0,0.78)),
+      repeating-linear-gradient(115deg, rgba(184,255,92,0.16) 0 16px, transparent 16px 42px),
+      linear-gradient(90deg, #181b23 0 48%, #25202c 48% 100%);
+  }
+
+  .clip:nth-child(2) .clip-art {
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.74), rgba(0,0,0,0.1) 42%, rgba(0,0,0,0.82)),
+      radial-gradient(circle at center, rgba(157,124,255,0.20) 0 14%, transparent 15%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 9px),
+      linear-gradient(90deg, #101116, #25201c);
+  }
+
+  .clip:nth-child(3) .clip-art {
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.05) 36%, rgba(0,0,0,0.8)),
+      repeating-linear-gradient(90deg, rgba(242,184,75,0.18) 0 22px, transparent 22px 44px),
+      linear-gradient(90deg, #11161b, #171920 55%, #241817);
+  }
+
+  .clip-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.21;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 5px);
+    pointer-events: none;
+  }
+
+  .center-text {
+    position: absolute;
+    inset: 146px 54px 190px 22px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .center-text strong {
+    display: block;
+    color: rgba(246,241,223,0.94);
+    font-size: clamp(30px, 8vw, 48px);
+    line-height: 0.94;
+    letter-spacing: -1.8px;
+    text-wrap: balance;
+    text-shadow: 0 8px 26px rgba(0,0,0,0.5);
+  }
+
+  .sponsor-tag {
+    position: absolute;
+    top: 128px;
+    left: 16px;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.72);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--lime);
+    font-size: 11px;
+    font-weight: 950;
+    backdrop-filter: blur(10px);
+  }
+
+  .sponsor-tag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--amber);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(242,184,75,0.16);
+  }
+
+  .rail {
+    position: absolute;
+    right: 10px;
+    bottom: 104px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 18px;
+    border: 2px solid rgba(246,241,223,0.9);
+    background-color: var(--panel-soft);
+    background-image:
+      linear-gradient(45deg, transparent 0 36%, var(--lime) 36% 48%, transparent 48% 100%),
+      linear-gradient(135deg, var(--violet) 0 38%, transparent 38% 100%);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.34);
+  }
+
+  .avatar::after {
+    content: "+";
+    position: absolute;
+    margin-left: 31px;
+    margin-top: 35px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--danger);
+    color: white;
+    border: 2px solid var(--phone);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .rail-btn {
+    width: 54px;
+    border: 0;
+    color: var(--text);
+    background: transparent;
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .rail-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 4px;
+    border-radius: 18px;
+    background: rgba(5,6,8,0.58);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    font-size: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.26);
+  }
+
+  .rail-btn small {
+    display: block;
+    font-size: 10px;
+    line-height: 1.05;
+    font-weight: 900;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+
+  .meta {
+    position: absolute;
+    left: 16px;
+    right: 78px;
+    bottom: 88px;
+    z-index: 5;
+  }
+
+  .handle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 950;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    padding: 4px 7px;
+    border-radius: 999px;
+    color: #101116;
+    background: var(--lime);
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .caption {
+    font-size: 14px;
+    line-height: 1.34;
+    color: rgba(246,241,223,0.92);
+    margin-bottom: 10px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  }
+
+  .audio {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.58);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(246,241,223,0.9);
+    font-size: 12px;
+    font-weight: 750;
+    backdrop-filter: blur(10px);
+  }
+
+  .ad-card {
+    position: absolute;
+    left: 16px;
+    right: 76px;
+    top: 174px;
+    z-index: 3;
+    background: rgba(8,9,11,0.73);
+    border: 1px solid rgba(246,241,223,0.16);
+    border-radius: 20px;
+    padding: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.28);
+  }
+
+  .ad-card .label {
+    color: var(--amber);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .ad-card .title {
+    font-size: 17px;
+    font-weight: 950;
+    line-height: 1.04;
+    margin-bottom: 5px;
+  }
+
+  .ad-card .copy {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .ad-card button {
+    margin-top: 10px;
+    width: 100%;
+    border: 0;
+    background: var(--lime);
+    color: #101116;
+    border-radius: 13px;
+    padding: 10px;
+    font-weight: 950;
+    cursor: pointer;
+  }
+
+  .bottom-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 12;
+    padding: 9px 12px 16px;
+    background: rgba(8,9,11,0.90);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    gap: 4px;
+  }
+
+  .nav-item {
+    color: rgba(246,241,223,0.74);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 850;
+    cursor: pointer;
+  }
+
+  .nav-item.active { color: var(--text); }
+
+  .nav-item b {
+    display: grid;
+    place-items: center;
+    height: 25px;
+    font-size: 19px;
+    margin-bottom: 3px;
+  }
+
+  .create-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 34px;
+    border-radius: 13px;
+    background: var(--text);
+    color: var(--black);
+    font-size: 26px;
+    font-weight: 950;
+    box-shadow: -4px 0 0 var(--violet), 4px 0 0 var(--lime);
+  }
+
+  .toast {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 80px;
+    z-index: 30;
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 240ms ease, opacity 240ms ease;
+    border-radius: 18px;
+    background: rgba(16,17,22,0.92);
+    border: 1px solid rgba(246,241,223,0.15);
+    backdrop-filter: blur(12px);
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 850;
+    color: var(--text);
+    box-shadow: 0 14px 42px rgba(0,0,0,0.42);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .modal {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: none;
+  }
+
+  .modal.show { display: block; }
+
+  .dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.74);
+    backdrop-filter: blur(12px);
+  }
+
+  .modal-wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-width: 370px;
+    border-radius: 26px;
+    background: #151720;
+    border: 1px solid rgba(246,241,223,0.16);
+    box-shadow: 0 28px 90px rgba(0,0,0,0.62);
+    overflow: hidden;
+  }
+
+  .modal-top {
+    padding: 18px 18px 13px;
+    border-bottom: 1px solid rgba(246,241,223,0.09);
+  }
+
+  .eyebrow {
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  .modal-title {
+    font-size: 22px;
+    line-height: 1.05;
+    letter-spacing: -0.7px;
+    font-weight: 950;
+  }
+
+  .modal-body {
+    padding: 15px 18px 18px;
+    color: rgba(246,241,223,0.86);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .modal-actions {
+    display: grid;
+    gap: 9px;
+    padding: 0 18px 18px;
+  }
+
+  .modal-actions button {
+    border: 0;
+    border-radius: 15px;
+    padding: 13px 14px;
+    font-weight: 950;
+    cursor: pointer;
+  }
+
+  .modal-actions .primary {
+    background: var(--lime);
+    color: #101116;
+  }
+
+  .modal-actions .secondary {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .stopped .clip-art,
+  .stopped .center-text,
+  .stopped .ad-card {
+    filter: grayscale(0.6) blur(2px) brightness(0.68);
+  }
+
+  .stamp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 8;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    display: none;
+    padding: 10px 14px;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    background: rgba(8,9,11,0.78);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .stopped .stamp { display: block; }
+
+  @media (max-width: 500px) {
+    .stage { padding: 0; background-image: none; }
+    .phone {
+      width: 100%;
+      height: 100vh;
+      min-height: 100vh;
+      border: 0;
+      border-radius: 0;
+    }
+    .phone::before { display: none; }
+    .topbar { padding-top: 16px; }
+    .sponsor-tag { top: 102px; }
+    .ad-card { top: 146px; }
+  }
+</style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" id="phone">
+      <header class="topbar">
+        <div class="top-row">
+          <div class="brand"><span>Tok</span><span>Tik</span></div>
+          <div class="pills">
+            <button class="pill" data-action="live">LIVE</button>
+            <button class="pill" data-action="shop">Shop</button>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Feed tabs">
+          <div class="tab">Following</div>
+          <div class="tab active">For You</div>
+          <div class="tab">Marketplace</div>
+        </nav>
+      </header>
+
+      <div class="feed" id="feed">
+        <article class="clip" data-clip>
+          <div class="clip-art"></div>
+          <div class="sponsor-tag">Sponsored Recommendation</div>
+          <div class="ad-card">
+            <div class="label">Creator Growth Object 1/3</div>
+            <div class="title">Buy a microphone that hears your ambition.</div>
+            <div class="copy">Premium sound cylinder for users who want their room echo to become a career path.</div>
+            <button data-action="ad">Inspect Product</button>
+          </div>
+          <div class="center-text"><strong>POV: The app noticed you looked away for 0.8 seconds.</strong></div>
+          <div class="rail">
+            <div class="avatar"></div>
+            <button class="rail-btn" data-action="like"><span class="rail-icon">♥</span><small>8.4M</small></button>
+            <button class="rail-btn" data-action="comment"><span class="rail-icon">☰</span><small>942K</small></button>
+            <button class="rail-btn" data-action="share"><span class="rail-icon">↗</span><small>Send</small></button>
+            <button class="rail-btn" data-action="save"><span class="rail-icon">★</span><small>Save</small></button>
+          </div>
+          <section class="meta">
+            <div class="handle">@official.attention.engine <span class="badge">Verified-ish</span></div>
+            <div class="caption">We value your independent thoughts, which is why we placed them underneath six layers of engagement optimization.</div>
+            <div class="audio">♫ original sound - committee approved bass loop</div>
+          </section>
+          <div class="stamp">MEDIA STOPPED BY PLATFORM POLICY</div>
+        </article>
+
+        <article class="clip" data-clip>
+          <div class="clip-art"></div>
+          <div class="sponsor-tag">Brand Safety Clip</div>
+          <div class="ad-card">
+            <div class="label">Mandatory Discovery Moment 2/3</div>
+            <div class="title">A bottle that hydrates your personal brand.</div>
+            <div class="copy">Now with 14 planned lifestyle outcomes and one suspiciously emotional checkout button.</div>
+            <button data-action="ad">Hydrate Professionally</button>
+          </div>
+          <div class="center-text"><strong>Your scroll has been forwarded to the monetization department.</strong></div>
+          <div class="rail">
+            <div class="avatar"></div>
+            <button class="rail-btn" data-action="like"><span class="rail-icon">♥</span><small>4.7M</small></button>
+            <button class="rail-btn" data-action="comment"><span class="rail-icon">☰</span><small>512K</small></button>
+            <button class="rail-btn" data-action="share"><span class="rail-icon">↗</span><small>Share</small></button>
+            <button class="rail-btn" data-action="save"><span class="rail-icon">●</span><small>Queue</small></button>
+          </div>
+          <section class="meta">
+            <div class="handle">@synergy.speaker.9000 <span class="badge">Partner</span></div>
+            <div class="caption">Desktop access is technically possible, but our roadmap prefers you holding glass rectangle like a loyal citizen.</div>
+            <div class="audio">♫ sponsored audio - tiny applause in boardroom</div>
+          </section>
+          <div class="stamp">MEDIA STOPPED BY PLATFORM POLICY</div>
+        </article>
+
+        <article class="clip" data-clip>
+          <div class="clip-art"></div>
+          <div class="sponsor-tag">Recommended Commerce</div>
+          <div class="ad-card">
+            <div class="label">Revenue Rectangle 3/3</div>
+            <div class="title">Install one app that cleans, boosts, protects, invests, and judges.</div>
+            <div class="copy">Not guaranteed to do all functions. Guaranteed to request notifications immediately.</div>
+            <button data-action="ad">Begin The Upgrade</button>
+          </div>
+          <div class="center-text"><strong>Breaking: Adblock has hurt the platform’s feelings.</strong></div>
+          <div class="rail">
+            <div class="avatar"></div>
+            <button class="rail-btn" data-action="like"><span class="rail-icon">♥</span><small>12M</small></button>
+            <button class="rail-btn" data-action="comment"><span class="rail-icon">☰</span><small>1.2M</small></button>
+            <button class="rail-btn" data-action="share"><span class="rail-icon">↗</span><small>Export</small></button>
+            <button class="rail-btn" data-action="save"><span class="rail-icon">⚑</span><small>Report</small></button>
+          </div>
+          <section class="meta">
+            <div class="handle">@compliance.gremlin <span class="badge">Official</span></div>
+            <div class="caption">Please disable any extension that prevents advertisement visibility, memory fog, or sponsored destiny alignment.</div>
+            <div class="audio">♫ original sound - legal team humming near printer</div>
+          </section>
+          <div class="stamp">MEDIA STOPPED BY PLATFORM POLICY</div>
+        </article>
+      </div>
+
+      <nav class="bottom-nav" aria-label="App navigation">
+        <div class="nav-grid">
+          <div class="nav-item active" data-action="nav"><b>⌂</b>Home</div>
+          <div class="nav-item" data-action="nav"><b>⌕</b>Discover</div>
+          <div class="nav-item" data-action="create"><span class="create-btn">+</span></div>
+          <div class="nav-item" data-action="nav"><b>▣</b>Inbox</div>
+          <div class="nav-item" data-action="nav"><b>☻</b>Profile</div>
+        </div>
+      </nav>
+
+      <div class="toast" id="toast">Action has entered corporate processing.</div>
+
+      <section class="modal" id="desktopModal">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow">Device Compatibility Notice</div>
+              <div class="modal-title">Desktop usage is tolerated, but judged.</div>
+            </div>
+            <div class="modal-body">
+              TokTik has detected a large rectangle device. The feed will remain available, but several imaginary mobile-first committees have been notified.
+            </div>
+            <div class="modal-actions">
+              <button class="primary" data-close="desktopModal">Continue Judged</button>
+              <button class="secondary" data-action="phone">Pretend I opened this on phone</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="modal" id="policyModal">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow" id="policyEyebrow">Attention Integrity Warning</div>
+              <div class="modal-title" id="policyTitle">Your interaction was too normal.</div>
+            </div>
+            <div class="modal-body" id="policyBody">
+              The system expected a more profitable reaction. Media playback has been emotionally paused until morale improves.
+            </div>
+            <div class="modal-actions">
+              <button class="primary" data-close="policyModal">Restore The Feed</button>
+              <button class="secondary" data-action="read-again">Read Corporate Message Again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+<script>
+  const phone = document.getElementById('phone');
+  const toast = document.getElementById('toast');
+  const desktopModal = document.getElementById('desktopModal');
+  const policyModal = document.getElementById('policyModal');
+  const policyEyebrow = document.getElementById('policyEyebrow');
+  const policyTitle = document.getElementById('policyTitle');
+  const policyBody = document.getElementById('policyBody');
+  const clips = [...document.querySelectorAll('[data-clip]')];
+
+  let toastTimer;
+  let policyCount = 0;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+  }
+
+  function stopMedia(message) {
+    clips.forEach(clip => clip.classList.add('stopped'));
+    policyEyebrow.textContent = 'Attention Integrity Warning';
+    policyTitle.textContent = message;
+    policyBody.textContent = 'All imaginary media streams have been paused for a completely unnecessary platform trust ritual.';
+    policyModal.classList.add('show');
+    document.body.classList.add('locked');
+  }
+
+  function restoreMedia() {
+    clips.forEach(clip => clip.classList.remove('stopped'));
+    document.querySelectorAll('.modal.show').forEach(modal => modal.classList.remove('show'));
+    document.body.classList.remove('locked');
+    showToast('Feed restored. The platform is pretending to forgive you.');
+  }
+
+  function isProbablyDesktop() {
+    return window.matchMedia('(pointer:fine)').matches && window.innerWidth > 700;
+  }
+
+  function detectAdblockMaybe() {
+    const bait = document.createElement('div');
+    bait.className = 'ads ad adsbox banner-ad sponsored pub_300x250';
+    bait.style.position = 'absolute';
+    bait.style.left = '-9999px';
+    bait.style.width = '1px';
+    bait.style.height = '1px';
+    phone.appendChild(bait);
+
+    setTimeout(() => {
+      const hidden = getComputedStyle(bait).display === 'none' || bait.offsetHeight === 0 || bait.offsetParent === null;
+      bait.remove();
+      if (hidden) {
+        policyEyebrow.textContent = 'Advertisement Visibility Failure';
+        policyTitle.textContent = 'Adblock may have hurt the feed economy.';
+        policyBody.textContent = 'A sponsored rectangle failed to perform visibility. The platform is entering financial theatre mode.';
+        clips.forEach(clip => clip.classList.add('stopped'));
+        policyModal.classList.add('show');
+        document.body.classList.add('locked');
+      }
+    }, 180);
+  }
+
+  document.addEventListener('click', event => {
+    const closeTarget = event.target.closest('[data-close]');
+    if (closeTarget) {
+      restoreMedia();
+      return;
+    }
+
+    const actionTarget = event.target.closest('[data-action]');
+    if (!actionTarget) return;
+
+    const action = actionTarget.dataset.action;
+
+    if (action === 'like') showToast('Like recorded. Dopamine paperwork has been filed.');
+    if (action === 'comment') showToast('Comments are loading through 17 moderation tunnels.');
+    if (action === 'share') showToast('Share packet launched into the algorithm fog.');
+    if (action === 'save') showToast('Saved to collection: things you will never reopen.');
+    if (action === 'ad') showToast('Product inspected. Wallet proximity increased by 4%.');
+    if (action === 'shop') showToast('Shop opened. Reality is now a checkout funnel.');
+    if (action === 'live') showToast('LIVE is preparing a room full of yelling and ring lights.');
+    if (action === 'nav') showToast('Navigation accepted, but Home remains emotionally dominant.');
+    if (action === 'create') stopMedia('Creator mode requires 3 sponsored breathing exercises.');
+    if (action === 'phone') showToast('Phone illusion accepted. Nothing physically changed.');
+    if (action === 'read-again') showToast('Corporate message has been re-issued with extra seriousness.');
+  });
+
+  document.getElementById('feed').addEventListener('scroll', () => {
+    policyCount++;
+    if (policyCount % 9 === 0) {
+      showToast('Scroll velocity reviewed. Monetization says “interesting.”');
+    }
+  }, { passive: true });
+
+  if (isProbablyDesktop()) {
+    setTimeout(() => desktopModal.classList.add('show'), 550);
+  }
+
+  detectAdblockMaybe();
+</script>
+</body>
+</html>

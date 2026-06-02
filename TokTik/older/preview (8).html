@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TokTik Attention Kiosk</title>
+<style>
+  :root {
+    --ink: #211b16;
+    --paper: #f4ead4;
+    --paper-2: #eadcbf;
+    --paper-3: #d9c7a3;
+    --olive: #637047;
+    --olive-deep: #2f3827;
+    --rust: #a34f35;
+    --mustard: #c89b37;
+    --blueprint: #263d50;
+    --quiet: #756855;
+    --line: #352a20;
+    --white: #fffaf0;
+    --shadow: rgba(33, 27, 22, 0.22);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-height: 100%;
+    background: var(--ink);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background: var(--ink);
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+
+  body.locked {
+    overflow: hidden;
+  }
+
+  button {
+    font: inherit;
+  }
+
+  .page {
+    min-height: 100vh;
+    padding: 18px;
+  }
+
+  .shell {
+    max-width: 1160px;
+    margin: 0 auto;
+    min-height: calc(100vh - 36px);
+    display: grid;
+    grid-template-columns: 310px minmax(0, 1fr) 270px;
+    gap: 14px;
+  }
+
+  .panel,
+  .feed-card,
+  .kiosk-header,
+  .bottom-tray,
+  .modal-card,
+  .toast,
+  .loader-card {
+    background: var(--paper);
+    border: 2px solid var(--line);
+    box-shadow: 6px 6px 0 var(--shadow);
+  }
+
+  .panel {
+    min-height: 100%;
+    padding: 14px;
+    position: sticky;
+    top: 18px;
+    height: calc(100vh - 36px);
+    overflow: auto;
+  }
+
+  .brand-lockup {
+    border: 2px solid var(--line);
+    background: var(--paper-2);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .brand-kicker {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 7px;
+  }
+
+  .brand {
+    font-size: 36px;
+    line-height: 0.9;
+    letter-spacing: -1.5px;
+    font-weight: 1000;
+  }
+
+  .brand span {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 7px 5px;
+    transform: rotate(-2deg);
+  }
+
+  .brand .alt {
+    background: var(--rust);
+    color: var(--white);
+    transform: rotate(2deg) translateY(3px);
+  }
+
+  .notice {
+    background: var(--white);
+    border: 2px dashed var(--line);
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+
+  .notice strong {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .meter {
+    margin: 14px 0;
+  }
+
+  .meter-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .meter-track {
+    height: 18px;
+    border: 2px solid var(--line);
+    background: var(--paper-3);
+    padding: 2px;
+  }
+
+  .meter-fill {
+    height: 100%;
+    background: var(--olive);
+    width: 71%;
+    transition: width 220ms ease;
+  }
+
+  .nav-stamps {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .stamp {
+    border: 2px solid var(--line);
+    background: var(--white);
+    padding: 10px 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .stamp small {
+    color: var(--quiet);
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .stamp:hover,
+  .stamp.active {
+    background: var(--mustard);
+  }
+
+  .main {
+    min-width: 0;
+  }
+
+  .kiosk-header {
+    position: sticky;
+    top: 18px;
+    z-index: 5;
+    padding: 12px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .header-title {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .seal {
+    width: 46px;
+    height: 46px;
+    background: var(--olive-deep);
+    color: var(--paper);
+    border: 2px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-weight: 1000;
+    font-size: 20px;
+    flex: 0 0 auto;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(20px, 4vw, 34px);
+    letter-spacing: -1px;
+    line-height: 0.95;
+  }
+
+  .subline {
+    color: var(--quiet);
+    font-size: 13px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .pill,
+  .kiosk-btn {
+    border: 2px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 1000;
+    padding: 9px 11px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  .pill {
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .pill.alert {
+    background: var(--rust);
+    color: var(--white);
+  }
+
+  .feed {
+    display: grid;
+    gap: 14px;
+    padding-bottom: 92px;
+  }
+
+  .queue-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .queue-item {
+    background: var(--paper-2);
+    border: 2px solid var(--line);
+    padding: 10px;
+    min-height: 92px;
+  }
+
+  .queue-item b {
+    display: block;
+    font-size: 21px;
+    line-height: 1;
+    margin-bottom: 7px;
+  }
+
+  .queue-item span {
+    font-size: 12px;
+    line-height: 1.22;
+    color: var(--quiet);
+    font-weight: 900;
+  }
+
+  .feed-card {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 120px;
+    gap: 14px;
+    padding: 14px;
+    min-height: 230px;
+    position: relative;
+  }
+
+  .feed-card[data-status="ad"] {
+    background: var(--mustard);
+  }
+
+  .feed-card[data-status="blocked"] {
+    background: var(--paper-3);
+  }
+
+  .ticket-edge {
+    border: 2px solid var(--line);
+    background: var(--white);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 10px;
+  }
+
+  .ticket-id {
+    font-size: 12px;
+    font-weight: 1000;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rust);
+  }
+
+  .thumbnail {
+    align-self: center;
+    min-height: 96px;
+    border: 2px solid var(--line);
+    background: var(--blueprint);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 10px;
+    font-size: 28px;
+    font-weight: 1000;
+    line-height: 0.9;
+  }
+
+  .tiny-label {
+    font-size: 11px;
+    color: var(--quiet);
+    font-weight: 900;
+    margin-top: 10px;
+  }
+
+  .card-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-label {
+    width: fit-content;
+    border: 2px solid var(--line);
+    background: var(--white);
+    padding: 5px 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 1000;
+    letter-spacing: 0.06em;
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: clamp(24px, 5vw, 44px);
+    line-height: 0.88;
+    letter-spacing: -1.7px;
+  }
+
+  .card-copy {
+    font-size: 15px;
+    line-height: 1.34;
+    max-width: 62ch;
+  }
+
+  .creator {
+    font-weight: 1000;
+    color: var(--olive-deep);
+  }
+
+  .side-stats {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+
+  .stat {
+    background: var(--white);
+    border: 2px solid var(--line);
+    padding: 9px;
+    text-align: center;
+  }
+
+  .stat b {
+    display: block;
+    font-size: 18px;
+  }
+
+  .stat span {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--quiet);
+    text-transform: uppercase;
+  }
+
+  .receipt {
+    background: var(--white);
+    border: 2px solid var(--line);
+    padding: 10px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.35;
+    margin-top: auto;
+  }
+
+  .receipt div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .right-panel .panel-title {
+    font-size: 13px;
+    font-weight: 1000;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 10px;
+  }
+
+  .ledger {
+    display: grid;
+    gap: 8px;
+  }
+
+  .ledger-item {
+    background: var(--white);
+    border: 2px solid var(--line);
+    padding: 10px;
+  }
+
+  .ledger-item b {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .ledger-item span {
+    color: var(--quiet);
+    font-size: 12px;
+    line-height: 1.3;
+    display: block;
+  }
+
+  .audit-log {
+    margin-top: 14px;
+    border: 2px solid var(--line);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .audit-line {
+    margin-bottom: 7px;
+  }
+
+  .bottom-tray {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 34px));
+    z-index: 20;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .tray-btn {
+    border: 2px solid var(--line);
+    background: var(--white);
+    padding: 9px 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 1000;
+    text-align: center;
+  }
+
+  .tray-btn.active {
+    background: var(--olive);
+    color: var(--white);
+  }
+
+  .modal,
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 60;
+    background: rgba(33, 27, 22, 0.82);
+    padding: 20px;
+    place-items: center;
+  }
+
+  .modal.show,
+  .loading-screen.show {
+    display: grid;
+  }
+
+  .modal-card {
+    width: min(520px, 100%);
+    background: var(--paper);
+    padding: 0;
+  }
+
+  .modal-head {
+    padding: 15px 16px;
+    border-bottom: 2px solid var(--line);
+    background: var(--rust);
+    color: var(--white);
+  }
+
+  .modal-head small {
+    display: block;
+    font-size: 11px;
+    font-weight: 1000;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .modal-head h2 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 0.95;
+    letter-spacing: -1px;
+  }
+
+  .modal-body {
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.42;
+  }
+
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    padding: 0 16px 16px;
+  }
+
+  .modal-actions button:first-child {
+    background: var(--olive-deep);
+    color: var(--white);
+  }
+
+  .toast {
+    position: fixed;
+    right: 20px;
+    bottom: 96px;
+    z-index: 40;
+    width: min(370px, calc(100vw - 40px));
+    padding: 12px 14px;
+    display: none;
+    font-weight: 900;
+    font-size: 13px;
+    line-height: 1.28;
+  }
+
+  .toast.show {
+    display: block;
+  }
+
+  .loader-card {
+    width: min(480px, 100%);
+    padding: 18px;
+  }
+
+  .loader-title {
+    font-size: 28px;
+    font-weight: 1000;
+    line-height: 0.95;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+
+  .fake-progress {
+    height: 22px;
+    border: 2px solid var(--line);
+    background: var(--paper-3);
+    padding: 2px;
+    margin: 12px 0;
+  }
+
+  .fake-progress div {
+    height: 100%;
+    background: var(--rust);
+    width: 8%;
+  }
+
+  .muted {
+    color: var(--quiet);
+    font-weight: 800;
+  }
+
+  .shake {
+    animation: shake 190ms linear 2;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+  }
+
+  @media (max-width: 980px) {
+    .shell {
+      grid-template-columns: 1fr;
+    }
+
+    .panel,
+    .kiosk-header {
+      position: static;
+      height: auto;
+    }
+
+    .right-panel {
+      order: 3;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .page {
+      padding: 10px;
+    }
+
+    .shell {
+      min-height: calc(100vh - 20px);
+    }
+
+    .kiosk-header,
+    .feed-card {
+      grid-template-columns: 1fr;
+    }
+
+    .header-actions,
+    .modal-actions,
+    .bottom-tray,
+    .queue-strip {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .bottom-tray {
+      bottom: 10px;
+    }
+
+    .side-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page" id="page">
+    <div class="shell">
+      <aside class="panel left-panel" aria-label="TokTik control panel">
+        <div class="brand-lockup">
+          <div class="brand-kicker">Certified Vertical Media Authority</div>
+          <div class="brand"><span>Tok</span><span class="alt">Tik</span></div>
+        </div>
+
+        <div class="notice">
+          <strong>Viewer Notice 44-B</strong>
+          Your attention has been received. Please keep it available while the platform rearranges entertainment into measurable compliance units.
+        </div>
+
+        <div class="meter" aria-label="attention meter">
+          <div class="meter-row"><span>Attention Yield</span><span id="attentionValue">71%</span></div>
+          <div class="meter-track"><div class="meter-fill" id="attentionFill"></div></div>
+        </div>
+
+        <div class="meter" aria-label="ad patience meter">
+          <div class="meter-row"><span>Ad Patience</span><span id="patienceValue">18%</span></div>
+          <div class="meter-track"><div class="meter-fill" id="patienceFill" style="width:18%; background: var(--rust);"></div></div>
+        </div>
+
+        <nav class="nav-stamps" aria-label="sections">
+          <button class="stamp active" data-toast="Home feed has been stamped as legally entertaining."><span>Home Queue</span><small>open</small></button>
+          <button class="stamp" data-toast="Search has been moved behind three engagement receipts."><span>Search Permit</span><small>pending</small></button>
+          <button class="stamp" data-toast="Creator tools are available after a mandatory motivational webinar."><span>Creator Desk</span><small>locked</small></button>
+          <button class="stamp" data-toast="Inbox is currently being optimized into a shopping corridor."><span>Inbox Office</span><small>busy</small></button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="kiosk-header">
+          <div class="header-title">
+            <div class="seal">TT</div>
+            <div>
+              <h1>Attention Processing Kiosk</h1>
+              <div class="subline">A short video platform, except the app has become paperwork with sound effects.</div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="pill" id="simulateDesktop">Audit Device</button>
+            <button class="pill" id="simulateBrowser">Browser Check</button>
+            <button class="pill alert" id="simulateAdblock">Ad Visibility</button>
+          </div>
+        </header>
+
+        <section class="feed" aria-label="content feed">
+          <div class="queue-strip">
+            <div class="queue-item"><b>04</b><span>videos waiting for approval by the entertainment desk.</span></div>
+            <div class="queue-item"><b>12</b><span>ads approved before the content even arrives.</span></div>
+            <div class="queue-item"><b>01</b><span>browser complaint prepared for dramatic effect.</span></div>
+            <div class="queue-item"><b>∞</b><span>policy words generated without human mercy.</span></div>
+          </div>
+
+          <article class="feed-card" data-status="normal">
+            <div class="ticket-edge">
+              <div class="ticket-id">Clip Ticket A-102</div>
+              <div class="thumbnail">15 SEC<br>FUN</div>
+              <div class="tiny-label">Sound: Bureaucratic Bass</div>
+            </div>
+            <div class="card-body">
+              <div class="card-label">For You, allegedly</div>
+              <h2 class="card-title">When the platform says it values creators, then immediately asks for six permissions.</h2>
+              <div class="card-copy"><span class="creator">@official.global.creator.business</span> posted a certified short-form entertainment object. The content has been reviewed for vibes, marketability, and whether the button can be replaced with a shopping button.</div>
+              <div class="receipt">
+                <div><span>Scroll tax</span><b>+2%</b></div>
+                <div><span>Ad exposure</span><b>required</b></div>
+                <div><span>Creator payout</span><b>maybe</b></div>
+              </div>
+            </div>
+            <div class="side-stats">
+              <div class="stat"><b>8.9M</b><span>Liked</span></div>
+              <div class="stat"><b>980K</b><span>Argued</span></div>
+              <div class="stat"><b>44</b><span>Reports ignored</span></div>
+              <div class="stat"><b>Buy</b><span>Inserted</span></div>
+            </div>
+          </article>
+
+          <article class="feed-card" data-status="ad">
+            <div class="ticket-edge">
+              <div class="ticket-id">Promotion Form 6/5</div>
+              <div class="thumbnail" style="background: var(--rust);">AD<br>UNIT</div>
+              <div class="tiny-label">Sound: Shopping Cart Choir</div>
+            </div>
+            <div class="card-body">
+              <div class="card-label">Sponsored Material Excellence</div>
+              <h2 class="card-title">Buy the Ultra Ring Light and become historically relevant by Tuesday.</h2>
+              <div class="card-copy"><span class="creator">@trusted.brand.rectangle</span> has delivered a premium commerce rectangle. TokTik recommends clicking it to improve your account posture, screen obedience, and general shareholder weather.</div>
+              <div class="receipt">
+                <div><span>Promise strength</span><b>maximum</b></div>
+                <div><span>Evidence quality</span><b>decorative</b></div>
+                <div><span>Skip button</span><b>relocated</b></div>
+              </div>
+            </div>
+            <div class="side-stats">
+              <div class="stat"><b>99%</b><span>Urgent</span></div>
+              <div class="stat"><b>2 min</b><span>Fame ETA</span></div>
+              <div class="stat"><b>0</b><span>Regret shown</span></div>
+              <div class="stat"><b>Shop</b><span>Again</span></div>
+            </div>
+          </article>
+
+          <article class="feed-card" data-status="blocked">
+            <div class="ticket-edge">
+              <div class="ticket-id">Compatibility Memo</div>
+              <div class="thumbnail" style="background: var(--olive-deep);">NO<br>FUN</div>
+              <div class="tiny-label">Sound: Legal Department Humming</div>
+            </div>
+            <div class="card-body">
+              <div class="card-label">Browser Mood Incident</div>
+              <h2 class="card-title">Your browser is not the preferred browser, so enjoyment has entered review.</h2>
+              <div class="card-copy"><span class="creator">@verified.synergy.lady</span> explains that the platform deeply supports choice, provided the choice has already been selected by corporate.</div>
+              <div class="receipt">
+                <div><span>Choice provided</span><b>visually</b></div>
+                <div><span>Choice accepted</span><b>no</b></div>
+                <div><span>Recommended action</span><b>comply</b></div>
+              </div>
+            </div>
+            <div class="side-stats">
+              <div class="stat"><b>4.1M</b><span>Nodded</span></div>
+              <div class="stat"><b>701K</b><span>Confused</span></div>
+              <div class="stat"><b>1</b><span>Approved browser</span></div>
+              <div class="stat"><b>Stop</b><span>Media</span></div>
+            </div>
+          </article>
+
+          <article class="feed-card" data-status="normal">
+            <div class="ticket-edge">
+              <div class="ticket-id">Creator Note C-404</div>
+              <div class="thumbnail">REAL<br>CLIP</div>
+              <div class="tiny-label">Sound: User Actually Trying</div>
+            </div>
+            <div class="card-body">
+              <div class="card-label">Accidentally good content</div>
+              <h2 class="card-title">A normal video appears for five seconds before the interface remembers its job.</h2>
+              <div class="card-copy"><span class="creator">@small.creator.with.ideas</span> uploaded something with effort. The platform congratulates the creator by covering it with three helpful notices and one exclusive offer.</div>
+              <div class="receipt">
+                <div><span>Originality</span><b>detected</b></div>
+                <div><span>Visibility</span><b>under review</b></div>
+                <div><span>Notice density</span><b>unsafe</b></div>
+              </div>
+            </div>
+            <div class="side-stats">
+              <div class="stat"><b>128K</b><span>Liked</span></div>
+              <div class="stat"><b>3</b><span>Ads above it</span></div>
+              <div class="stat"><b>47</b><span>Menus deep</span></div>
+              <div class="stat"><b>???</b><span>Reach</span></div>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <aside class="panel right-panel" aria-label="advertising ledger">
+        <div class="panel-title">Engagement Ledger</div>
+        <div class="ledger">
+          <div class="ledger-item"><b>Policy Mood</b><span>Friendly, but in the way a locked door says welcome.</span></div>
+          <div class="ledger-item"><b>Desktop Status</b><span id="desktopStatus">Allowed as a museum exhibit.</span></div>
+          <div class="ledger-item"><b>Browser Status</b><span id="browserStatus">Being stared at by compliance.</span></div>
+          <div class="ledger-item"><b>Ad Status</b><span id="adStatus">Visible enough to satisfy the rectangle council.</span></div>
+        </div>
+        <div class="audit-log" id="auditLog">
+          <div class="audit-line">[08:00] Kiosk booted.</div>
+          <div class="audit-line">[08:01] User attention placed into temporary custody.</div>
+          <div class="audit-line">[08:02] Entertainment classified as measurable paperwork.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <nav class="bottom-tray" aria-label="quick actions">
+    <button class="tray-btn active" data-toast="Home Queue remains aggressively available.">Home</button>
+    <button class="tray-btn" data-toast="Discover is discovering why it needs more sponsored material.">Discover</button>
+    <button class="tray-btn" data-toast="Upload requires a creator permit, three signatures, and a ring light confession.">Upload</button>
+    <button class="tray-btn" data-toast="Messages have been flattened into monetization suggestions.">Messages</button>
+    <button class="tray-btn" data-toast="Profile is currently dressed as a settings page.">Profile</button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="loading-screen show" id="loader" aria-modal="true" role="dialog">
+    <div class="loader-card">
+      <div class="brand-kicker">Premium Preparation Process</div>
+      <div class="loader-title">Preparing your personalized ad relevance paperwork.</div>
+      <div class="fake-progress"><div id="fakeBar"></div></div>
+      <div class="muted">Please remain still while the entertainment desk pretends this is optimization.</div>
+    </div>
+  </div>
+
+  <div class="modal" id="policyModal" aria-modal="true" role="dialog">
+    <div class="modal-card">
+      <div class="modal-head">
+        <small id="modalEyebrow">Compliance Message</small>
+        <h2 id="modalTitle">Media service has been placed in review.</h2>
+      </div>
+      <div class="modal-body" id="modalBody">
+        TokTik has noticed a situation. The situation is currently being converted into a strongly worded user journey.
+      </div>
+      <div class="modal-actions">
+        <button class="kiosk-btn" id="modalPrimary">Respectfully Comply</button>
+        <button class="kiosk-btn" id="modalSecondary">File Emotional Appeal</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const toast = document.getElementById('toast');
+  const auditLog = document.getElementById('auditLog');
+  const page = document.getElementById('page');
+  const loader = document.getElementById('loader');
+  const fakeBar = document.getElementById('fakeBar');
+  const policyModal = document.getElementById('policyModal');
+  const modalEyebrow = document.getElementById('modalEyebrow');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const attentionFill = document.getElementById('attentionFill');
+  const attentionValue = document.getElementById('attentionValue');
+  const patienceFill = document.getElementById('patienceFill');
+  const patienceValue = document.getElementById('patienceValue');
+  const desktopStatus = document.getElementById('desktopStatus');
+  const browserStatus = document.getElementById('browserStatus');
+  const adStatus = document.getElementById('adStatus');
+
+  let toastTimer;
+  let attention = 71;
+  let patience = 18;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3400);
+  }
+
+  function logAudit(message) {
+    const now = new Date();
+    const stamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const line = document.createElement('div');
+    line.className = 'audit-line';
+    line.textContent = `[${stamp}] ${message}`;
+    auditLog.prepend(line);
+  }
+
+  function updateMeters(attentionDelta, patienceDelta) {
+    attention = Math.max(0, Math.min(100, attention + attentionDelta));
+    patience = Math.max(0, Math.min(100, patience + patienceDelta));
+    attentionFill.style.width = attention + '%';
+    patienceFill.style.width = patience + '%';
+    attentionValue.textContent = attention + '%';
+    patienceValue.textContent = patience + '%';
+  }
+
+  function showModal(type) {
+    const copy = {
+      desktop: {
+        eyebrow: 'Device Category Review',
+        title: 'Desktop viewing has been approved as a punishment exhibit.',
+        body: 'TokTik prefers phone-shaped obedience, but this redesign lets desktop users witness the full paperwork machine instead of being blocked instantly. This is progress, technically.'
+      },
+      browser: {
+        eyebrow: 'Browser Mood Check',
+        title: 'Your browser identity has been inspected with theatrical concern.',
+        body: 'The platform found a browser. This is suspicious because browsers are how websites are usually viewed. Please enjoy this non-problem being escalated into a board meeting.'
+      },
+      adblock: {
+        eyebrow: 'Advertisement Visibility Hearing',
+        title: 'A sponsored rectangle may be feeling unseen.',
+        body: 'TokTik respects your choices, except the choice where a commerce rectangle is not allowed to stare directly at you. Media remains playable, but the ledger is writing things down.'
+      }
+    }[type];
+
+    modalEyebrow.textContent = copy.eyebrow;
+    modalTitle.textContent = copy.title;
+    modalBody.textContent = copy.body;
+    policyModal.classList.add('show');
+    document.body.classList.add('locked');
+    page.classList.add('shake');
+    setTimeout(() => page.classList.remove('shake'), 420);
+  }
+
+  document.getElementById('modalPrimary').addEventListener('click', () => {
+    policyModal.classList.remove('show');
+    document.body.classList.remove('locked');
+    showToast('Compliance accepted. Nothing improved, but the button feels confident.');
+    logAudit('User clicked compliance button. System applauded quietly.');
+    updateMeters(2, -4);
+  });
+
+  document.getElementById('modalSecondary').addEventListener('click', () => {
+    showToast('Appeal submitted into a decorative inbox.');
+    logAudit('Emotional appeal filed under Decorative / Not Actioned.');
+    updateMeters(-3, 2);
+  });
+
+  document.getElementById('simulateDesktop').addEventListener('click', () => {
+    desktopStatus.textContent = 'Audited. Still allowed, but with judgement.';
+    showModal('desktop');
+    logAudit('Desktop audit completed. Device was emotionally desktop.');
+  });
+
+  document.getElementById('simulateBrowser').addEventListener('click', () => {
+    browserStatus.textContent = 'Inspected. Concern generated successfully.';
+    showModal('browser');
+    logAudit('Browser check produced one reusable complaint.');
+  });
+
+  document.getElementById('simulateAdblock').addEventListener('click', () => {
+    adStatus.textContent = 'A rectangle requested emotional support.';
+    showModal('adblock');
+    logAudit('Ad visibility hearing opened. Rectangle morale unstable.');
+  });
+
+  document.querySelectorAll('[data-toast]').forEach(button => {
+    button.addEventListener('click', event => {
+      const message = event.currentTarget.getAttribute('data-toast');
+      showToast(message);
+      logAudit(message);
+      updateMeters(1, -1);
+    });
+  });
+
+  document.querySelectorAll('.feed-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const title = card.querySelector('.card-title').textContent;
+      showToast('Viewing receipt created for: ' + title.slice(0, 64) + '...');
+      logAudit('Feed card opened. Entertainment converted into receipt.');
+      updateMeters(3, -2);
+    });
+  });
+
+  let progress = 8;
+  const loadTimer = setInterval(() => {
+    progress += Math.floor(Math.random() * 13) + 5;
+    if (progress > 96) progress = 96;
+    fakeBar.style.width = progress + '%';
+  }, 180);
+
+  setTimeout(() => {
+    clearInterval(loadTimer);
+    fakeBar.style.width = '100%';
+    setTimeout(() => {
+      loader.classList.remove('show');
+      showToast('Kiosk loaded. Entertainment has been successfully bureaucratized.');
+      logAudit('Loading finished. User released into controlled amusement.');
+    }, 260);
+  }, 1500);
+
+  let lastScroll = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const diff = Math.abs(window.scrollY - lastScroll);
+    if (diff > 90) {
+      showToast('Scroll velocity recorded. Please keep movement within brand-safe limits.');
+      logAudit('Scroll velocity event triggered a polite accusation.');
+      updateMeters(1, -3);
+      lastScroll = window.scrollY;
+    }
+  }, { passive: true });
+</script>
+</body>
+</html>

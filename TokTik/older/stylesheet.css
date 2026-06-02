@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-RegularItalic.eot');
+    src: local('Telia Sans Regular Italic'), local('TeliaSans-RegularItalic'),
+        url('TeliaSans-RegularItalic.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-RegularItalic.woff2') format('woff2'),
+        url('TeliaSans-RegularItalic.woff') format('woff'),
+        url('TeliaSans-RegularItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-Medium.eot');
+    src: local('Telia Sans Medium'), local('TeliaSans-Medium'),
+        url('TeliaSans-Medium.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-Medium.woff2') format('woff2'),
+        url('TeliaSans-Medium.woff') format('woff'),
+        url('TeliaSans-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-Bold.eot');
+    src: local('Telia Sans Bold'), local('TeliaSans-Bold'),
+        url('TeliaSans-Bold.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-Bold.woff2') format('woff2'),
+        url('TeliaSans-Bold.woff') format('woff'),
+        url('TeliaSans-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-Regular.eot');
+    src: local('Telia Sans Regular'), local('TeliaSans-Regular'),
+        url('TeliaSans-Regular.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-Regular.woff2') format('woff2'),
+        url('TeliaSans-Regular.woff') format('woff'),
+        url('TeliaSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-MediumItalic.eot');
+    src: local('Telia Sans Medium Italic'), local('TeliaSans-MediumItalic'),
+        url('TeliaSans-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-MediumItalic.woff2') format('woff2'),
+        url('TeliaSans-MediumItalic.woff') format('woff'),
+        url('TeliaSans-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Telia Sans';
+    src: url('TeliaSans-BoldItalic.eot');
+    src: local('Telia Sans Bold Italic'), local('TeliaSans-BoldItalic'),
+        url('TeliaSans-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('TeliaSans-BoldItalic.woff2') format('woff2'),
+        url('TeliaSans-BoldItalic.woff') format('woff'),
+        url('TeliaSans-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+

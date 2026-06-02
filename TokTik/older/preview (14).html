@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TokTik - Custom Endless Feed</title>
+<style>
+  :root {
+    --bg: #08090b;
+    --phone: #0d0f14;
+    --surface: #151821;
+    --surface-2: #1d2230;
+    --surface-3: #242b3b;
+    --text: #f7f3e7;
+    --muted: #aaa392;
+    --line: rgba(247, 243, 231, 0.14);
+    --acid: #c8ff4d;
+    --violet: #9d7cff;
+    --amber: #f0b94a;
+    --danger: #ff766b;
+    --shadow: rgba(0,0,0,0.48);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+
+  button, input, textarea { font: inherit; }
+  button { cursor: pointer; }
+  body.locked { overflow: hidden; }
+
+  .stage {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background-color: var(--bg);
+  }
+
+  .phone {
+    width: min(100%, 430px);
+    height: min(920px, calc(100vh - 36px));
+    min-height: 680px;
+    background: var(--phone);
+    border: 1px solid var(--line);
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 28px 80px var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #050608;
+    z-index: 30;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .topbar {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    padding: 42px 16px 10px;
+    background: rgba(8,9,11,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .brand {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: -1.4px;
+  }
+
+  .brand span:first-child { color: var(--text); }
+  .brand span:last-child { color: var(--acid); text-shadow: 2px 1px 0 var(--violet); }
+
+  .pills { display: flex; gap: 6px; }
+
+  .pill {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .pill.accent {
+    color: #11151d;
+    background: var(--acid);
+    border-color: transparent;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding-top: 13px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .tab { position: relative; white-space: nowrap; }
+  .tab.active { color: var(--text); }
+
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 28px;
+    height: 3px;
+    transform: translateX(-50%);
+    border-radius: 99px;
+    background: var(--acid);
+  }
+
+  .feed {
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    background: #050608;
+  }
+
+  .feed::-webkit-scrollbar { display: none; }
+
+  .clip {
+    height: 100%;
+    min-height: 680px;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+    background: #07080b;
+    isolation: isolate;
+  }
+
+  .clip::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.18);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .video, .fallback-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .video {
+    cursor: pointer;
+  }
+
+
+  .sound-btn {
+    position: absolute;
+    right: 78px;
+    top: 208px;
+    z-index: 8;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(0,0,0,0.62);
+    color: #fff;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.34);
+  }
+
+  .sound-btn.is-on {
+    background: var(--acid);
+    color: #111;
+    border-color: var(--acid);
+  }
+
+  .sound-btn::before {
+    content: "🔇";
+    margin-right: 6px;
+  }
+
+  .sound-btn.is-on::before {
+    content: "🔊";
+  }
+
+  .clip.is-paused .pause-indicator {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .pause-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.92);
+    z-index: 7;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,0.58);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: white;
+    font-size: 28px;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+    backdrop-filter: blur(8px);
+  }
+
+  .fallback-art {
+    display: grid;
+    place-items: center;
+    padding: 34px;
+    text-align: center;
+  }
+
+  .fallback-card {
+    max-width: 310px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.42);
+    border-radius: 26px;
+    padding: 24px;
+    backdrop-filter: blur(8px);
+  }
+
+  .fallback-card b {
+    display: block;
+    font-size: 30px;
+    line-height: 0.95;
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
+  }
+
+  .fallback-card span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 750;
+  }
+
+  .sponsor-tag {
+    position: absolute;
+    top: 128px;
+    left: 16px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.70);
+    border: 1px solid rgba(255,255,255,0.13);
+    color: var(--acid);
+    font-size: 11px;
+    font-weight: 950;
+    backdrop-filter: blur(10px);
+  }
+
+  .sponsor-tag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--amber);
+    border-radius: 50%;
+  }
+
+  .info-card {
+    position: absolute;
+    left: 16px;
+    right: 76px;
+    top: 174px;
+    z-index: 6;
+    background: rgba(8,9,11,0.72);
+    border: 1px solid rgba(247,243,231,0.16);
+    border-radius: 20px;
+    padding: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.26);
+    display: none;
+  }
+
+  .clip.has-ad .info-card { display: block; }
+
+  .info-card .label {
+    color: var(--amber);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .info-card .title {
+    font-size: 17px;
+    font-weight: 950;
+    line-height: 1.05;
+    margin-bottom: 5px;
+  }
+
+  .info-card .copy {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .rail {
+    position: absolute;
+    right: 10px;
+    bottom: 104px;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    border-radius: 18px;
+    border: 2px solid rgba(247,243,231,0.9);
+    background: var(--surface-3);
+    box-shadow: inset 10px 0 0 rgba(157,124,255,0.9), inset -10px 0 0 rgba(200,255,77,0.9), 0 10px 30px rgba(0,0,0,0.34);
+  }
+
+  .avatar::after {
+    content: "+";
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--danger);
+    color: white;
+    border: 2px solid var(--phone);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .rail-btn {
+    width: 54px;
+    border: 0;
+    color: var(--text);
+    background: transparent;
+    text-align: center;
+    padding: 0;
+  }
+
+  .rail-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 4px;
+    border-radius: 18px;
+    background: rgba(5,6,8,0.58);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    font-size: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.26);
+  }
+
+  .rail-btn small {
+    display: block;
+    font-size: 10px;
+    line-height: 1.05;
+    font-weight: 950;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+
+  .meta {
+    position: absolute;
+    left: 16px;
+    right: 78px;
+    bottom: 88px;
+    z-index: 7;
+  }
+
+  .handle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 950;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    padding: 4px 7px;
+    border-radius: 999px;
+    color: #101116;
+    background: var(--acid);
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .caption {
+    font-size: 14px;
+    line-height: 1.34;
+    color: rgba(247,243,231,0.94);
+    margin-bottom: 10px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  }
+
+  .audio {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.60);
+    border: 1px solid rgba(255,255,255,0.11);
+    color: rgba(247,243,231,0.9);
+    font-size: 12px;
+    font-weight: 750;
+    backdrop-filter: blur(10px);
+  }
+
+  .bottom-nav {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 22;
+    padding: 9px 12px 16px;
+    background: rgba(8,9,11,0.91);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    gap: 4px;
+  }
+
+  .nav-item {
+    color: rgba(247,243,231,0.75);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 850;
+  }
+
+  .nav-item.active { color: var(--text); }
+  .nav-item b { display: grid; place-items: center; height: 25px; font-size: 19px; margin-bottom: 3px; }
+
+  .create-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 34px;
+    border-radius: 13px;
+    background: var(--text);
+    color: #050608;
+    font-size: 26px;
+    font-weight: 950;
+    box-shadow: -4px 0 0 var(--violet), 4px 0 0 var(--acid);
+  }
+
+  .toast {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 80px;
+    z-index: 60;
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 240ms ease, opacity 240ms ease;
+    border-radius: 18px;
+    background: rgba(16,17,22,0.94);
+    border: 1px solid rgba(247,243,231,0.15);
+    backdrop-filter: blur(12px);
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 850;
+    color: var(--text);
+    box-shadow: 0 14px 42px rgba(0,0,0,0.42);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .modal, .drawer {
+    position: absolute;
+    inset: 0;
+    z-index: 80;
+    display: none;
+  }
+
+  .modal.show, .drawer.show { display: block; }
+
+  .dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.74);
+    backdrop-filter: blur(12px);
+  }
+
+  .modal-wrap, .drawer-wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+  }
+
+  .drawer-wrap { align-items: end; padding: 0; }
+
+  .modal-card {
+    width: 100%;
+    max-width: 372px;
+    border-radius: 26px;
+    background: #151720;
+    border: 1px solid rgba(247,243,231,0.16);
+    box-shadow: 0 28px 90px rgba(0,0,0,0.62);
+    overflow: hidden;
+  }
+
+  .drawer-card {
+    width: 100%;
+    max-height: 82%;
+    overflow: auto;
+    border-radius: 28px 28px 0 0;
+    background: #151720;
+    border: 1px solid rgba(247,243,231,0.16);
+    border-bottom: 0;
+    box-shadow: 0 -20px 70px rgba(0,0,0,0.55);
+  }
+
+  .modal-top, .drawer-top {
+    padding: 18px 18px 13px;
+    border-bottom: 1px solid rgba(247,243,231,0.09);
+  }
+
+  .eyebrow {
+    color: var(--amber);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  .modal-title {
+    font-size: 22px;
+    line-height: 1.05;
+    letter-spacing: -0.7px;
+    font-weight: 950;
+  }
+
+  .modal-body, .drawer-body {
+    padding: 15px 18px 18px;
+    color: rgba(247,243,231,0.86);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .modal-actions, .row-actions {
+    display: grid;
+    gap: 9px;
+    padding: 0 18px 18px;
+  }
+
+  .modal-actions button, .row-actions button, .field-file, .small-btn {
+    border: 0;
+    border-radius: 15px;
+    padding: 13px 14px;
+    font-weight: 950;
+  }
+
+  .primary { background: var(--acid); color: #101116; }
+  .secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(255,255,255,0.1); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .field-file {
+    display: block;
+    text-align: center;
+    background: var(--surface-2);
+    border: 1px dashed rgba(247,243,231,0.24);
+    color: var(--text);
+  }
+
+  input[type="file"] { display: none; }
+
+  .hint {
+    margin: 12px 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .sample {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 12px;
+    color: rgba(247,243,231,0.82);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    overflow: auto;
+  }
+
+  .fields {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .field label {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 850;
+    margin-bottom: 5px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 11px 12px;
+    outline: none;
+  }
+
+  .field textarea { min-height: 76px; resize: vertical; }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+
+
+  .entry-manager {
+    margin-top: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.035);
+    overflow: hidden;
+  }
+
+  .entry-manager-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .entry-title {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .entry-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    padding: 10px 12px 0;
+  }
+
+  .entry-list {
+    display: grid;
+    gap: 8px;
+    max-height: 210px;
+    overflow: auto;
+    padding: 12px;
+  }
+
+  .entry-row {
+    width: 100%;
+    text-align: left;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.045);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 10px 11px;
+  }
+
+  .entry-row.active {
+    border-color: var(--acid);
+    box-shadow: inset 0 0 0 1px var(--acid);
+  }
+
+  .entry-row b {
+    display: block;
+    font-size: 13px;
+    line-height: 1.15;
+    margin-bottom: 3px;
+  }
+
+  .entry-row span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .editor-entry-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stopped video, .stopped .fallback-art, .stopped .info-card { filter: grayscale(0.6) blur(2px) brightness(0.68); }
+
+  .stamp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 12;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    display: none;
+    padding: 10px 14px;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    background: rgba(8,9,11,0.78);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .stopped .stamp { display: block; }
+
+  @media (max-width: 500px) {
+    .stage { padding: 0; background-image: none; }
+    .phone { width: 100%; height: 100vh; min-height: 100vh; border: 0; border-radius: 0; }
+    .phone::before { display: none; }
+    .topbar { padding-top: 16px; }
+    .sponsor-tag { top: 102px; }
+    .info-card { top: 146px; }
+  }
+</style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" id="phone">
+      <header class="topbar">
+        <div class="top-row">
+          <div class="brand"><span>Tok</span><span>Tik</span></div>
+          <div class="pills">
+            <button class="pill accent" data-open="feedStudio">Feed Studio</button>
+            <button class="pill" data-action="live">LIVE</button>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Feed tabs">
+          <div class="tab">Following</div>
+          <div class="tab active">For You</div>
+          <div class="tab">Marketplace</div>
+        </nav>
+      </header>
+
+      <div class="feed" id="feed" aria-live="polite"></div>
+
+      <nav class="bottom-nav" aria-label="App navigation">
+        <div class="nav-grid">
+          <div class="nav-item active" data-action="nav"><b>⌂</b>Home</div>
+          <div class="nav-item" data-action="nav"><b>⌕</b>Discover</div>
+          <div class="nav-item" data-open="feedStudio"><span class="create-btn">+</span></div>
+          <div class="nav-item" data-action="nav"><b>▣</b>Inbox</div>
+          <div class="nav-item" data-open="editorDrawer"><b>☻</b>Edit</div>
+        </div>
+      </nav>
+
+      <div class="toast" id="toast">Action has entered corporate processing.</div>
+
+      <section class="modal show" id="feedStudio">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow">Custom Endless Feed</div>
+              <div class="modal-title">Load videos, then load matching info files.</div>
+            </div>
+            <div class="modal-body">
+              <div class="grid-2">
+                <label class="field-file">Choose Videos<input id="videoPicker" type="file" accept="video/*" multiple></label>
+                <label class="field-file">Choose Info Files<input id="infoPicker" type="file" accept=".json,.txt,.md" multiple></label>
+              </div>
+              <p class="hint">
+                Info files match videos by filename. Example: <b>clip01.mp4</b> can use <b>clip01.json</b> or <b>clip01.txt</b>. JSON is best. TXT also works with key=value lines.
+              </p>
+              <div class="sample">{
+  "handle": "@your.account",
+  "caption": "caption goes here",
+  "audio": "original sound - basement edit",
+  "likes": "91K",
+  "comments": "4,020",
+  "shares": "Send",
+  "badge": "Verified-ish",
+  "sponsored": true,
+  "adTitle": "optional ad card title",
+  "adCopy": "optional ad card copy"
+}</div>
+              <div class="status-line"><span id="loadStatus">Demo feed is active.</span><button class="small-btn secondary" id="loadDemo">Reload Demo</button></div>
+              <div class="entry-manager">
+                <div class="entry-manager-top">
+                  <div class="entry-title">Feed Entries</div>
+                  <button class="small-btn secondary" id="refreshEntries">Refresh</button>
+                </div>
+                <div class="entry-actions">
+                  <button class="small-btn secondary" id="addEntry">Add Entry</button>
+                  <button class="small-btn secondary" id="duplicateEntry">Duplicate</button>
+                  <button class="small-btn secondary" id="deleteEntry">Delete</button>
+                </div>
+                <div class="entry-actions">
+                  <button class="small-btn secondary" id="moveEntryUp">Move Up</button>
+                  <button class="small-btn secondary" id="moveEntryDown">Move Down</button>
+                  <button class="small-btn secondary" data-open="editorDrawer">Edit Entry</button>
+                </div>
+                <div class="entry-list" id="entryList"></div>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="primary" data-close="feedStudio">Start Scrolling</button>
+              <button class="secondary" id="clearFeed">Clear Custom Feed</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="drawer" id="editorDrawer">
+        <div class="dim"></div>
+        <div class="drawer-wrap">
+          <div class="drawer-card">
+            <div class="drawer-top">
+              <div class="eyebrow">Current Clip Editor</div>
+              <div class="modal-title">Adjust the visible clip info.</div>
+            </div>
+            <div class="drawer-body">
+              <div class="editor-entry-actions">
+                <button class="secondary" id="editorAddEntry">Add New Entry</button>
+                <button class="secondary" id="editorDuplicateEntry">Duplicate Current</button>
+              </div>
+              <div class="fields">
+                <div class="field video-edit-field">
+                  <label>Video File</label>
+                  <div class="inline-file-row">
+                    <label class="field-file compact">Replace Video<input id="editVideoPicker" type="file" accept="video/*"></label>
+                    <div class="file-chip" id="editVideoName">No video selected</div>
+                  </div>
+                </div>
+                <div class="field"><label>Handle</label><input id="editHandle" placeholder="@creator"></div>
+                <div class="field"><label>Caption</label><textarea id="editCaption" placeholder="Caption"></textarea></div>
+                <div class="field"><label>Audio</label><input id="editAudio" placeholder="original sound"></div>
+                <div class="grid-2">
+                  <div class="field"><label>Likes</label><input id="editLikes"></div>
+                  <div class="field"><label>Comments</label><input id="editComments"></div>
+                </div>
+                <div class="field"><label>Shares Button Text</label><input id="editShares" placeholder="Send"></div>
+                <div class="grid-2">
+                  <div class="field"><label>Badge</label><input id="editBadge"></div>
+                  <div class="field"><label>Ad Title</label><input id="editAdTitle"></div>
+                </div>
+                <div class="field"><label>Ad Copy</label><textarea id="editAdCopy"></textarea></div>
+              </div>
+              <p class="hint">Changes update the clip in memory. Use “Export Info” to save a matching JSON file for that video.</p>
+            </div>
+            <div class="row-actions">
+              <button class="primary" id="saveEdit">Save Current Clip</button>
+              <button class="secondary" id="exportInfo">Export Info JSON</button>
+              <button class="secondary" data-close="editorDrawer">Close Editor</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="modal" id="policyModal">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow" id="policyEyebrow">Attention Integrity Warning</div>
+              <div class="modal-title" id="policyTitle">Your interaction was too normal.</div>
+            </div>
+            <div class="modal-body" id="policyBody">The system expected a more profitable reaction.</div>
+            <div class="modal-actions">
+              <button class="primary" data-close="policyModal">Restore The Feed</button>
+              <button class="secondary" data-action="read-again">Read Corporate Message Again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+<script>
+  const phone = document.getElementById('phone');
+  const feed = document.getElementById('feed');
+  const toast = document.getElementById('toast');
+  const videoPicker = document.getElementById('videoPicker');
+  const infoPicker = document.getElementById('infoPicker');
+  const loadStatus = document.getElementById('loadStatus');
+  const entryList = document.getElementById('entryList');
+  const policyModal = document.getElementById('policyModal');
+  const policyTitle = document.getElementById('policyTitle');
+  const policyBody = document.getElementById('policyBody');
+
+  const editFields = {
+    handle: document.getElementById('editHandle'),
+    caption: document.getElementById('editCaption'),
+    audio: document.getElementById('editAudio'),
+    likes: document.getElementById('editLikes'),
+    comments: document.getElementById('editComments'),
+    shares: document.getElementById('editShares'),
+    badge: document.getElementById('editBadge'),
+    adTitle: document.getElementById('editAdTitle'),
+    adCopy: document.getElementById('editAdCopy'),
+    videoPicker: document.getElementById('editVideoPicker'),
+    videoName: document.getElementById('editVideoName')
+  };
+
+  let toastTimer;
+  let feedData = [];
+  let renderedCount = 0;
+  let currentIndex = 0;
+  let observer;
+  let objectUrls = [];
+  let soundEnabled = false;
+  let activeObservedClip = null;
+
+  const demoData = [
+    {
+      id: 'demo-1', fileName: 'demo_attention_protocol.mp4', videoUrl: '', handle: '@official.attention.engine', badge: 'Verified-ish',
+      caption: 'POV: the app noticed you looked away for 0.8 seconds and opened a case file.', audio: 'original sound - committee approved bass loop',
+      likes: '8.4M', comments: '942K', shares: 'Send', sponsored: true, adTitle: 'Buy a microphone that hears your ambition.',
+      adCopy: 'Premium sound cylinder for users who want room echo to become a career path.'
+    },
+    {
+      id: 'demo-2', fileName: 'demo_scroll_department.mp4', videoUrl: '', handle: '@synergy.speaker.9000', badge: 'Partner',
+      caption: 'Your scroll has been forwarded to the monetization department for thoughtful processing.', audio: 'sponsored audio - tiny applause in boardroom',
+      likes: '4.7M', comments: '512K', shares: 'Share', sponsored: true, adTitle: 'A bottle that hydrates your personal brand.',
+      adCopy: 'Now with 14 planned lifestyle outcomes and one suspicious checkout button.'
+    },
+    {
+      id: 'demo-3', fileName: 'demo_adblock_feelings.mp4', videoUrl: '', handle: '@compliance.gremlin', badge: 'Official',
+      caption: 'Breaking: adblock has hurt the platform feelings. The revenue rectangle is staring at the wall.', audio: 'original sound - legal team humming near printer',
+      likes: '12M', comments: '1.2M', shares: 'Export', sponsored: false, adTitle: '', adCopy: ''
+    }
+  ];
+
+  function baseName(name) {
+    return name.replace(/\\.[^/.]+$/, '').toLowerCase().trim();
+  }
+
+  function prettyDefault(file, index) {
+    const clean = file ? baseName(file.name).replace(/[_-]+/g, ' ') : `clip ${index + 1}`;
+    return clean.replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  function normalizeInfo(info = {}) {
+    return {
+      handle: info.handle || info.creator || '@local.creator',
+      caption: info.caption || info.description || 'Local clip imported into the endless TokTik machine.',
+      audio: info.audio || info.sound || 'original sound - local file',
+      likes: info.likes || '0',
+      comments: info.comments || '0',
+      shares: info.shares || info.share || 'Send',
+      badge: info.badge || '',
+      sponsored: Boolean(info.sponsored || info.adTitle || info.adCopy),
+      adTitle: info.adTitle || info.ad_title || '',
+      adCopy: info.adCopy || info.ad_copy || ''
+    };
+  }
+
+
+  function makeBlankEntry(index = feedData.length) {
+    const number = index + 1;
+    return {
+      id: `manual-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      fileName: `manual_entry_${number}.mp4`,
+      videoUrl: '',
+      handle: `@manual.entry.${number}`,
+      caption: `Manual feed entry ${number}. Replace the video or edit the caption from the editor.`,
+      audio: 'original sound - manual feed entry',
+      likes: '0',
+      comments: '0',
+      shares: 'Send',
+      badge: '',
+      sponsored: false,
+      adTitle: '',
+      adCopy: ''
+    };
+  }
+
+  function clipLabel(item, index) {
+    const handle = item?.handle || '@unknown.creator';
+    const caption = item?.caption || item?.fileName || 'Untitled feed entry';
+    return { title: `${index + 1}. ${handle}`, detail: caption };
+  }
+
+  function refreshEntryList() {
+    if (!entryList) return;
+    if (!feedData.length) {
+      entryList.innerHTML = '<div class="hint">No entries yet. Add one and the feed stops being empty paperwork.</div>';
+      return;
+    }
+    entryList.innerHTML = feedData.map((item, index) => {
+      const label = clipLabel(item, index);
+      return `<button class="entry-row ${index === currentIndex ? 'active' : ''}" type="button" data-select-entry="${index}"><b>${formatSafe(label.title)}</b><span>${formatSafe(label.detail)}</span></button>`;
+    }).join('');
+  }
+
+  function selectEntry(index, scrollToClip = true) {
+    if (!feedData.length) return;
+    currentIndex = Math.max(0, Math.min(index, feedData.length - 1));
+    fillEditorFromCurrent();
+    refreshEntryList();
+    if (!scrollToClip) return;
+    const target = feed.querySelector(`.clip[data-clip-index="${currentIndex}"]`);
+    if (target) target.scrollIntoView({ block: 'start' });
+  }
+
+  function addFeedEntry(openEditor = false) {
+    feedData.push(makeBlankEntry(feedData.length));
+    currentIndex = feedData.length - 1;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('New feed entry added. It is ready for a video file and metadata.');
+    if (openEditor) openPanel('editorDrawer');
+  }
+
+  function duplicateCurrentEntry(openEditor = false) {
+    const item = currentItem();
+    if (!item) return addFeedEntry(openEditor);
+    const copy = {
+      ...item,
+      id: `copy-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      fileName: item.fileName ? `copy_of_${item.fileName}` : `copy_manual_entry_${feedData.length + 1}.mp4`,
+      caption: item.caption ? `${item.caption} (copy)` : 'Duplicated feed entry.'
+    };
+    feedData.splice(currentIndex + 1, 0, copy);
+    currentIndex += 1;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('Feed entry duplicated. The algorithm now has a twin.');
+    if (openEditor) openPanel('editorDrawer');
+  }
+
+  function deleteCurrentEntry() {
+    if (!feedData.length) return;
+    const item = currentItem();
+    if (item?.videoUrl && objectUrls.includes(item.videoUrl)) {
+      URL.revokeObjectURL(item.videoUrl);
+      objectUrls = objectUrls.filter(url => url !== item.videoUrl);
+    }
+    feedData.splice(currentIndex, 1);
+    if (!feedData.length) feedData.push(makeBlankEntry(0));
+    currentIndex = Math.min(currentIndex, feedData.length - 1);
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('Feed entry deleted. The scroll pit has been re-indexed.');
+  }
+
+  function moveCurrentEntry(direction) {
+    const nextIndex = currentIndex + direction;
+    if (nextIndex < 0 || nextIndex >= feedData.length) {
+      showToast('Entry cannot move further. The feed wall has spoken.');
+      return;
+    }
+    [feedData[currentIndex], feedData[nextIndex]] = [feedData[nextIndex], feedData[currentIndex]];
+    currentIndex = nextIndex;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast(direction < 0 ? 'Entry moved up.' : 'Entry moved down.');
+  }
+
+  function parseTxtInfo(text) {
+    const info = {};
+    text.split(/\r?\n/).forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const splitAt = trimmed.includes('=') ? trimmed.indexOf('=') : trimmed.indexOf(':');
+      if (splitAt === -1) return;
+      const key = trimmed.slice(0, splitAt).trim();
+      const value = trimmed.slice(splitAt + 1).trim();
+      info[key] = value;
+    });
+    return info;
+  }
+
+  async function readInfoFiles(files) {
+    const result = new Map();
+    for (const file of files) {
+      const text = await file.text();
+      let info;
+      try {
+        info = JSON.parse(text);
+      } catch {
+        info = parseTxtInfo(text);
+      }
+      result.set(baseName(file.name), normalizeInfo(info));
+    }
+    return result;
+  }
+
+  function revokeObjectUrls() {
+    objectUrls.forEach(url => URL.revokeObjectURL(url));
+    objectUrls = [];
+  }
+
+  async function buildCustomFeed() {
+    const videos = [...videoPicker.files];
+    const infoMap = await readInfoFiles([...infoPicker.files]);
+
+    if (!videos.length) {
+      showToast('No videos selected. Demo feed remains in control.');
+      return;
+    }
+
+    revokeObjectUrls();
+    feedData = videos.map((file, index) => {
+      const url = URL.createObjectURL(file);
+      objectUrls.push(url);
+      const info = normalizeInfo(infoMap.get(baseName(file.name)) || {});
+      return {
+        id: `${file.name}-${file.size}-${index}`,
+        fileName: file.name,
+        videoUrl: url,
+        handle: info.handle === '@local.creator' ? `@${baseName(file.name).replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'local.creator'}` : info.handle,
+        caption: info.caption === 'Local clip imported into the endless TokTik machine.' ? prettyDefault(file, index) : info.caption,
+        audio: info.audio,
+        likes: info.likes,
+        comments: info.comments,
+        shares: info.shares,
+        badge: info.badge,
+        sponsored: info.sponsored,
+        adTitle: info.adTitle,
+        adCopy: info.adCopy
+      };
+    });
+
+    resetFeed();
+    loadStatus.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'} loaded. ${infoMap.size} info file${infoMap.size === 1 ? '' : 's'} matched by name.`;
+    showToast('Custom endless feed loaded. The scroll pit is operational.');
+  }
+
+  function setDemoFeed() {
+    revokeObjectUrls();
+    feedData = demoData.map(item => ({ ...item }));
+    resetFeed();
+    loadStatus.textContent = 'Demo feed is active.';
+  }
+
+  function formatSafe(value, fallback = '') {
+    const span = document.createElement('span');
+    span.textContent = value || fallback;
+    return span.innerHTML;
+  }
+
+  function createClip(data, index) {
+    const clip = document.createElement('article');
+    clip.className = `clip ${data.sponsored || data.adTitle || data.adCopy ? 'has-ad' : ''}`;
+    clip.dataset.clipIndex = String(index % feedData.length);
+
+    const media = data.videoUrl
+      ? `<video class="video" src="${formatSafe(data.videoUrl)}" playsinline loop preload="metadata" muted data-restart-on-view="true"></video>`
+      : `<div class="fallback-art"><div class="fallback-card"><b>${formatSafe(data.caption)}</b><span>Add real video files in Feed Studio to replace this demo plate.</span></div></div>`;
+
+    clip.innerHTML = `
+      ${media}
+      <button class="sound-btn" type="button" data-sound-toggle>Muted</button>
+      <div class="pause-indicator">Ⅱ</div>
+      <div class="sponsor-tag">${data.sponsored ? 'Sponsored Recommendation' : 'For You Clip'}</div>
+      <div class="info-card">
+        <div class="label">Optional Info File Card</div>
+        <div class="title">${formatSafe(data.adTitle, 'Imported Feed Item')}</div>
+        <div class="copy">${formatSafe(data.adCopy, 'This card appears when sponsored, adTitle, or adCopy exists in the info file.')}</div>
+      </div>
+      <div class="rail">
+        <div class="avatar"></div>
+        <button class="rail-btn" data-action="like"><span class="rail-icon">♥</span><small>${formatSafe(data.likes, '0')}</small></button>
+        <button class="rail-btn" data-action="comment"><span class="rail-icon">☰</span><small>${formatSafe(data.comments, '0')}</small></button>
+        <button class="rail-btn" data-action="share"><span class="rail-icon">↗</span><small>${formatSafe(data.shares, 'Send')}</small></button>
+        <button class="rail-btn" data-action="save"><span class="rail-icon">★</span><small>Save</small></button>
+      </div>
+      <section class="meta">
+        <div class="handle">${formatSafe(data.handle)} ${data.badge ? `<span class="badge">${formatSafe(data.badge)}</span>` : ''}</div>
+        <div class="caption">${formatSafe(data.caption)}</div>
+        <div class="audio">♫ ${formatSafe(data.audio)}</div>
+      </section>
+      <div class="stamp">MEDIA STOPPED BY PLATFORM POLICY</div>
+    `;
+    return clip;
+  }
+
+  function renderBatch(amount = 8) {
+    if (!feedData.length) return;
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < amount; i++) {
+      const data = feedData[renderedCount % feedData.length];
+      fragment.appendChild(createClip(data, renderedCount));
+      renderedCount++;
+    }
+    feed.appendChild(fragment);
+    observeClips();
+  }
+
+  function resetFeed() {
+    feed.innerHTML = '';
+    renderedCount = 0;
+    currentIndex = 0;
+    activeObservedClip = null;
+    renderBatch(10);
+    feed.scrollTop = 0;
+    fillEditorFromCurrent();
+    refreshEntryList();
+  }
+
+  function prepareVideo(video) {
+    if (!video || video.dataset.prepared === 'true') return;
+    video.dataset.prepared = 'true';
+    video.defaultMuted = !soundEnabled;
+    video.muted = !soundEnabled;
+    video.volume = 1;
+
+    video.addEventListener('click', event => {
+      event.stopPropagation();
+      const clip = video.closest('.clip');
+
+      if (!soundEnabled) {
+        enableSoundForClip(clip, 'Sound enabled. Browser autoplay jail has been escaped.');
+        return;
+      }
+
+      if (video.paused) {
+        video.play().then(() => clip?.classList.remove('is-paused')).catch(() => {});
+      } else {
+        video.pause();
+        clip?.classList.add('is-paused');
+      }
+    });
+  }
+
+  function applySoundState(video) {
+    if (!video) return;
+    video.defaultMuted = !soundEnabled;
+    video.muted = !soundEnabled;
+    video.volume = soundEnabled ? 1 : 0;
+    if (soundEnabled) video.removeAttribute('muted');
+    else video.setAttribute('muted', '');
+  }
+
+  function restartAndPlay(video, shouldRestart = true) {
+    if (!video) return;
+    prepareVideo(video);
+    applySoundState(video);
+    if (shouldRestart) {
+      try { video.currentTime = 0; } catch (e) {}
+    }
+    video.play()
+      .then(() => video.closest('.clip')?.classList.remove('is-paused'))
+      .catch(() => video.closest('.clip')?.classList.add('is-paused'));
+  }
+
+  function enableSoundForClip(clip, message = 'Sound enabled for feed playback.') {
+    soundEnabled = true;
+    syncSoundButtons();
+    const video = clip?.querySelector('video') || activeObservedClip?.querySelector('video');
+    if (video) {
+      applySoundState(video);
+      video.play()
+        .then(() => video.closest('.clip')?.classList.remove('is-paused'))
+        .catch(() => showToast('The browser still blocked playback. Click the video once more, because browsers enjoy paperwork.'));
+    }
+    showToast(message);
+  }
+
+  function syncSoundButtons() {
+    feed.querySelectorAll('[data-sound-toggle]').forEach(btn => {
+      btn.textContent = soundEnabled ? 'Sound On' : 'Tap For Sound';
+      btn.classList.toggle('is-on', soundEnabled);
+    });
+    feed.querySelectorAll('video').forEach(applySoundState);
+  }
+
+  function observeClips() {
+    if (observer) observer.disconnect();
+
+    feed.querySelectorAll('video').forEach(prepareVideo);
+    syncSoundButtons();
+
+    observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const video = entry.target.querySelector('video');
+        if (entry.isIntersecting && entry.intersectionRatio > 0.72) {
+          const becameActive = activeObservedClip !== entry.target;
+          activeObservedClip = entry.target;
+          currentIndex = Number(entry.target.dataset.clipIndex || 0);
+          restartAndPlay(video, becameActive);
+          fillEditorFromCurrent();
+        } else if (video && activeObservedClip !== entry.target) {
+          video.pause();
+          entry.target.classList.remove('is-paused');
+        }
+      });
+    }, { root: feed, threshold: [0.15, 0.72, 0.95] });
+
+    feed.querySelectorAll('.clip').forEach(clip => observer.observe(clip));
+  }
+
+  function maybeExtendFeed() {
+    const remaining = feed.scrollHeight - feed.scrollTop - feed.clientHeight;
+    if (remaining < feed.clientHeight * 2.2) renderBatch(6);
+    if (feed.children.length > 36) {
+      for (let i = 0; i < 8; i++) feed.firstElementChild?.remove();
+      observeClips();
+    }
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+  }
+
+  function openPanel(id) {
+    document.getElementById(id)?.classList.add('show');
+    document.body.classList.add('locked');
+    if (id === 'editorDrawer') fillEditorFromCurrent();
+  }
+
+  function closePanel(id) {
+    document.getElementById(id)?.classList.remove('show');
+    if (!document.querySelector('.modal.show, .drawer.show')) document.body.classList.remove('locked');
+  }
+
+  function currentItem() {
+    return feedData[currentIndex] || feedData[0];
+  }
+
+  function fillEditorFromCurrent() {
+    const item = currentItem();
+    if (!item) return;
+    editFields.handle.value = item.handle || '';
+    editFields.caption.value = item.caption || '';
+    editFields.audio.value = item.audio || '';
+    editFields.likes.value = item.likes || '';
+    editFields.comments.value = item.comments || '';
+    editFields.shares.value = item.shares || 'Send';
+    editFields.badge.value = item.badge || '';
+    editFields.adTitle.value = item.adTitle || '';
+    editFields.adCopy.value = item.adCopy || '';
+    editFields.videoName.textContent = item.fileName || 'Demo plate, no video file';
+    editFields.videoPicker.value = '';
+  }
+
+  function applyEditorVideoToCurrent() {
+    const item = currentItem();
+    const file = editFields.videoPicker.files?.[0];
+    if (!item || !file) return false;
+
+    if (item.videoUrl && objectUrls.includes(item.videoUrl)) {
+      URL.revokeObjectURL(item.videoUrl);
+      objectUrls = objectUrls.filter(url => url !== item.videoUrl);
+    }
+
+    const url = URL.createObjectURL(file);
+    objectUrls.push(url);
+    item.videoUrl = url;
+    item.fileName = file.name;
+
+    if (!editFields.caption.value.trim() || item.caption === 'Untitled local clip') {
+      editFields.caption.value = prettyDefault(file, currentIndex);
+    }
+    if (!editFields.handle.value.trim() || item.handle === '@local.creator') {
+      editFields.handle.value = `@${baseName(file.name).replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'local.creator'}`;
+    }
+
+    editFields.videoName.textContent = file.name;
+    return true;
+  }
+
+  function saveEditorToCurrent() {
+    const item = currentItem();
+    if (!item) return;
+    const replacedVideo = applyEditorVideoToCurrent();
+    Object.assign(item, {
+      handle: editFields.handle.value.trim() || '@local.creator',
+      caption: editFields.caption.value.trim() || 'Untitled local clip',
+      audio: editFields.audio.value.trim() || 'original sound - local file',
+      likes: editFields.likes.value.trim() || '0',
+      comments: editFields.comments.value.trim() || '0',
+      shares: editFields.shares.value.trim() || 'Send',
+      badge: editFields.badge.value.trim(),
+      adTitle: editFields.adTitle.value.trim(),
+      adCopy: editFields.adCopy.value.trim(),
+      sponsored: Boolean(editFields.adTitle.value.trim() || editFields.adCopy.value.trim())
+    });
+    resetFeed();
+    showToast(replacedVideo ? 'Video replaced and current clip saved into the feed engine.' : 'Current clip info saved into the local feed engine.');
+  }
+
+  function exportCurrentInfo() {
+    const item = currentItem();
+    if (!item) return;
+    const payload = {
+      handle: item.handle,
+      caption: item.caption,
+      audio: item.audio,
+      likes: item.likes,
+      comments: item.comments,
+      shares: item.shares,
+      badge: item.badge,
+      sponsored: item.sponsored,
+      adTitle: item.adTitle,
+      adCopy: item.adCopy
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${baseName(item.fileName || 'toktik-info')}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 800);
+    showToast('Info JSON exported. Matching filename ritual completed.');
+  }
+
+  function stopMedia(message) {
+    feed.querySelectorAll('.clip').forEach(clip => clip.classList.add('stopped'));
+    feed.querySelectorAll('video').forEach(video => video.pause());
+    policyTitle.textContent = message;
+    policyBody.textContent = 'Media playback has been paused for a completely unnecessary platform trust ritual.';
+    openPanel('policyModal');
+  }
+
+  feed.addEventListener('click', event => {
+    const soundButton = event.target.closest('[data-sound-toggle]');
+    if (!soundButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const activeClip = soundButton.closest('.clip');
+
+    if (!soundEnabled) {
+      enableSoundForClip(activeClip);
+      return;
+    }
+
+    soundEnabled = false;
+    syncSoundButtons();
+    showToast('Feed muted. Silent doom restored.');
+  });
+
+  videoPicker.addEventListener('change', buildCustomFeed);
+  infoPicker.addEventListener('change', buildCustomFeed);
+  feed.addEventListener('scroll', maybeExtendFeed, { passive: true });
+
+  document.getElementById('loadDemo').addEventListener('click', () => {
+    setDemoFeed();
+    showToast('Demo feed reloaded. Fake algorithm pretending to work.');
+  });
+
+  document.getElementById('clearFeed').addEventListener('click', () => {
+    videoPicker.value = '';
+    infoPicker.value = '';
+    setDemoFeed();
+    showToast('Custom files cleared. Demo feed took the wheel again.');
+  });
+
+  editFields.videoPicker.addEventListener('change', () => {
+    const file = editFields.videoPicker.files?.[0];
+    editFields.videoName.textContent = file ? file.name : (currentItem()?.fileName || 'No video selected');
+    if (file) showToast('Video staged in editor. Save Current Clip to apply it.');
+  });
+
+  document.getElementById('saveEdit').addEventListener('click', saveEditorToCurrent);
+  document.getElementById('exportInfo').addEventListener('click', exportCurrentInfo);
+
+
+
+  entryList?.addEventListener('click', event => {
+    const row = event.target.closest('[data-select-entry]');
+    if (!row) return;
+    selectEntry(Number(row.dataset.selectEntry || 0));
+  });
+
+  document.getElementById('refreshEntries')?.addEventListener('click', refreshEntryList);
+  document.getElementById('addEntry')?.addEventListener('click', () => addFeedEntry(true));
+  document.getElementById('duplicateEntry')?.addEventListener('click', () => duplicateCurrentEntry(true));
+  document.getElementById('deleteEntry')?.addEventListener('click', deleteCurrentEntry);
+  document.getElementById('moveEntryUp')?.addEventListener('click', () => moveCurrentEntry(-1));
+  document.getElementById('moveEntryDown')?.addEventListener('click', () => moveCurrentEntry(1));
+  document.getElementById('editorAddEntry')?.addEventListener('click', () => addFeedEntry(true));
+  document.getElementById('editorDuplicateEntry')?.addEventListener('click', () => duplicateCurrentEntry(true));
+
+  document.addEventListener('click', event => {
+    const opener = event.target.closest('[data-open]');
+    if (opener) {
+      openPanel(opener.dataset.open);
+      return;
+    }
+
+    const closer = event.target.closest('[data-close]');
+    if (closer) {
+      closePanel(closer.dataset.close);
+      feed.querySelectorAll('.clip').forEach(clip => clip.classList.remove('stopped'));
+      showToast('Feed restored. Corporate punishment cancelled for now.');
+      return;
+    }
+
+    const actionTarget = event.target.closest('[data-action]');
+    if (!actionTarget) return;
+
+    const action = actionTarget.dataset.action;
+    if (action === 'like') showToast('Like recorded. Dopamine paperwork has been filed.');
+    if (action === 'comment') showToast('Comments are loading through 17 moderation tunnels.');
+    if (action === 'share') showToast('Share packet launched into the algorithm fog.');
+    if (action === 'save') showToast('Saved to collection: things you will never reopen.');
+    if (action === 'live') showToast('LIVE is preparing a room full of yelling and ring lights.');
+    if (action === 'nav') showToast('Navigation accepted, but Home remains emotionally dominant.');
+    if (action === 'read-again') showToast('Corporate message has been re-issued with extra seriousness.');
+  });
+
+  function detectAdblockMaybe() {
+    const bait = document.createElement('div');
+    bait.className = 'ads ad adsbox banner-ad sponsored pub_300x250';
+    bait.style.position = 'absolute';
+    bait.style.left = '-9999px';
+    bait.style.width = '1px';
+    bait.style.height = '1px';
+    phone.appendChild(bait);
+
+    setTimeout(() => {
+      const hidden = getComputedStyle(bait).display === 'none' || bait.offsetHeight === 0 || bait.offsetParent === null;
+      bait.remove();
+      if (hidden) stopMedia('Adblock may have hurt the feed economy.');
+    }, 180);
+  }
+
+  setDemoFeed();
+  detectAdblockMaybe();
+</script>
+</body>
+</html>

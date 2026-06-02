@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TokTik - Custom Endless Feed</title>
+<style>
+  :root {
+    --bg: #020304;
+    --phone: #05070a;
+    --surface: #0b0e14;
+    --surface-2: #111520;
+    --surface-3: #181e2b;
+    --text: #f8f3e5;
+    --muted: #9d9688;
+    --line: rgba(248, 243, 229, 0.12);
+    --acid: #c8ff4d;
+    --violet: #9d7cff;
+    --amber: #f0b94a;
+    --danger: #ff766b;
+    --shadow: rgba(0,0,0,0.72);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+
+  button, input, textarea { font: inherit; }
+  button { cursor: pointer; }
+  body.locked { overflow: hidden; }
+
+  .stage {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background-color: var(--bg);
+  }
+
+  .phone {
+    width: min(100%, 430px);
+    height: min(920px, calc(100vh - 36px));
+    min-height: 680px;
+    background: var(--phone);
+    border: 1px solid var(--line);
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 28px 80px var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #020304;
+    z-index: 30;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .topbar {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    padding: 42px 16px 10px;
+    background: rgba(2,3,4,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .brand {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: -1.4px;
+  }
+
+  .brand span:first-child { color: var(--text); }
+  .brand span:last-child { color: var(--acid); text-shadow: 2px 1px 0 var(--violet); }
+
+  .pills { display: flex; gap: 6px; }
+
+  .pill {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .pill.accent {
+    color: #11151d;
+    background: var(--acid);
+    border-color: transparent;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding-top: 13px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .tab { position: relative; white-space: nowrap; }
+  .tab.active { color: var(--text); }
+
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 28px;
+    height: 3px;
+    transform: translateX(-50%);
+    border-radius: 99px;
+    background: var(--acid);
+  }
+
+  .feed {
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    background: #020304;
+  }
+
+  .feed::-webkit-scrollbar { display: none; }
+
+  .clip {
+    height: 100%;
+    min-height: 680px;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+    background: #020304;
+    isolation: isolate;
+  }
+
+  .clip::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.18);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .video, .fallback-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .video {
+    cursor: pointer;
+  }
+
+
+  .global-sound {
+    position: absolute;
+    right: 14px;
+    top: 108px;
+    z-index: 32;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(0,0,0,0.68);
+    color: #fff;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.34);
+  }
+
+  .global-sound.is-on {
+    background: var(--acid);
+    color: #111;
+    border-color: var(--acid);
+  }
+
+  .global-sound::before {
+    content: "🔇";
+    margin-right: 6px;
+  }
+
+  .global-sound.is-on::before {
+    content: "🔊";
+  }
+
+  .sound-btn { display: none; }
+
+  .clip.is-paused .pause-indicator {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .pause-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.92);
+    z-index: 7;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,0.58);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: white;
+    font-size: 28px;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+    backdrop-filter: blur(8px);
+  }
+
+  .fallback-art {
+    display: grid;
+    place-items: center;
+    padding: 34px;
+    text-align: center;
+  }
+
+  .fallback-card {
+    max-width: 310px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.42);
+    border-radius: 26px;
+    padding: 24px;
+    backdrop-filter: blur(8px);
+  }
+
+  .fallback-card b {
+    display: block;
+    font-size: 30px;
+    line-height: 0.95;
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
+  }
+
+  .fallback-card span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 750;
+  }
+
+  .sponsor-tag {
+    position: absolute;
+    top: 128px;
+    left: 16px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.70);
+    border: 1px solid rgba(255,255,255,0.13);
+    color: var(--acid);
+    font-size: 11px;
+    font-weight: 950;
+    backdrop-filter: blur(10px);
+  }
+
+  .sponsor-tag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--amber);
+    border-radius: 50%;
+  }
+
+  .info-card {
+    position: absolute;
+    left: 16px;
+    right: 76px;
+    top: 174px;
+    z-index: 6;
+    background: rgba(8,9,11,0.72);
+    border: 1px solid rgba(247,243,231,0.16);
+    border-radius: 20px;
+    padding: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.26);
+    display: none;
+  }
+
+  .clip.has-ad .info-card { display: block; }
+
+  .info-card .label {
+    color: var(--amber);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .info-card .title {
+    font-size: 17px;
+    font-weight: 950;
+    line-height: 1.05;
+    margin-bottom: 5px;
+  }
+
+  .info-card .copy {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .rail {
+    position: absolute;
+    right: 10px;
+    bottom: 104px;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    border-radius: 18px;
+    border: 2px solid rgba(247,243,231,0.9);
+    background: var(--surface-3);
+    box-shadow: inset 10px 0 0 rgba(157,124,255,0.9), inset -10px 0 0 rgba(200,255,77,0.9), 0 10px 30px rgba(0,0,0,0.34);
+  }
+
+  .avatar::after {
+    content: "+";
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--danger);
+    color: white;
+    border: 2px solid var(--phone);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .rail-btn {
+    width: 54px;
+    border: 0;
+    color: var(--text);
+    background: transparent;
+    text-align: center;
+    padding: 0;
+  }
+
+  .rail-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 4px;
+    border-radius: 18px;
+    background: rgba(5,6,8,0.58);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    font-size: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.26);
+  }
+
+  .rail-btn small {
+    display: block;
+    font-size: 10px;
+    line-height: 1.05;
+    font-weight: 950;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+
+  .meta {
+    position: absolute;
+    left: 16px;
+    right: 78px;
+    bottom: 88px;
+    z-index: 7;
+  }
+
+  .handle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 950;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    padding: 4px 7px;
+    border-radius: 999px;
+    color: #101116;
+    background: var(--acid);
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .caption {
+    font-size: 14px;
+    line-height: 1.34;
+    color: rgba(247,243,231,0.94);
+    margin-bottom: 10px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  }
+
+  .audio {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: rgba(5,6,8,0.60);
+    border: 1px solid rgba(255,255,255,0.11);
+    color: rgba(247,243,231,0.9);
+    font-size: 12px;
+    font-weight: 750;
+    backdrop-filter: blur(10px);
+  }
+
+  .bottom-nav {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 22;
+    padding: 9px 12px 16px;
+    background: rgba(2,3,4,0.94);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    gap: 4px;
+  }
+
+  .nav-item {
+    color: rgba(247,243,231,0.75);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 850;
+  }
+
+  .nav-item.active { color: var(--text); }
+  .nav-item b { display: grid; place-items: center; height: 25px; font-size: 19px; margin-bottom: 3px; }
+
+  .create-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 34px;
+    border-radius: 13px;
+    background: var(--text);
+    color: #020304;
+    font-size: 26px;
+    font-weight: 950;
+    box-shadow: -4px 0 0 var(--violet), 4px 0 0 var(--acid);
+  }
+
+  .toast {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 80px;
+    z-index: 60;
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 240ms ease, opacity 240ms ease;
+    border-radius: 18px;
+    background: rgba(16,17,22,0.94);
+    border: 1px solid rgba(247,243,231,0.15);
+    backdrop-filter: blur(12px);
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 850;
+    color: var(--text);
+    box-shadow: 0 14px 42px rgba(0,0,0,0.42);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .modal, .drawer {
+    position: absolute;
+    inset: 0;
+    z-index: 80;
+    display: none;
+  }
+
+  .modal.show, .drawer.show { display: block; }
+
+  .dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.74);
+    backdrop-filter: blur(12px);
+  }
+
+  .modal-wrap, .drawer-wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+  }
+
+  .drawer-wrap { align-items: end; padding: 0; }
+
+  .modal-card {
+    width: 100%;
+    max-width: 372px;
+    border-radius: 26px;
+    background: #090c12;
+    border: 1px solid rgba(247,243,231,0.16);
+    box-shadow: 0 28px 90px rgba(0,0,0,0.62);
+    overflow: hidden;
+  }
+
+  .drawer-card {
+    width: 100%;
+    max-height: 82%;
+    overflow: auto;
+    border-radius: 28px 28px 0 0;
+    background: #090c12;
+    border: 1px solid rgba(247,243,231,0.16);
+    border-bottom: 0;
+    box-shadow: 0 -20px 70px rgba(0,0,0,0.55);
+  }
+
+  .modal-top, .drawer-top {
+    padding: 18px 18px 13px;
+    border-bottom: 1px solid rgba(247,243,231,0.09);
+  }
+
+  .eyebrow {
+    color: var(--amber);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  .modal-title {
+    font-size: 22px;
+    line-height: 1.05;
+    letter-spacing: -0.7px;
+    font-weight: 950;
+  }
+
+  .modal-body, .drawer-body {
+    padding: 15px 18px 18px;
+    color: rgba(247,243,231,0.86);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .modal-actions, .row-actions {
+    display: grid;
+    gap: 9px;
+    padding: 0 18px 18px;
+  }
+
+  .modal-actions button, .row-actions button, .field-file, .small-btn {
+    border: 0;
+    border-radius: 15px;
+    padding: 13px 14px;
+    font-weight: 950;
+  }
+
+  .primary { background: var(--acid); color: #101116; }
+  .secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(255,255,255,0.1); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .field-file {
+    display: block;
+    text-align: center;
+    background: var(--surface-2);
+    border: 1px dashed rgba(247,243,231,0.24);
+    color: var(--text);
+  }
+
+  input[type="file"] { display: none; }
+
+  .hint {
+    margin: 12px 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .sample {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 12px;
+    color: rgba(247,243,231,0.82);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    overflow: auto;
+  }
+
+  .fields {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .field label {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 850;
+    margin-bottom: 5px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 11px 12px;
+    outline: none;
+  }
+
+  .field textarea { min-height: 76px; resize: vertical; }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+
+
+  .entry-manager {
+    margin-top: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.035);
+    overflow: hidden;
+  }
+
+  .entry-manager-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .entry-title {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .entry-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    padding: 10px 12px 0;
+  }
+
+  .entry-list {
+    display: grid;
+    gap: 8px;
+    max-height: 210px;
+    overflow: auto;
+    padding: 12px;
+  }
+
+  .entry-row {
+    width: 100%;
+    text-align: left;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.045);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 10px 11px;
+  }
+
+  .entry-row.active {
+    border-color: var(--acid);
+    box-shadow: inset 0 0 0 1px var(--acid);
+  }
+
+  .entry-row b {
+    display: block;
+    font-size: 13px;
+    line-height: 1.15;
+    margin-bottom: 3px;
+  }
+
+  .entry-row span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .editor-entry-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stopped video, .stopped .fallback-art, .stopped .info-card { filter: grayscale(0.6) blur(2px) brightness(0.68); }
+
+  .stamp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 12;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    display: none;
+    padding: 10px 14px;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    background: rgba(8,9,11,0.78);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .stopped .stamp { display: block; }
+
+
+  .modal-card, .drawer-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-card {
+    max-height: calc(100vh - 44px);
+  }
+
+  .modal-body, .drawer-body {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .drawer-card {
+    max-height: min(82vh, 760px);
+  }
+
+  .inline-file-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.72fr) 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .field-file.compact {
+    padding: 10px 11px;
+  }
+
+  .file-chip {
+    min-width: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 10px 11px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.035);
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .entry-actions button,
+  .editor-entry-actions button,
+  .row-actions button,
+  .modal-actions button,
+  .field-file,
+  .small-btn {
+    min-width: 0;
+  }
+
+
+
+  .settings-row {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .setting-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.035);
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .setting-card b {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .setting-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .toggle-pack {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .toggle-pack button {
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 10px;
+    color: var(--muted);
+    background: transparent;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .toggle-pack button.active {
+    background: var(--acid);
+    color: #101116;
+  }
+
+  .comments-panel .drawer-wrap { padding: 0; align-items: end; }
+  .comments-panel .drawer-card { max-height: min(76vh, 680px); }
+
+  .phone.mobile-comments-open:not(.desktop-ux) .feed {
+    height: 58%;
+  }
+
+  .phone.mobile-comments-open:not(.desktop-ux) .bottom-nav {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .phone.mobile-comments-open:not(.desktop-ux) .comments-panel {
+    top: 58%;
+  }
+
+  .phone.mobile-comments-open:not(.desktop-ux) .comments-panel .dim {
+    display: none;
+  }
+
+  .phone.mobile-comments-open:not(.desktop-ux) .comments-panel .drawer-card {
+    max-height: 100%;
+    height: 100%;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .desktop-ux .comments-panel {
+    left: auto;
+    width: min(390px, 34vw);
+    z-index: 76;
+  }
+
+  .desktop-ux .comments-panel .dim {
+    display: none;
+  }
+
+  .desktop-ux .comments-panel .drawer-wrap {
+    place-items: stretch;
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .desktop-ux .comments-panel .drawer-card {
+    height: 100%;
+    max-height: none;
+    border-radius: 0 24px 24px 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    box-shadow: -18px 0 70px rgba(0,0,0,0.46);
+  }
+
+  .desktop-ux.comments-open .feed {
+    margin-left: calc(172px + max(16px, (100vw - 1180px) / 2));
+    margin-right: min(390px, 34vw);
+  }
+
+  .desktop-ux.comments-open .global-sound {
+    right: calc(min(390px, 34vw) + 18px);
+  }
+
+  .comments-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .comment-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .comment {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .comment-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #101116;
+    background: var(--acid);
+    font-weight: 950;
+  }
+
+  .comment b {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+
+  .comment p {
+    margin: 0;
+    color: rgba(247,243,231,0.86);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .comment small {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .desktop-ux.stage {
+    place-items: stretch;
+    padding: 18px;
+  }
+
+  .desktop-ux .phone {
+    width: 100%;
+    max-width: 1180px;
+    height: calc(100vh - 36px);
+    min-height: 660px;
+    margin: 0 auto;
+    border-radius: 24px;
+  }
+
+  .desktop-ux .phone::before { display: none; }
+
+  .desktop-ux .topbar {
+    left: 172px;
+    padding: 18px 22px 11px;
+  }
+
+  .desktop-ux .feed {
+    width: min(100%, 520px);
+    margin: 0 auto;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .desktop-ux .bottom-nav {
+    inset: 0 auto 0 0;
+    width: 172px;
+    padding: 120px 12px 18px;
+    border-top: 0;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .desktop-ux .nav-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .desktop-ux .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-align: left;
+    padding: 10px 11px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 12px;
+  }
+
+  .desktop-ux .nav-item b {
+    height: auto;
+    margin: 0;
+    font-size: 19px;
+  }
+
+  .desktop-ux .create-btn {
+    width: 42px;
+    height: 30px;
+    font-size: 24px;
+    margin-right: 3px;
+  }
+
+  .desktop-ux .global-sound {
+    top: 86px;
+    right: calc(50% - 250px + 12px);
+  }
+
+  .desktop-ux.match-video .feed {
+    width: clamp(420px, calc((100vh - 36px) * var(--active-video-ratio, 0.5625)), min(860px, calc(100vw - 560px)));
+    max-width: calc(100vw - 560px);
+  }
+
+  .desktop-ux.match-video .video {
+    object-fit: contain;
+  }
+
+  .desktop-ux.match-video .fallback-art {
+    object-fit: contain;
+  }
+
+  .desktop-ux .modal-card { max-width: 620px; }
+  .desktop-ux .drawer-card { max-width: 620px; border-radius: 28px; border-bottom: 1px solid rgba(247,243,231,0.16); }
+  .desktop-ux .drawer-wrap { place-items: center; align-items: center; padding: 22px; }
+
+  .ultra-dark {
+    --bg: #000;
+    --phone: #010101;
+    --surface: #050505;
+    --surface-2: #090909;
+    --surface-3: #101010;
+    --line: rgba(255,255,255,0.09);
+    --muted: #858585;
+  }
+
+  @media (max-width: 500px) {
+    html, body { background: #000; }
+    .stage { padding: 0; background-image: none; background: #000; }
+    .phone {
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .phone::before { display: none; }
+
+    .topbar {
+      padding: calc(10px + env(safe-area-inset-top)) 12px 8px;
+      background: rgba(2,3,4,0.94);
+    }
+    .brand { font-size: 24px; }
+    .pills { gap: 5px; }
+    .pill { padding: 6px 8px; font-size: 10px; }
+    .tabs { gap: 17px; padding-top: 10px; font-size: 12px; }
+
+    .global-sound {
+      top: calc(72px + env(safe-area-inset-top));
+      right: 10px;
+      padding: 8px 10px;
+      font-size: 10px;
+    }
+    .sponsor-tag {
+      top: calc(100px + env(safe-area-inset-top));
+      left: 10px;
+      padding: 7px 9px;
+      font-size: 10px;
+      max-width: calc(100% - 84px);
+    }
+    .info-card {
+      top: calc(138px + env(safe-area-inset-top));
+      left: 10px;
+      right: 72px;
+      padding: 10px;
+      border-radius: 16px;
+    }
+    .info-card .title { font-size: 15px; }
+    .info-card .copy { font-size: 11px; }
+    .rail { right: 8px; bottom: 98px; gap: 9px; }
+    .avatar { width: 44px; height: 44px; border-radius: 15px; }
+    .rail-icon { width: 44px; height: 44px; border-radius: 15px; font-size: 19px; }
+    .rail-btn small { font-size: 9px; }
+    .meta { left: 12px; right: 70px; bottom: 82px; }
+    .caption { font-size: 13px; line-height: 1.3; }
+    .audio { font-size: 11px; padding: 7px 9px; }
+    .bottom-nav { padding: 8px 9px calc(10px + env(safe-area-inset-bottom)); }
+
+    .modal-wrap {
+      display: block;
+      padding: 0;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+    }
+    .modal-top, .drawer-top {
+      padding: calc(12px + env(safe-area-inset-top)) 14px 10px;
+    }
+    .modal-title { font-size: 18px; line-height: 1.1; letter-spacing: -0.35px; }
+    .eyebrow { font-size: 10px; margin-bottom: 5px; }
+    .modal-body, .drawer-body {
+      padding: 12px 14px;
+      font-size: 13px;
+      flex: 1;
+      min-height: 0;
+    }
+    .modal-actions, .row-actions {
+      padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(3,4,6,0.96);
+    }
+    .modal-actions button, .row-actions button, .field-file, .small-btn {
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.15;
+    }
+    .grid-2 { gap: 7px; }
+    .hint { font-size: 11px; margin: 9px 0; }
+    .sample {
+      max-height: 86px;
+      font-size: 10px;
+      line-height: 1.35;
+      border-radius: 13px;
+      padding: 9px;
+    }
+    .status-line {
+      align-items: stretch;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .status-line .small-btn { flex: 0 0 auto; }
+    .entry-manager { margin-top: 10px; border-radius: 14px; }
+    .entry-manager-top { padding: 9px 10px; }
+    .entry-actions {
+      gap: 6px;
+      padding: 8px 10px 0;
+    }
+    .entry-list {
+      max-height: 172px;
+      gap: 6px;
+      padding: 10px;
+    }
+    .entry-row { padding: 9px 10px; border-radius: 12px; }
+    .entry-row b { font-size: 12px; }
+    .entry-row span { font-size: 10px; }
+
+    .drawer-wrap { align-items: stretch; padding-top: 22vh; }
+    .drawer-card {
+      max-height: 78dvh;
+      border-radius: 22px 22px 0 0;
+    }
+    .editor-entry-actions { gap: 7px; margin-bottom: 10px; }
+    .fields { gap: 8px; margin-top: 8px; }
+    .field label { font-size: 10px; margin-bottom: 4px; }
+    .field input, .field textarea {
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .field textarea { min-height: 62px; }
+    .inline-file-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .file-chip { padding: 9px 10px; font-size: 11px; border-radius: 12px; }
+  }
+
+  @media (max-width: 360px) {
+    .tabs { gap: 12px; }
+    .brand { font-size: 22px; }
+    .pill { padding: 5px 7px; }
+    .entry-actions { grid-template-columns: 1fr 1fr 1fr; }
+    .modal-actions button, .row-actions button, .field-file, .small-btn { font-size: 11px; }
+  }
+
+
+  /* Desktop bugfix pass: keep the desktop feed centered and let the side comments own their own column. */
+  .desktop-ux .phone {
+    display: grid;
+    grid-template-columns: 172px minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    overflow: hidden;
+    background: #010203;
+  }
+
+  .desktop-ux.comments-open .phone {
+    grid-template-columns: 172px minmax(0, 1fr) minmax(330px, min(390px, 34vw));
+  }
+
+  .desktop-ux .feed {
+    grid-column: 2;
+    justify-self: center;
+    align-self: stretch;
+    width: min(520px, 100%);
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .desktop-ux.comments-open .feed {
+    margin: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .desktop-ux.match-video .feed {
+    width: min(100%, clamp(420px, calc((100vh - 36px) * var(--active-video-ratio, 0.5625)), 860px));
+    max-width: 100%;
+  }
+
+  .desktop-ux .comments-panel {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(390px, 34vw);
+    min-width: 330px;
+    z-index: 90;
+  }
+
+  .desktop-ux .comments-panel .drawer-wrap {
+    inset: 0;
+    display: block;
+    padding: 0;
+  }
+
+  .desktop-ux .comments-panel .drawer-card {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0 24px 24px 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    background: #05070a;
+    box-shadow: -18px 0 70px rgba(0,0,0,0.62);
+  }
+
+  .desktop-ux.comments-open .topbar {
+    right: min(390px, 34vw);
+  }
+
+  .desktop-ux.comments-open .global-sound {
+    right: calc(min(390px, 34vw) + 18px);
+  }
+
+  /* Darker Mode now affects the full shell, not only a few panels. */
+  .stage.ultra-dark,
+  .stage.ultra-dark .phone,
+  .ultra-dark {
+    --bg: #000;
+    --phone: #000;
+    --surface: #030303;
+    --surface-2: #060606;
+    --surface-3: #0b0b0b;
+    --line: rgba(255,255,255,0.075);
+    --muted: #777;
+    background: #000;
+  }
+
+  .stage.ultra-dark .topbar,
+  .stage.ultra-dark .bottom-nav,
+  .stage.ultra-dark .modal-card,
+  .stage.ultra-dark .drawer-card,
+  .stage.ultra-dark .toast,
+  .stage.ultra-dark .info-card,
+  .stage.ultra-dark .rail-icon,
+  .stage.ultra-dark .entry-manager,
+  .stage.ultra-dark .setting-card,
+  .stage.ultra-dark .comment {
+    background-color: rgba(2,2,2,0.96);
+    border-color: rgba(255,255,255,0.075);
+  }
+
+  .stage.ultra-dark .feed,
+  .stage.ultra-dark .clip,
+  .stage.ultra-dark .video,
+  .stage.ultra-dark .fallback-art {
+    background-color: #000;
+  }
+
+  .stage.ultra-dark .secondary,
+  .stage.ultra-dark .pill,
+  .stage.ultra-dark .nav-item,
+  .stage.ultra-dark .field input,
+  .stage.ultra-dark .field textarea,
+  .stage.ultra-dark .sample,
+  .stage.ultra-dark .file-chip,
+  .stage.ultra-dark .entry-row,
+  .stage.ultra-dark .toggle-pack {
+    background-color: rgba(255,255,255,0.028);
+    border-color: rgba(255,255,255,0.075);
+  }
+
+  @media (max-width: 500px) {
+    .desktop-ux .phone { display: block; }
+    .desktop-ux.comments-open .phone { display: block; }
+  }
+
+
+  /* Full-screen desktop pass + separate desktop comments rail. */
+  .desktop-ux.stage {
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 0;
+    place-items: stretch;
+    overflow: hidden;
+  }
+
+  .desktop-ux .phone {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: 172px minmax(0, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  .desktop-ux.comments-open .phone {
+    grid-template-columns: 172px minmax(360px, 1fr) minmax(360px, clamp(360px, 30vw, 470px));
+  }
+
+  .desktop-ux .topbar {
+    left: 172px;
+    right: 0;
+    border-radius: 0;
+  }
+
+  .desktop-ux.comments-open .topbar {
+    right: clamp(360px, 30vw, 470px);
+  }
+
+  .desktop-ux .feed {
+    grid-column: 2;
+    width: min(100%, 580px);
+    max-width: 100%;
+    justify-self: center;
+    margin: 0;
+  }
+
+  .desktop-ux.comments-open .feed {
+    width: min(100%, 520px);
+  }
+
+  .desktop-ux.match-video .feed {
+    width: min(100%, clamp(430px, calc(100vh * var(--active-video-ratio, 0.5625)), 1120px));
+    max-width: 100%;
+  }
+
+  .desktop-ux.match-video.comments-open .feed {
+    width: min(100%, clamp(380px, calc(100vh * var(--active-video-ratio, 0.5625)), 860px));
+  }
+
+  .desktop-ux .comments-panel {
+    display: none !important;
+  }
+
+  .desktop-comments-panel {
+    display: none;
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 0;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    box-shadow: -18px 0 80px rgba(0,0,0,0.45);
+    z-index: 80;
+  }
+
+  .desktop-ux.comments-open .desktop-comments-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .comments-titlebar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.018);
+  }
+
+  .titlebar-x {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 950;
+  }
+
+  .comment-list-wrap {
+    flex: 1;
+    overflow: auto;
+    padding: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comment-composer {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: rgba(0,0,0,0.34);
+  }
+
+  .composer-icon,
+  .composer-plus {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.045);
+    color: var(--text);
+    font-weight: 950;
+  }
+
+  .composer-field {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.055);
+    color: var(--muted);
+    padding: 0 14px;
+    text-align: left;
+    font-weight: 850;
+  }
+
+  .composer-field:active { transform: translateY(1px); }
+
+  .comment.live-new {
+    outline: 1px solid rgba(200,255,77,0.42);
+  }
+
+  .live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .live-dot::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--acid);
+  }
+
+  .stage:not(.animations-on) *,
+  .stage:not(.animations-on) *::before,
+  .stage:not(.animations-on) *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animations-on .comment.live-new {
+    animation: comment-pop 260ms ease-out both;
+  }
+
+  @keyframes comment-pop {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 500px) {
+    .drawer-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .drawer-top .comments-heading-copy { min-width: 0; }
+    .mobile-close-x { display: grid !important; }
+    .comments-panel .row-actions { padding: 0; }
+    .comments-panel .comment-composer { border-top: 1px solid var(--line); }
+  }
+
+  .mobile-close-x { display: none; }
+
+  .stage.ultra-dark .desktop-comments-panel,
+  .stage.ultra-dark .comments-titlebar,
+  .stage.ultra-dark .comment-composer {
+    background: #000;
+    border-color: rgba(255,255,255,0.075);
+  }
+
+  .stage.ultra-dark .composer-field,
+  .stage.ultra-dark .composer-icon,
+  .stage.ultra-dark .composer-plus,
+  .stage.ultra-dark .titlebar-x {
+    background: #050505;
+    border-color: rgba(255,255,255,0.075);
+  }
+
+</style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" id="phone">
+      <header class="topbar">
+        <div class="top-row">
+          <div class="brand"><span>Tok</span><span>Tik</span></div>
+          <div class="pills">
+            <button class="pill accent" data-open="feedStudio">Feed Studio</button>
+            <button class="pill" data-open="settingsModal">Settings</button>
+            <button class="pill" data-action="live">LIVE</button>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Feed tabs">
+          <div class="tab">Following</div>
+          <div class="tab active">For You</div>
+          <div class="tab">Marketplace</div>
+        </nav>
+      </header>
+
+      <div class="feed" id="feed" aria-live="polite"></div>
+      <button class="global-sound" id="globalSound" type="button" title="Toggle feed sound">Tap For Sound</button>
+
+      <nav class="bottom-nav" aria-label="App navigation">
+        <div class="nav-grid">
+          <div class="nav-item active" data-action="nav"><b>⌂</b>Home</div>
+          <div class="nav-item" data-action="nav"><b>⌕</b>Discover</div>
+          <div class="nav-item" data-open="feedStudio"><span class="create-btn">+</span></div>
+          <div class="nav-item" data-open="settingsModal"><b>⚙</b>Settings</div>
+          <div class="nav-item" data-open="editorDrawer"><b>☻</b>Edit</div>
+        </div>
+      </nav>
+
+      <div class="toast" id="toast">Action has entered corporate processing.</div>
+
+      <section class="modal show" id="feedStudio">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow">Custom Endless Feed</div>
+              <div class="modal-title">Load videos, then load matching info files.</div>
+            </div>
+            <div class="modal-body">
+              <div class="grid-2">
+                <label class="field-file">Choose Videos<input id="videoPicker" type="file" accept="video/*" multiple></label>
+                <label class="field-file">Choose Info Files<input id="infoPicker" type="file" accept=".json,.txt,.md" multiple></label>
+              </div>
+              <p class="hint">
+                Info files match videos by filename. Example: <b>clip01.mp4</b> can use <b>clip01.json</b> or <b>clip01.txt</b>. JSON is best. TXT also works with key=value lines.
+              </p>
+              <div class="sample">{
+  "handle": "@your.account",
+  "caption": "caption goes here",
+  "audio": "original sound - basement edit",
+  "likes": "91K",
+  "comments": "4,020",
+  "shares": "Send",
+  "badge": "Verified-ish",
+  "sponsored": true,
+  "adTitle": "optional ad card title",
+  "adCopy": "optional ad card copy"
+}</div>
+              <div class="status-line"><span id="loadStatus">Demo feed is active.</span><button class="small-btn secondary" id="loadDemo">Reload Demo</button></div>
+              <div class="entry-manager">
+                <div class="entry-manager-top">
+                  <div class="entry-title">Feed Entries</div>
+                  <button class="small-btn secondary" id="refreshEntries">Refresh</button>
+                </div>
+                <div class="entry-actions">
+                  <button class="small-btn secondary" id="addEntry">Add Entry</button>
+                  <button class="small-btn secondary" id="duplicateEntry">Duplicate</button>
+                  <button class="small-btn secondary" id="deleteEntry">Delete</button>
+                </div>
+                <div class="entry-actions">
+                  <button class="small-btn secondary" id="moveEntryUp">Move Up</button>
+                  <button class="small-btn secondary" id="moveEntryDown">Move Down</button>
+                  <button class="small-btn secondary" data-open="editorDrawer">Edit Entry</button>
+                </div>
+                <div class="entry-list" id="entryList"></div>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="primary" data-close="feedStudio">Start Scrolling</button>
+              <button class="secondary" id="clearFeed">Clear Custom Feed</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="drawer" id="editorDrawer">
+        <div class="dim"></div>
+        <div class="drawer-wrap">
+          <div class="drawer-card">
+            <div class="drawer-top">
+              <div class="eyebrow">Current Clip Editor</div>
+              <div class="modal-title">Adjust the visible clip info.</div>
+            </div>
+            <div class="drawer-body">
+              <div class="editor-entry-actions">
+                <button class="secondary" id="editorAddEntry">Add New Entry</button>
+                <button class="secondary" id="editorDuplicateEntry">Duplicate Current</button>
+              </div>
+              <div class="fields">
+                <div class="field video-edit-field">
+                  <label>Video File</label>
+                  <div class="inline-file-row">
+                    <label class="field-file compact">Replace Video<input id="editVideoPicker" type="file" accept="video/*"></label>
+                    <div class="file-chip" id="editVideoName">No video selected</div>
+                  </div>
+                </div>
+                <div class="field"><label>Handle</label><input id="editHandle" placeholder="@creator"></div>
+                <div class="field"><label>Caption</label><textarea id="editCaption" placeholder="Caption"></textarea></div>
+                <div class="field"><label>Audio</label><input id="editAudio" placeholder="original sound"></div>
+                <div class="grid-2">
+                  <div class="field"><label>Likes</label><input id="editLikes"></div>
+                  <div class="field"><label>Comments</label><input id="editComments"></div>
+                </div>
+                <div class="field"><label>Shares Button Text</label><input id="editShares" placeholder="Send"></div>
+                <div class="grid-2">
+                  <div class="field"><label>Badge</label><input id="editBadge"></div>
+                  <div class="field"><label>Ad Title</label><input id="editAdTitle"></div>
+                </div>
+                <div class="field"><label>Ad Copy</label><textarea id="editAdCopy"></textarea></div>
+              </div>
+              <p class="hint">Changes update the clip in memory. Use “Export Info” to save a matching JSON file for that video.</p>
+            </div>
+            <div class="row-actions">
+              <button class="primary" id="saveEdit">Save Current Clip</button>
+              <button class="secondary" id="exportInfo">Export Info JSON</button>
+              <button class="secondary" data-close="editorDrawer">Close Editor</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section class="modal" id="settingsModal">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow">TokTik Settings</div>
+              <div class="modal-title">Choose how this clone behaves.</div>
+            </div>
+            <div class="modal-body">
+              <div class="settings-row">
+                <div class="setting-card">
+                  <div><b>Interface Layout</b><span>Mobile UX keeps the phone shell. Desktop UX turns the same feed into a wider desktop clone layout.</span></div>
+                  <div class="toggle-pack" data-setting="ux">
+                    <button type="button" class="active" data-ux="mobile">Mobile</button>
+                    <button type="button" data-ux="desktop">Desktop</button>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div><b>Darker Mode</b><span>Pushes the whole thing closer to a black app shell without changing the TokTik clone structure.</span></div>
+                  <div class="toggle-pack" data-setting="dark">
+                    <button type="button" class="active" data-dark="normal">Normal</button>
+                    <button type="button" data-dark="ultra">Darker</button>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div><b>Animations</b><span>Default is off. Enable this only when you want the UI to move instead of acting like a suspicious kiosk.</span></div>
+                  <div class="toggle-pack" data-setting="animations">
+                    <button type="button" class="active" data-animations="off">Off</button>
+                    <button type="button" data-animations="on">On</button>
+                  </div>
+                </div>
+                <div class="setting-card">
+                  <div><b>Desktop Video Shape</b><span>Desktop UX can resize the preview shell to the active video ratio. Mobile UX stays portrait.</span></div>
+                  <div class="toggle-pack" data-setting="fit">
+                    <button type="button" class="active" data-fit="portrait">Portrait</button>
+                    <button type="button" data-fit="native">Native</button>
+                  </div>
+                </div>
+              </div>
+              <p class="hint">Settings are local to this page session. No account, no server, no mysterious “cloud excellence framework.”</p>
+            </div>
+            <div class="modal-actions">
+              <button class="primary" data-close="settingsModal">Done</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="drawer comments-panel" id="commentsDrawer">
+        <div class="dim"></div>
+        <div class="drawer-wrap">
+          <div class="drawer-card" id="mobileCommentsCard">
+            <div class="drawer-top">
+              <div class="comments-heading-copy">
+                <div class="eyebrow">Comments</div>
+                <div class="modal-title" id="commentsTitle">Comment section loading.</div>
+                <div class="comments-meta"><span id="commentsCount">0 comments</span><span class="live-dot">Realtime-ish</span></div>
+              </div>
+              <button class="titlebar-x mobile-close-x" type="button" data-close-comments aria-label="Close comments">×</button>
+            </div>
+            <div class="drawer-body comment-list-wrap">
+              <div class="comment-list" id="commentList"></div>
+            </div>
+            <div class="comment-composer" id="mobileCommentShuffle" role="button" tabindex="0" aria-label="Shuffle comments">
+              <span class="composer-plus">+</span>
+              <button class="composer-field" type="button">Comment...</button>
+              <span class="composer-icon">☺</span>
+              <span class="composer-icon">▣</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="desktop-comments-panel" id="desktopCommentsPanel" aria-label="Desktop comments">
+        <div class="comments-titlebar" id="desktopCommentsDragHandle">
+          <div>
+            <div class="eyebrow">Comments</div>
+            <div class="modal-title" id="desktopCommentsTitle">Comment section loading.</div>
+            <div class="comments-meta"><span id="desktopCommentsCount">0 comments</span><span class="live-dot">Realtime-ish</span></div>
+          </div>
+          <button class="titlebar-x" type="button" data-close-comments aria-label="Close comments">×</button>
+        </div>
+        <div class="comment-list-wrap">
+          <div class="comment-list" id="desktopCommentList"></div>
+        </div>
+        <div class="comment-composer" id="desktopCommentShuffle" role="button" tabindex="0" aria-label="Shuffle comments">
+          <span class="composer-plus">+</span>
+          <button class="composer-field" type="button">Comment...</button>
+          <span class="composer-icon">☺</span>
+          <span class="composer-icon">▣</span>
+        </div>
+      </aside>
+
+      <section class="modal" id="policyModal">
+        <div class="dim"></div>
+        <div class="modal-wrap">
+          <div class="modal-card">
+            <div class="modal-top">
+              <div class="eyebrow" id="policyEyebrow">Attention Integrity Warning</div>
+              <div class="modal-title" id="policyTitle">Your interaction was too normal.</div>
+            </div>
+            <div class="modal-body" id="policyBody">The system expected a more profitable reaction.</div>
+            <div class="modal-actions">
+              <button class="primary" data-close="policyModal">Restore The Feed</button>
+              <button class="secondary" data-action="read-again">Read Corporate Message Again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+<script>
+  const phone = document.getElementById('phone');
+  const feed = document.getElementById('feed');
+  const toast = document.getElementById('toast');
+  const globalSound = document.getElementById('globalSound');
+  const stage = document.querySelector('.stage');
+  const commentsDrawer = document.getElementById('commentsDrawer');
+  const commentsTitle = document.getElementById('commentsTitle');
+  const commentsCount = document.getElementById('commentsCount');
+  const commentList = document.getElementById('commentList');
+  const desktopCommentsPanel = document.getElementById('desktopCommentsPanel');
+  const desktopCommentsTitle = document.getElementById('desktopCommentsTitle');
+  const desktopCommentsCount = document.getElementById('desktopCommentsCount');
+  const desktopCommentList = document.getElementById('desktopCommentList');
+  const videoPicker = document.getElementById('videoPicker');
+  const infoPicker = document.getElementById('infoPicker');
+  const loadStatus = document.getElementById('loadStatus');
+  const entryList = document.getElementById('entryList');
+  const policyModal = document.getElementById('policyModal');
+  const policyTitle = document.getElementById('policyTitle');
+  const policyBody = document.getElementById('policyBody');
+
+  const editFields = {
+    handle: document.getElementById('editHandle'),
+    caption: document.getElementById('editCaption'),
+    audio: document.getElementById('editAudio'),
+    likes: document.getElementById('editLikes'),
+    comments: document.getElementById('editComments'),
+    shares: document.getElementById('editShares'),
+    badge: document.getElementById('editBadge'),
+    adTitle: document.getElementById('editAdTitle'),
+    adCopy: document.getElementById('editAdCopy'),
+    videoPicker: document.getElementById('editVideoPicker'),
+    videoName: document.getElementById('editVideoName')
+  };
+
+  let toastTimer;
+  let feedData = [];
+  let renderedCount = 0;
+  let currentIndex = 0;
+  let observer;
+  let objectUrls = [];
+  let soundEnabled = false;
+  let soundUnlocked = false;
+  let wantsSound = true;
+  let activeObservedClip = null;
+  let activeResolveFrame = 0;
+  let desktopFitMode = 'portrait';
+  let currentComments = [];
+  let liveCommentTimer = 0;
+  let lastLiveCommentAt = 0;
+  let animationsEnabled = false;
+
+  const demoData = [
+    {
+      id: 'demo-1', fileName: 'demo_attention_protocol.mp4', videoUrl: '', handle: '@official.attention.engine', badge: 'Verified-ish',
+      caption: 'POV: the app noticed you looked away for 0.8 seconds and opened a case file.', audio: 'original sound - committee approved bass loop',
+      likes: '8.4M', comments: '942K', shares: 'Send', sponsored: true, adTitle: 'Buy a microphone that hears your ambition.',
+      adCopy: 'Premium sound cylinder for users who want room echo to become a career path.'
+    },
+    {
+      id: 'demo-2', fileName: 'demo_scroll_department.mp4', videoUrl: '', handle: '@synergy.speaker.9000', badge: 'Partner',
+      caption: 'Your scroll has been forwarded to the monetization department for thoughtful processing.', audio: 'sponsored audio - tiny applause in boardroom',
+      likes: '4.7M', comments: '512K', shares: 'Share', sponsored: true, adTitle: 'A bottle that hydrates your personal brand.',
+      adCopy: 'Now with 14 planned lifestyle outcomes and one suspicious checkout button.'
+    },
+    {
+      id: 'demo-3', fileName: 'demo_adblock_feelings.mp4', videoUrl: '', handle: '@compliance.gremlin', badge: 'Official',
+      caption: 'Breaking: adblock has hurt the platform feelings. The revenue rectangle is staring at the wall.', audio: 'original sound - legal team humming near printer',
+      likes: '12M', comments: '1.2M', shares: 'Export', sponsored: false, adTitle: '', adCopy: ''
+    }
+  ];
+
+  function baseName(name) {
+    return name.replace(/\\.[^/.]+$/, '').toLowerCase().trim();
+  }
+
+  function prettyDefault(file, index) {
+    const clean = file ? baseName(file.name).replace(/[_-]+/g, ' ') : `clip ${index + 1}`;
+    return clean.replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  function normalizeInfo(info = {}) {
+    return {
+      handle: info.handle || info.creator || '@local.creator',
+      caption: info.caption || info.description || 'Local clip imported into the endless TokTik machine.',
+      audio: info.audio || info.sound || 'original sound - local file',
+      likes: info.likes || '0',
+      comments: info.comments || '0',
+      shares: info.shares || info.share || 'Send',
+      badge: info.badge || '',
+      sponsored: Boolean(info.sponsored || info.adTitle || info.adCopy),
+      adTitle: info.adTitle || info.ad_title || '',
+      adCopy: info.adCopy || info.ad_copy || ''
+    };
+  }
+
+
+  function makeBlankEntry(index = feedData.length) {
+    const number = index + 1;
+    return {
+      id: `manual-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      fileName: `manual_entry_${number}.mp4`,
+      videoUrl: '',
+      handle: `@manual.entry.${number}`,
+      caption: `Manual feed entry ${number}. Replace the video or edit the caption from the editor.`,
+      audio: 'original sound - manual feed entry',
+      likes: '0',
+      comments: '0',
+      shares: 'Send',
+      badge: '',
+      sponsored: false,
+      adTitle: '',
+      adCopy: ''
+    };
+  }
+
+  function clipLabel(item, index) {
+    const handle = item?.handle || '@unknown.creator';
+    const caption = item?.caption || item?.fileName || 'Untitled feed entry';
+    return { title: `${index + 1}. ${handle}`, detail: caption };
+  }
+
+  function refreshEntryList() {
+    if (!entryList) return;
+    if (!feedData.length) {
+      entryList.innerHTML = '<div class="hint">No entries yet. Add one and the feed stops being empty paperwork.</div>';
+      return;
+    }
+    entryList.innerHTML = feedData.map((item, index) => {
+      const label = clipLabel(item, index);
+      return `<button class="entry-row ${index === currentIndex ? 'active' : ''}" type="button" data-select-entry="${index}"><b>${formatSafe(label.title)}</b><span>${formatSafe(label.detail)}</span></button>`;
+    }).join('');
+  }
+
+  function selectEntry(index, scrollToClip = true) {
+    if (!feedData.length) return;
+    currentIndex = Math.max(0, Math.min(index, feedData.length - 1));
+    fillEditorFromCurrent();
+    refreshEntryList();
+    if (!scrollToClip) return;
+    const target = feed.querySelector(`.clip[data-clip-index="${currentIndex}"]`);
+    if (target) target.scrollIntoView({ block: 'start' });
+  }
+
+  function addFeedEntry(openEditor = false) {
+    feedData.push(makeBlankEntry(feedData.length));
+    currentIndex = feedData.length - 1;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('New feed entry added. It is ready for a video file and metadata.');
+    if (openEditor) openPanel('editorDrawer');
+  }
+
+  function duplicateCurrentEntry(openEditor = false) {
+    const item = currentItem();
+    if (!item) return addFeedEntry(openEditor);
+    const copy = {
+      ...item,
+      id: `copy-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      fileName: item.fileName ? `copy_of_${item.fileName}` : `copy_manual_entry_${feedData.length + 1}.mp4`,
+      caption: item.caption ? `${item.caption} (copy)` : 'Duplicated feed entry.'
+    };
+    feedData.splice(currentIndex + 1, 0, copy);
+    currentIndex += 1;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('Feed entry duplicated. The algorithm now has a twin.');
+    if (openEditor) openPanel('editorDrawer');
+  }
+
+  function deleteCurrentEntry() {
+    if (!feedData.length) return;
+    const item = currentItem();
+    if (item?.videoUrl && objectUrls.includes(item.videoUrl)) {
+      URL.revokeObjectURL(item.videoUrl);
+      objectUrls = objectUrls.filter(url => url !== item.videoUrl);
+    }
+    feedData.splice(currentIndex, 1);
+    if (!feedData.length) feedData.push(makeBlankEntry(0));
+    currentIndex = Math.min(currentIndex, feedData.length - 1);
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast('Feed entry deleted. The scroll pit has been re-indexed.');
+  }
+
+  function moveCurrentEntry(direction) {
+    const nextIndex = currentIndex + direction;
+    if (nextIndex < 0 || nextIndex >= feedData.length) {
+      showToast('Entry cannot move further. The feed wall has spoken.');
+      return;
+    }
+    [feedData[currentIndex], feedData[nextIndex]] = [feedData[nextIndex], feedData[currentIndex]];
+    currentIndex = nextIndex;
+    resetFeed();
+    selectEntry(currentIndex, false);
+    showToast(direction < 0 ? 'Entry moved up.' : 'Entry moved down.');
+  }
+
+  function parseTxtInfo(text) {
+    const info = {};
+    text.split(/\r?\n/).forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const splitAt = trimmed.includes('=') ? trimmed.indexOf('=') : trimmed.indexOf(':');
+      if (splitAt === -1) return;
+      const key = trimmed.slice(0, splitAt).trim();
+      const value = trimmed.slice(splitAt + 1).trim();
+      info[key] = value;
+    });
+    return info;
+  }
+
+  async function readInfoFiles(files) {
+    const result = new Map();
+    for (const file of files) {
+      const text = await file.text();
+      let info;
+      try {
+        info = JSON.parse(text);
+      } catch {
+        info = parseTxtInfo(text);
+      }
+      result.set(baseName(file.name), normalizeInfo(info));
+    }
+    return result;
+  }
+
+  function revokeObjectUrls() {
+    objectUrls.forEach(url => URL.revokeObjectURL(url));
+    objectUrls = [];
+  }
+
+  async function buildCustomFeed() {
+    const videos = [...videoPicker.files];
+    const infoMap = await readInfoFiles([...infoPicker.files]);
+
+    if (!videos.length) {
+      showToast('No videos selected. Demo feed remains in control.');
+      return;
+    }
+
+    revokeObjectUrls();
+    feedData = videos.map((file, index) => {
+      const url = URL.createObjectURL(file);
+      objectUrls.push(url);
+      const info = normalizeInfo(infoMap.get(baseName(file.name)) || {});
+      return {
+        id: `${file.name}-${file.size}-${index}`,
+        fileName: file.name,
+        videoUrl: url,
+        handle: info.handle === '@local.creator' ? `@${baseName(file.name).replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'local.creator'}` : info.handle,
+        caption: info.caption === 'Local clip imported into the endless TokTik machine.' ? prettyDefault(file, index) : info.caption,
+        audio: info.audio,
+        likes: info.likes,
+        comments: info.comments,
+        shares: info.shares,
+        badge: info.badge,
+        sponsored: info.sponsored,
+        adTitle: info.adTitle,
+        adCopy: info.adCopy
+      };
+    });
+
+    resetFeed();
+    loadStatus.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'} loaded. ${infoMap.size} info file${infoMap.size === 1 ? '' : 's'} matched by name.`;
+    showToast('Custom endless feed loaded. The scroll pit is operational.');
+  }
+
+  function setDemoFeed() {
+    revokeObjectUrls();
+    feedData = demoData.map(item => ({ ...item }));
+    resetFeed();
+    loadStatus.textContent = 'Demo feed is active.';
+  }
+
+  function formatSafe(value, fallback = '') {
+    const span = document.createElement('span');
+    span.textContent = value || fallback;
+    return span.innerHTML;
+  }
+
+  function createClip(data, index) {
+    const clip = document.createElement('article');
+    clip.className = `clip ${data.sponsored || data.adTitle || data.adCopy ? 'has-ad' : ''}`;
+    clip.dataset.clipIndex = String(index % feedData.length);
+
+    const media = data.videoUrl
+      ? `<video class="video" src="${formatSafe(data.videoUrl)}" playsinline loop preload="metadata" muted data-restart-on-view="true"></video>`
+      : `<div class="fallback-art"><div class="fallback-card"><b>${formatSafe(data.caption)}</b><span>Add real video files in Feed Studio to replace this demo plate.</span></div></div>`;
+
+    clip.innerHTML = `
+      ${media}
+      <div class="pause-indicator">Ⅱ</div>
+      <div class="sponsor-tag">${data.sponsored ? 'Sponsored Recommendation' : 'For You Clip'}</div>
+      <div class="info-card">
+        <div class="label">Optional Info File Card</div>
+        <div class="title">${formatSafe(data.adTitle, 'Imported Feed Item')}</div>
+        <div class="copy">${formatSafe(data.adCopy, 'This card appears when sponsored, adTitle, or adCopy exists in the info file.')}</div>
+      </div>
+      <div class="rail">
+        <div class="avatar"></div>
+        <button class="rail-btn" data-action="like"><span class="rail-icon">♥</span><small>${formatSafe(data.likes, '0')}</small></button>
+        <button class="rail-btn" data-action="comment"><span class="rail-icon">☰</span><small>${formatSafe(data.comments, '0')}</small></button>
+        <button class="rail-btn" data-action="share"><span class="rail-icon">↗</span><small>${formatSafe(data.shares, 'Send')}</small></button>
+        <button class="rail-btn" data-action="save"><span class="rail-icon">★</span><small>Save</small></button>
+      </div>
+      <section class="meta">
+        <div class="handle">${formatSafe(data.handle)} ${data.badge ? `<span class="badge">${formatSafe(data.badge)}</span>` : ''}</div>
+        <div class="caption">${formatSafe(data.caption)}</div>
+        <div class="audio">♫ ${formatSafe(data.audio)}</div>
+      </section>
+      <div class="stamp">MEDIA STOPPED BY PLATFORM POLICY</div>
+    `;
+    return clip;
+  }
+
+  function renderBatch(amount = 8) {
+    if (!feedData.length) return;
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < amount; i++) {
+      const data = feedData[renderedCount % feedData.length];
+      fragment.appendChild(createClip(data, renderedCount));
+      renderedCount++;
+    }
+    feed.appendChild(fragment);
+    observeClips();
+  }
+
+  function resetFeed() {
+    feed.innerHTML = '';
+    renderedCount = 0;
+    currentIndex = 0;
+    activeObservedClip = null;
+    renderBatch(10);
+    feed.scrollTop = 0;
+    fillEditorFromCurrent();
+    refreshEntryList();
+    scheduleActiveResolution(true);
+  }
+
+  function prepareVideo(video) {
+    if (!video || video.dataset.prepared === 'true') return;
+    video.dataset.prepared = 'true';
+    video.addEventListener('loadedmetadata', () => {
+      if (video.closest('.clip') === activeObservedClip) updateActiveVideoRatio(video);
+    });
+    video.defaultMuted = !soundEnabled;
+    video.muted = !soundEnabled;
+    video.volume = 1;
+
+    video.addEventListener('click', event => {
+      event.stopPropagation();
+      const clip = video.closest('.clip');
+
+      if (!soundEnabled) {
+        enableSoundForClip(clip, 'Sound enabled. Browser autoplay jail has been escaped.');
+        return;
+      }
+
+      if (video.paused) {
+        video.play().then(() => clip?.classList.remove('is-paused')).catch(() => {});
+      } else {
+        video.pause();
+        clip?.classList.add('is-paused');
+      }
+    });
+  }
+
+  function effectiveSoundOn() {
+    return wantsSound && soundUnlocked && soundEnabled;
+  }
+
+  function applySoundState(video) {
+    if (!video) return;
+    const audible = effectiveSoundOn();
+    video.defaultMuted = !audible;
+    video.muted = !audible;
+    video.volume = audible ? 1 : 0;
+    if (audible) video.removeAttribute('muted');
+    else video.setAttribute('muted', '');
+  }
+
+  function restartAndPlay(video, shouldRestart = true) {
+    if (!video) return;
+    const clip = video.closest('.clip');
+    hardStopBackgroundVideos(clip);
+    prepareVideo(video);
+    applySoundState(video);
+    if (shouldRestart) {
+      try { video.currentTime = 0; } catch (e) {}
+    }
+    video.dataset.autoplaying = 'true';
+    video.play()
+      .then(() => clip?.classList.remove('is-paused'))
+      .catch(() => {
+        video.muted = true;
+        video.setAttribute('muted', '');
+        video.play()
+          .then(() => clip?.classList.remove('is-paused'))
+          .catch(() => {
+            video.dataset.autoplaying = 'false';
+            clip?.classList.add('is-paused');
+          });
+      })
+      .finally(() => hardStopBackgroundVideos(clip));
+  }
+
+  function updateActiveVideoRatio(video) {
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      phone.style.setProperty('--active-video-ratio', '0.5625');
+      return;
+    }
+    const ratio = Math.max(0.35, Math.min(2.4, video.videoWidth / video.videoHeight));
+    phone.style.setProperty('--active-video-ratio', ratio.toFixed(5));
+  }
+
+  function pauseAllExcept(activeClip) {
+    feed.querySelectorAll('video').forEach(video => {
+      const clip = video.closest('.clip');
+      if (clip !== activeClip) {
+        try { video.pause(); } catch (e) {}
+        video.dataset.autoplaying = 'false';
+        clip?.classList.remove('is-paused');
+      }
+    });
+  }
+
+  function hardStopBackgroundVideos(activeClip = activeObservedClip) {
+    feed.querySelectorAll('video').forEach(video => {
+      const clip = video.closest('.clip');
+      if (clip !== activeClip) {
+        try { video.pause(); } catch (e) {}
+        video.dataset.autoplaying = 'false';
+      }
+    });
+  }
+
+  function nearestClipToViewport() {
+    const clips = [...feed.querySelectorAll('.clip')];
+    if (!clips.length) return null;
+    const feedBox = feed.getBoundingClientRect();
+    const center = feedBox.top + feedBox.height / 2;
+    let best = null;
+    let bestDistance = Infinity;
+    for (const clip of clips) {
+      const box = clip.getBoundingClientRect();
+      const visible = Math.min(box.bottom, feedBox.bottom) - Math.max(box.top, feedBox.top);
+      if (visible <= 0) continue;
+      const distance = Math.abs((box.top + box.height / 2) - center);
+      if (distance < bestDistance) {
+        best = clip;
+        bestDistance = distance;
+      }
+    }
+    return best || clips[0];
+  }
+
+  function activateClip(clip, forceRestart = false) {
+    if (!clip) return;
+    const changed = activeObservedClip !== clip;
+    activeObservedClip = clip;
+    currentIndex = Number(clip.dataset.clipIndex || 0);
+    pauseAllExcept(clip);
+    const video = clip.querySelector('video');
+    updateActiveVideoRatio(video);
+    if (video) restartAndPlay(video, changed || forceRestart);
+    fillEditorFromCurrent();
+  }
+
+  function scheduleActiveResolution(forceRestart = false) {
+    hardStopBackgroundVideos(activeObservedClip);
+    cancelAnimationFrame(activeResolveFrame);
+    activeResolveFrame = requestAnimationFrame(() => {
+      const clip = nearestClipToViewport();
+      hardStopBackgroundVideos(clip);
+      activateClip(clip, forceRestart);
+    });
+  }
+
+  function enableSoundForClip(clip, message = 'Sound enabled. New entries will auto-enter with sound after this.') {
+    wantsSound = true;
+    soundUnlocked = true;
+    soundEnabled = true;
+    syncSoundButtons();
+    const video = clip?.querySelector('video') || activeObservedClip?.querySelector('video');
+    if (video) {
+      applySoundState(video);
+      video.play()
+        .then(() => video.closest('.clip')?.classList.remove('is-paused'))
+        .catch(() => showToast('The browser still blocked playback. Click once more, because browser audio policy has entered paperwork mode.'));
+    }
+    showToast(message);
+  }
+
+  function syncSoundButtons() {
+    const audible = effectiveSoundOn();
+    if (globalSound) {
+      globalSound.textContent = audible ? 'Sound On' : 'Tap For Sound';
+      globalSound.classList.toggle('is-on', audible);
+      globalSound.title = audible ? 'Mute feed sound' : 'Enable feed sound';
+    }
+    feed.querySelectorAll('[data-sound-toggle]').forEach(btn => {
+      btn.textContent = audible ? 'Sound On' : 'Tap For Sound';
+      btn.classList.toggle('is-on', audible);
+    });
+    feed.querySelectorAll('video').forEach(applySoundState);
+  }
+
+  function observeClips() {
+    if (observer) observer.disconnect();
+
+    feed.querySelectorAll('video').forEach(prepareVideo);
+    syncSoundButtons();
+
+    observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const video = entry.target.querySelector('video');
+        if (!entry.isIntersecting && video) {
+          video.pause();
+          entry.target.classList.remove('is-paused');
+        }
+      });
+      scheduleActiveResolution();
+    }, { root: feed, threshold: [0, 0.3, 0.65, 0.95] });
+
+    feed.querySelectorAll('.clip').forEach(clip => observer.observe(clip));
+    scheduleActiveResolution();
+  }
+
+  function maybeExtendFeed() {
+    const remaining = feed.scrollHeight - feed.scrollTop - feed.clientHeight;
+    if (remaining < feed.clientHeight * 2.2) renderBatch(6);
+    if (feed.children.length > 36) {
+      for (let i = 0; i < 8; i++) feed.firstElementChild?.remove();
+      observeClips();
+    }
+    scheduleActiveResolution();
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+  }
+
+  function openPanel(id) {
+    document.getElementById(id)?.classList.add('show');
+    document.body.classList.add('locked');
+    if (id === 'commentsDrawer') {
+      phone.classList.add('mobile-comments-open');
+      stage?.classList.add('comments-open');
+      scheduleActiveResolution();
+    }
+    if (id === 'editorDrawer') fillEditorFromCurrent();
+  }
+
+  function closePanel(id) {
+    document.getElementById(id)?.classList.remove('show');
+    if (id === 'commentsDrawer') {
+      closeComments();
+      return;
+    }
+    if (!document.querySelector('.modal.show, .drawer.show')) document.body.classList.remove('locked');
+  }
+
+  function currentItem() {
+    return feedData[currentIndex] || feedData[0];
+  }
+
+  function fillEditorFromCurrent() {
+    const item = currentItem();
+    if (!item) return;
+    editFields.handle.value = item.handle || '';
+    editFields.caption.value = item.caption || '';
+    editFields.audio.value = item.audio || '';
+    editFields.likes.value = item.likes || '';
+    editFields.comments.value = item.comments || '';
+    editFields.shares.value = item.shares || 'Send';
+    editFields.badge.value = item.badge || '';
+    editFields.adTitle.value = item.adTitle || '';
+    editFields.adCopy.value = item.adCopy || '';
+    editFields.videoName.textContent = item.fileName || 'Demo plate, no video file';
+    editFields.videoPicker.value = '';
+  }
+
+  function applyEditorVideoToCurrent() {
+    const item = currentItem();
+    const file = editFields.videoPicker.files?.[0];
+    if (!item || !file) return false;
+
+    if (item.videoUrl && objectUrls.includes(item.videoUrl)) {
+      URL.revokeObjectURL(item.videoUrl);
+      objectUrls = objectUrls.filter(url => url !== item.videoUrl);
+    }
+
+    const url = URL.createObjectURL(file);
+    objectUrls.push(url);
+    item.videoUrl = url;
+    item.fileName = file.name;
+
+    if (!editFields.caption.value.trim() || item.caption === 'Untitled local clip') {
+      editFields.caption.value = prettyDefault(file, currentIndex);
+    }
+    if (!editFields.handle.value.trim() || item.handle === '@local.creator') {
+      editFields.handle.value = `@${baseName(file.name).replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '') || 'local.creator'}`;
+    }
+
+    editFields.videoName.textContent = file.name;
+    return true;
+  }
+
+  function saveEditorToCurrent() {
+    const item = currentItem();
+    if (!item) return;
+    const replacedVideo = applyEditorVideoToCurrent();
+    Object.assign(item, {
+      handle: editFields.handle.value.trim() || '@local.creator',
+      caption: editFields.caption.value.trim() || 'Untitled local clip',
+      audio: editFields.audio.value.trim() || 'original sound - local file',
+      likes: editFields.likes.value.trim() || '0',
+      comments: editFields.comments.value.trim() || '0',
+      shares: editFields.shares.value.trim() || 'Send',
+      badge: editFields.badge.value.trim(),
+      adTitle: editFields.adTitle.value.trim(),
+      adCopy: editFields.adCopy.value.trim(),
+      sponsored: Boolean(editFields.adTitle.value.trim() || editFields.adCopy.value.trim())
+    });
+    resetFeed();
+    showToast(replacedVideo ? 'Video replaced and current clip saved into the feed engine.' : 'Current clip info saved into the local feed engine.');
+  }
+
+  function exportCurrentInfo() {
+    const item = currentItem();
+    if (!item) return;
+    const payload = {
+      handle: item.handle,
+      caption: item.caption,
+      audio: item.audio,
+      likes: item.likes,
+      comments: item.comments,
+      shares: item.shares,
+      badge: item.badge,
+      sponsored: item.sponsored,
+      adTitle: item.adTitle,
+      adCopy: item.adCopy
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${baseName(item.fileName || 'toktik-info')}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 800);
+    showToast('Info JSON exported. Matching filename ritual completed.');
+  }
+
+
+
+  const commentUsers = [
+    '@xepy.archive', '@budget.verifier', '@official.toast', '@browser_knight', '@feed.gremlin',
+    '@xeptonite_com_visitor', '@local.file.enjoyer', '@algorithmic_bread', '@not_a_brand', '@comment_section_9000',
+    '@vertical_video_witness', '@synergy_speaker', '@localhost_person', '@ringlight_taxpayer', '@ui_overflow_survivor'
+  ];
+
+  const commentTemplates = [
+    'The title “{title}” sounds like the app was written by a committee trapped in an elevator.',
+    'I opened this and immediately felt xeptonite.com energy from the first frame.',
+    'This video has the exact feeling of a localhost preview at 23:26.',
+    '“{title}” is not a caption, it is a warning label.',
+    'The algorithm saw this and started filling out a PDF.',
+    'Why does this look sponsored by a microphone that hears ambition?',
+    'I watched this twice and now my browser wants a performance review.',
+    'This is what happens when the For You page discovers paperwork.',
+    'xeptonite.com should have a museum wing for whatever this is.',
+    'The sound better be on because the visual already filed a complaint.',
+    'This clip has 2016 app store clone energy but in high definition.',
+    'Someone really titled it “{title}” and expected society to continue normally.',
+    'The comment section has entered business mode.',
+    'I scrolled here by choice, which means the feed has evidence against me.',
+    'The video title is giving “downloaded from a folder called final_final_REAL”.',
+    'Not the ad card hovering like it owns the apartment.',
+    'This is peak fake platform behavior. respectfully cursed.',
+    'If this showed up on xeptonite.com I would not even question it.',
+    'The landscape fitting is clean now. no more accidental forehead cinema.',
+    'I can hear the moderation tunnel breathing.'
+  ];
+
+  function plainTitle(item = currentItem()) {
+    const source = item?.caption || item?.fileName || 'Untitled Clip';
+    return source.length > 54 ? `${source.slice(0, 51)}...` : source;
+  }
+
+  function randomFrom(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function makeComment(item = currentItem()) {
+    const title = plainTitle(item);
+    const user = randomFrom(commentUsers);
+    const text = randomFrom(commentTemplates).replaceAll('{title}', title);
+    const nowLabels = ['now', 'just now', '1m', 'live', '0s'];
+    return {
+      user,
+      text,
+      likes: `${Math.floor(Math.random() * 8900) + 40}`,
+      age: randomFrom(nowLabels),
+      live: true
+    };
+  }
+
+  function makeComments(item = currentItem()) {
+    const title = plainTitle(item);
+    const used = new Set();
+    const amount = 9 + Math.floor(Math.random() * 7);
+    const rows = [];
+    for (let i = 0; i < amount; i++) {
+      let user = randomFrom(commentUsers);
+      let guard = 0;
+      while (used.has(user) && guard < 20) { user = randomFrom(commentUsers); guard++; }
+      used.add(user);
+      const text = randomFrom(commentTemplates).replaceAll('{title}', title);
+      rows.push({ user, text, likes: `${Math.floor(Math.random() * 8900) + 40}`, age: `${Math.floor(Math.random() * 23) + 1}h`, live: false });
+    }
+    return rows;
+  }
+
+  function commentHtml(comment) {
+    const initial = (comment.user.replace('@', '').trim()[0] || 'T').toUpperCase();
+    return `<article class="comment ${comment.live ? 'live-new' : ''}"><div class="comment-avatar">${formatSafe(initial)}</div><div><b>${formatSafe(comment.user)}</b><p>${formatSafe(comment.text)}</p><small><span>${formatSafe(comment.age)}</span><span>${formatSafe(comment.likes)} likes</span><span>Reply</span></small></div></article>`;
+  }
+
+  function renderComments() {
+    const item = currentItem();
+    const title = plainTitle(item);
+    const html = currentComments.map(commentHtml).join('');
+    commentsTitle.textContent = title;
+    commentsCount.textContent = `${currentComments.length} comments`;
+    commentList.innerHTML = html;
+    desktopCommentsTitle.textContent = title;
+    desktopCommentsCount.textContent = `${currentComments.length} comments`;
+    desktopCommentList.innerHTML = html;
+  }
+
+  function resetLiveComments() {
+    clearInterval(liveCommentTimer);
+    liveCommentTimer = 0;
+  }
+
+  function startLiveComments() {
+    resetLiveComments();
+    liveCommentTimer = setInterval(() => {
+      const panelOpen = stage?.classList.contains('comments-open') || commentsDrawer?.classList.contains('show');
+      if (!panelOpen) return;
+      const now = Date.now();
+      if (now - lastLiveCommentAt < 1400) return;
+      lastLiveCommentAt = now;
+      const next = makeComment(currentItem());
+      currentComments.unshift(next);
+      currentComments = currentComments.slice(0, 42);
+      renderComments();
+    }, 2400 + Math.floor(Math.random() * 1600));
+  }
+
+  function shuffleComments() {
+    currentComments = makeComments(currentItem());
+    renderComments();
+    startLiveComments();
+  }
+
+  function isDesktopMode() {
+    return stage?.classList.contains('desktop-ux');
+  }
+
+  function openComments() {
+    currentComments = makeComments(currentItem());
+    renderComments();
+    if (isDesktopMode()) {
+      commentsDrawer?.classList.remove('show');
+      phone.classList.remove('mobile-comments-open');
+      stage?.classList.add('comments-open');
+      document.body.classList.remove('locked');
+      scheduleActiveResolution();
+    } else {
+      openPanel('commentsDrawer');
+    }
+    startLiveComments();
+  }
+
+  function closeComments() {
+    commentsDrawer?.classList.remove('show');
+    phone.classList.remove('mobile-comments-open');
+    stage?.classList.remove('comments-open');
+    resetLiveComments();
+    if (!document.querySelector('.modal.show, .drawer.show')) document.body.classList.remove('locked');
+    setTimeout(() => scheduleActiveResolution(), 80);
+  }
+
+  function setUxMode(mode) {
+    const desktop = mode === 'desktop';
+    stage?.classList.toggle('desktop-ux', desktop);
+    if (stage?.classList.contains('comments-open')) {
+      if (desktop) { commentsDrawer?.classList.remove('show'); phone.classList.remove('mobile-comments-open'); document.body.classList.remove('locked'); }
+      else { commentsDrawer?.classList.add('show'); phone.classList.add('mobile-comments-open'); document.body.classList.add('locked'); }
+    }
+    document.querySelectorAll('[data-ux]').forEach(btn => btn.classList.toggle('active', btn.dataset.ux === mode));
+    setTimeout(() => {
+      observeClips();
+      updateActiveVideoRatio(activeObservedClip?.querySelector('video'));
+      const target = feed.querySelector(`.clip[data-clip-index="${currentIndex}"]`);
+      target?.scrollIntoView({ block: 'start' });
+      scheduleActiveResolution();
+    }, 80);
+    showToast(desktop ? 'Desktop UX enabled. Same clone, wider shell.' : 'Mobile UX enabled. Phone shell restored.');
+  }
+
+  function setDarkMode(mode) {
+    const ultra = mode === 'ultra';
+    phone.classList.toggle('ultra-dark', ultra);
+    stage?.classList.toggle('ultra-dark', ultra);
+    document.documentElement.classList.toggle('ultra-dark-root', ultra);
+    document.body.classList.toggle('ultra-dark-root', ultra);
+    document.querySelectorAll('[data-dark]').forEach(btn => btn.classList.toggle('active', btn.dataset.dark === mode));
+    showToast(ultra ? 'Darker mode enabled. Full shell blackout, not just panel cosplay.' : 'Normal dark mode restored.');
+  }
+
+
+  function setAnimationsMode(mode) {
+    animationsEnabled = mode === 'on';
+    stage?.classList.toggle('animations-on', animationsEnabled);
+    document.querySelectorAll('[data-animations]').forEach(btn => btn.classList.toggle('active', btn.dataset.animations === mode));
+    showToast(animationsEnabled ? 'Animations enabled. The interface is allowed to move now.' : 'Animations disabled. The UI is back to no-nonsense mode.');
+  }
+
+  function setDesktopFitMode(mode) {
+    desktopFitMode = mode === 'native' ? 'native' : 'portrait';
+    stage?.classList.toggle('match-video', desktopFitMode === 'native');
+    document.querySelectorAll('[data-fit]').forEach(btn => btn.classList.toggle('active', btn.dataset.fit === desktopFitMode));
+    updateActiveVideoRatio(activeObservedClip?.querySelector('video'));
+    scheduleActiveResolution();
+    showToast(desktopFitMode === 'native' ? 'Desktop native video shape enabled. Landscape clips can stretch the preview shell.' : 'Desktop portrait preview restored.');
+  }
+
+  function stopMedia(message) {
+    feed.querySelectorAll('.clip').forEach(clip => clip.classList.add('stopped'));
+    feed.querySelectorAll('video').forEach(video => video.pause());
+    policyTitle.textContent = message;
+    policyBody.textContent = 'Media playback has been paused for a completely unnecessary platform trust ritual.';
+    openPanel('policyModal');
+  }
+
+  function toggleGlobalSound() {
+    const clip = activeObservedClip || feed.querySelector('.clip');
+    if (!effectiveSoundOn()) {
+      enableSoundForClip(clip);
+      return;
+    }
+
+    wantsSound = false;
+    soundEnabled = false;
+    syncSoundButtons();
+    showToast('Feed muted. Silent doom restored.');
+  }
+
+  globalSound?.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleGlobalSound();
+  });
+
+  feed.addEventListener('click', event => {
+    const soundButton = event.target.closest('[data-sound-toggle]');
+    if (!soundButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    toggleGlobalSound();
+  });
+
+  phone.addEventListener('pointerdown', event => {
+    if (soundUnlocked || event.target.closest('button, input, textarea, select, label')) return;
+    soundUnlocked = true;
+    soundEnabled = wantsSound;
+    syncSoundButtons();
+    const video = activeObservedClip?.querySelector('video');
+    if (video) {
+      applySoundState(video);
+      video.play().catch(() => {});
+    }
+  }, { once: true });
+
+  videoPicker.addEventListener('change', buildCustomFeed);
+  infoPicker.addEventListener('change', buildCustomFeed);
+  feed.addEventListener('scroll', () => {
+    hardStopBackgroundVideos(nearestClipToViewport());
+    maybeExtendFeed();
+    scheduleActiveResolution();
+  }, { passive: true });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) hardStopBackgroundVideos(null);
+    else scheduleActiveResolution();
+  });
+
+  document.getElementById('loadDemo').addEventListener('click', () => {
+    setDemoFeed();
+  setAnimationsMode('off');
+    showToast('Demo feed reloaded. Fake algorithm pretending to work.');
+  });
+
+  document.getElementById('clearFeed').addEventListener('click', () => {
+    videoPicker.value = '';
+    infoPicker.value = '';
+    setDemoFeed();
+  setAnimationsMode('off');
+    showToast('Custom files cleared. Demo feed took the wheel again.');
+  });
+
+  editFields.videoPicker.addEventListener('change', () => {
+    const file = editFields.videoPicker.files?.[0];
+    editFields.videoName.textContent = file ? file.name : (currentItem()?.fileName || 'No video selected');
+    if (file) showToast('Video staged in editor. Save Current Clip to apply it.');
+  });
+
+  document.getElementById('saveEdit').addEventListener('click', saveEditorToCurrent);
+  document.getElementById('exportInfo').addEventListener('click', exportCurrentInfo);
+  document.getElementById('mobileCommentShuffle')?.addEventListener('click', shuffleComments);
+  document.getElementById('desktopCommentShuffle')?.addEventListener('click', shuffleComments);
+  document.querySelectorAll('[data-close-comments]').forEach(btn => btn.addEventListener('click', closeComments));
+
+  function installCommentSwipeClose(target) {
+    if (!target) return;
+    let startX = 0;
+    let startY = 0;
+    let dragging = false;
+    target.addEventListener('pointerdown', event => {
+      dragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+    });
+    target.addEventListener('pointerup', event => {
+      if (!dragging) return;
+      dragging = false;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (isDesktopMode() && dx > 90) closeComments();
+      if (!isDesktopMode() && dy > 80) closeComments();
+    });
+  }
+
+  installCommentSwipeClose(document.getElementById('mobileCommentsCard'));
+  installCommentSwipeClose(document.getElementById('desktopCommentsPanel'));
+
+  document.querySelectorAll('[data-ux]').forEach(btn => {
+    btn.addEventListener('click', () => setUxMode(btn.dataset.ux));
+  });
+
+  document.querySelectorAll('[data-dark]').forEach(btn => {
+    btn.addEventListener('click', () => setDarkMode(btn.dataset.dark));
+  });
+
+  document.querySelectorAll('[data-animations]').forEach(btn => {
+    btn.addEventListener('click', () => setAnimationsMode(btn.dataset.animations));
+  });
+
+  document.querySelectorAll('[data-fit]').forEach(btn => {
+    btn.addEventListener('click', () => setDesktopFitMode(btn.dataset.fit));
+  });
+
+
+
+  entryList?.addEventListener('click', event => {
+    const row = event.target.closest('[data-select-entry]');
+    if (!row) return;
+    selectEntry(Number(row.dataset.selectEntry || 0));
+  });
+
+  document.getElementById('refreshEntries')?.addEventListener('click', refreshEntryList);
+  document.getElementById('addEntry')?.addEventListener('click', () => addFeedEntry(true));
+  document.getElementById('duplicateEntry')?.addEventListener('click', () => duplicateCurrentEntry(true));
+  document.getElementById('deleteEntry')?.addEventListener('click', deleteCurrentEntry);
+  document.getElementById('moveEntryUp')?.addEventListener('click', () => moveCurrentEntry(-1));
+  document.getElementById('moveEntryDown')?.addEventListener('click', () => moveCurrentEntry(1));
+  document.getElementById('editorAddEntry')?.addEventListener('click', () => addFeedEntry(true));
+  document.getElementById('editorDuplicateEntry')?.addEventListener('click', () => duplicateCurrentEntry(true));
+
+  document.addEventListener('click', event => {
+    const opener = event.target.closest('[data-open]');
+    if (opener) {
+      openPanel(opener.dataset.open);
+      return;
+    }
+
+    const closer = event.target.closest('[data-close]');
+    if (closer) {
+      closePanel(closer.dataset.close);
+      feed.querySelectorAll('.clip').forEach(clip => clip.classList.remove('stopped'));
+      showToast('Feed restored. Corporate punishment cancelled for now.');
+      return;
+    }
+
+    const actionTarget = event.target.closest('[data-action]');
+    if (!actionTarget) return;
+
+    const action = actionTarget.dataset.action;
+    if (action === 'like') showToast('Like recorded. Dopamine paperwork has been filed.');
+    if (action === 'comment') openComments();
+    if (action === 'share') showToast('Share packet launched into the algorithm fog.');
+    if (action === 'save') showToast('Saved to collection: things you will never reopen.');
+    if (action === 'live') showToast('LIVE is preparing a room full of yelling and ring lights.');
+    if (action === 'nav') showToast('Navigation accepted, but Home remains emotionally dominant.');
+    if (action === 'read-again') showToast('Corporate message has been re-issued with extra seriousness.');
+  });
+
+  function detectAdblockMaybe() {
+    const bait = document.createElement('div');
+    bait.className = 'ads ad adsbox banner-ad sponsored pub_300x250';
+    bait.style.position = 'absolute';
+    bait.style.left = '-9999px';
+    bait.style.width = '1px';
+    bait.style.height = '1px';
+    phone.appendChild(bait);
+
+    setTimeout(() => {
+      const hidden = getComputedStyle(bait).display === 'none' || bait.offsetHeight === 0 || bait.offsetParent === null;
+      bait.remove();
+      if (hidden) stopMedia('Adblock may have hurt the feed economy.');
+    }, 180);
+  }
+
+  setDemoFeed();
+  setAnimationsMode('off');
+  detectAdblockMaybe();
+</script>
+</body>
+</html>
